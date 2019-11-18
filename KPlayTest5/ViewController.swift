@@ -24,7 +24,7 @@ class ViewController: UIViewController, KPlayerEvents {
     }
     
     func onError(_ error: Error) {
-        print("onError")
+        print("onError \(error)")
     }
     
     func onStateChanged(_ state: KGraphState) {
