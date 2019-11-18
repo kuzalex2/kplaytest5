@@ -288,7 +288,6 @@
     }
     
     if (_outSample == nil) {
-        ///FIXME: where to process errors?
         *error = _error;
         return KResult_ERROR;
     }

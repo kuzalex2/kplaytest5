@@ -106,7 +106,7 @@
    }
 
    - (void)testSimpleGraphUrlStartPauseStop {
-       KMediaSample *sample;//FIXME: autorelease?
+       KMediaSample *sample;
        NSError *error;
        KResult res;
        
