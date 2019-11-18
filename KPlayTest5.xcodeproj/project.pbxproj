@@ -21,7 +21,26 @@
 		91C197A62383022E002B2463 /* KFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 91C1979E2383022D002B2463 /* KFilter.m */; };
 		91C197A72383022E002B2463 /* KClock.m in Sources */ = {isa = PBXBuildFile; fileRef = 91C1979F2383022D002B2463 /* KClock.m */; };
 		91C197A82383022E002B2463 /* KPin.m in Sources */ = {isa = PBXBuildFile; fileRef = 91C197A02383022D002B2463 /* KPin.m */; };
+		91C197B1238328BB002B2463 /* KPlayTest5Test1.m in Sources */ = {isa = PBXBuildFile; fileRef = 91C197B0238328BB002B2463 /* KPlayTest5Test1.m */; };
+		91C197BF23832931002B2463 /* KPlayTest5Test2.m in Sources */ = {isa = PBXBuildFile; fileRef = 91C197BE23832931002B2463 /* KPlayTest5Test2.m */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		91C197B3238328BB002B2463 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 91C1976D2382FD86002B2463 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 91C197742382FD86002B2463;
+			remoteInfo = KPlayTest5;
+		};
+		91C197C123832931002B2463 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 91C1976D2382FD86002B2463 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 91C197742382FD86002B2463;
+			remoteInfo = KPlayTest5;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		91C197752382FD86002B2463 /* KPlayTest5.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KPlayTest5.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -51,10 +70,30 @@
 		91C197A02383022D002B2463 /* KPin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KPin.m; sourceTree = "<group>"; };
 		91C197A12383022D002B2463 /* KPlayGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KPlayGraph.h; sourceTree = "<group>"; };
 		91C197A923831D18002B2463 /* todo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = todo.h; sourceTree = "<group>"; };
+		91C197AE238328BB002B2463 /* KPlayTest5Test1.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KPlayTest5Test1.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		91C197B0238328BB002B2463 /* KPlayTest5Test1.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KPlayTest5Test1.m; sourceTree = "<group>"; };
+		91C197B2238328BB002B2463 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		91C197BC23832931002B2463 /* KPlayTest5Test2.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KPlayTest5Test2.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		91C197BE23832931002B2463 /* KPlayTest5Test2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KPlayTest5Test2.m; sourceTree = "<group>"; };
+		91C197C023832931002B2463 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		91C197722382FD86002B2463 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		91C197AB238328BB002B2463 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		91C197B923832931002B2463 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -69,6 +108,8 @@
 			children = (
 				91C197A923831D18002B2463 /* todo.h */,
 				91C197772382FD86002B2463 /* KPlayTest5 */,
+				91C197AF238328BB002B2463 /* KPlayTest5Test1 */,
+				91C197BD23832931002B2463 /* KPlayTest5Test2 */,
 				91C197762382FD86002B2463 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -77,6 +118,8 @@
 			isa = PBXGroup;
 			children = (
 				91C197752382FD86002B2463 /* KPlayTest5.app */,
+				91C197AE238328BB002B2463 /* KPlayTest5Test1.xctest */,
+				91C197BC23832931002B2463 /* KPlayTest5Test2.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -129,6 +172,24 @@
 			path = Test;
 			sourceTree = "<group>";
 		};
+		91C197AF238328BB002B2463 /* KPlayTest5Test1 */ = {
+			isa = PBXGroup;
+			children = (
+				91C197B0238328BB002B2463 /* KPlayTest5Test1.m */,
+				91C197B2238328BB002B2463 /* Info.plist */,
+			);
+			path = KPlayTest5Test1;
+			sourceTree = "<group>";
+		};
+		91C197BD23832931002B2463 /* KPlayTest5Test2 */ = {
+			isa = PBXGroup;
+			children = (
+				91C197BE23832931002B2463 /* KPlayTest5Test2.m */,
+				91C197C023832931002B2463 /* Info.plist */,
+			);
+			path = KPlayTest5Test2;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -149,6 +210,42 @@
 			productReference = 91C197752382FD86002B2463 /* KPlayTest5.app */;
 			productType = "com.apple.product-type.application";
 		};
+		91C197AD238328BB002B2463 /* KPlayTest5Test1 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 91C197B5238328BB002B2463 /* Build configuration list for PBXNativeTarget "KPlayTest5Test1" */;
+			buildPhases = (
+				91C197AA238328BB002B2463 /* Sources */,
+				91C197AB238328BB002B2463 /* Frameworks */,
+				91C197AC238328BB002B2463 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				91C197B4238328BB002B2463 /* PBXTargetDependency */,
+			);
+			name = KPlayTest5Test1;
+			productName = KPlayTest5Test1;
+			productReference = 91C197AE238328BB002B2463 /* KPlayTest5Test1.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		91C197BB23832931002B2463 /* KPlayTest5Test2 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 91C197C323832931002B2463 /* Build configuration list for PBXNativeTarget "KPlayTest5Test2" */;
+			buildPhases = (
+				91C197B823832931002B2463 /* Sources */,
+				91C197B923832931002B2463 /* Frameworks */,
+				91C197BA23832931002B2463 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				91C197C223832931002B2463 /* PBXTargetDependency */,
+			);
+			name = KPlayTest5Test2;
+			productName = KPlayTest5Test2;
+			productReference = 91C197BC23832931002B2463 /* KPlayTest5Test2.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -162,6 +259,14 @@
 					91C197742382FD86002B2463 = {
 						CreatedOnToolsVersion = 11.2.1;
 						LastSwiftMigration = 1120;
+					};
+					91C197AD238328BB002B2463 = {
+						CreatedOnToolsVersion = 11.2.1;
+						TestTargetID = 91C197742382FD86002B2463;
+					};
+					91C197BB23832931002B2463 = {
+						CreatedOnToolsVersion = 11.2.1;
+						TestTargetID = 91C197742382FD86002B2463;
 					};
 				};
 			};
@@ -179,6 +284,8 @@
 			projectRoot = "";
 			targets = (
 				91C197742382FD86002B2463 /* KPlayTest5 */,
+				91C197AD238328BB002B2463 /* KPlayTest5Test1 */,
+				91C197BB23832931002B2463 /* KPlayTest5Test2 */,
 			);
 		};
 /* End PBXProject section */
@@ -191,6 +298,20 @@
 				91C197882382FD87002B2463 /* LaunchScreen.storyboard in Resources */,
 				91C197852382FD87002B2463 /* Assets.xcassets in Resources */,
 				91C197802382FD86002B2463 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		91C197AC238328BB002B2463 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		91C197BA23832931002B2463 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -215,7 +336,36 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		91C197AA238328BB002B2463 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				91C197B1238328BB002B2463 /* KPlayTest5Test1.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		91C197B823832931002B2463 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				91C197BF23832931002B2463 /* KPlayTest5Test2.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		91C197B4238328BB002B2463 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 91C197742382FD86002B2463 /* KPlayTest5 */;
+			targetProxy = 91C197B3238328BB002B2463 /* PBXContainerItemProxy */;
+		};
+		91C197C223832931002B2463 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 91C197742382FD86002B2463 /* KPlayTest5 */;
+			targetProxy = 91C197C123832931002B2463 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		91C1977E2382FD86002B2463 /* Main.storyboard */ = {
@@ -392,6 +542,86 @@
 			};
 			name = Release;
 		};
+		91C197B6238328BB002B2463 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HBDW93993P;
+				INFOPLIST_FILE = KPlayTest5Test1/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = test.KPlayTest5Test1;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KPlayTest5.app/KPlayTest5";
+			};
+			name = Debug;
+		};
+		91C197B7238328BB002B2463 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HBDW93993P;
+				INFOPLIST_FILE = KPlayTest5Test1/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = test.KPlayTest5Test1;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KPlayTest5.app/KPlayTest5";
+			};
+			name = Release;
+		};
+		91C197C423832931002B2463 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HBDW93993P;
+				INFOPLIST_FILE = KPlayTest5Test2/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = test.KPlayTest5Test2;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KPlayTest5.app/KPlayTest5";
+			};
+			name = Debug;
+		};
+		91C197C523832931002B2463 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HBDW93993P;
+				INFOPLIST_FILE = KPlayTest5Test2/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = test.KPlayTest5Test2;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KPlayTest5.app/KPlayTest5";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -409,6 +639,24 @@
 			buildConfigurations = (
 				91C1978D2382FD87002B2463 /* Debug */,
 				91C1978E2382FD87002B2463 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		91C197B5238328BB002B2463 /* Build configuration list for PBXNativeTarget "KPlayTest5Test1" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				91C197B6238328BB002B2463 /* Debug */,
+				91C197B7238328BB002B2463 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		91C197C323832931002B2463 /* Build configuration list for PBXNativeTarget "KPlayTest5Test2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				91C197C423832931002B2463 /* Debug */,
+				91C197C523832931002B2463 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
