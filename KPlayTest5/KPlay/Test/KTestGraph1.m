@@ -23,6 +23,7 @@
     
     KGraphState _state;
     NSObject *_state_mutex;
+    bool _suppress_error = false;
 
     
     
@@ -56,6 +57,8 @@
     
     -(void)notifyError:(NSError *)error
     {
+        if (_suppress_error)
+            return;
         if ([self.events respondsToSelector:@selector(onError:)]) {
             [self.events onError:error];
         }
@@ -132,8 +135,11 @@
 
     - (KResult)stopBuilding
     {
-        //??????
-        //FIXME: ??????
+        [_src stop:true];
+        [_dec stop:true];
+        [_sink stop:true];
+
+        [self setStateAndNotify:KGraphState_NONE];
         return KResult_OK;
     }
 
@@ -181,6 +187,7 @@
 
     - (KResult)play:(NSString * _Nonnull)url autoStart:(BOOL)autoStart;
     {
+        _suppress_error = false;
         @synchronized (_state_mutex) {
             switch (_state) {
                 case KGraphState_PAUSED:
@@ -203,6 +210,7 @@
     }
     - (KResult)pause
     {
+        _suppress_error = false;
         @synchronized (_state_mutex) {
             switch (_state) {
                 case KGraphState_NONE:
@@ -233,6 +241,7 @@
 
     - (KResult)stop
     {
+        _suppress_error = true;
         @synchronized (_state_mutex) {
             switch (_state) {
                 case KGraphState_NONE:
