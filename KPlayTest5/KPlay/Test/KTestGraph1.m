@@ -125,19 +125,8 @@
         [self setStateAndNotify:KGraphState_PAUSED];
         
         if (autoStart) {
-            if ((res = [_src start]) != KResult_OK){
-                [self notifyError: KResult2Error(res)];
-                return;
-            }
-            if ((res = [_dec start]) != KResult_OK){
-                [self notifyError: KResult2Error(res)];
-                return;
-            }
-            if ((res = [_sink start]) != KResult_OK){
-                [self notifyError: KResult2Error(res)];
-                return;
-            }
-            [self setStateAndNotify:KGraphState_STARTED];
+            [self startPlaying];
+           
         }
     }
 
@@ -145,6 +134,27 @@
     {
         //??????
         //FIXME: ??????
+        return KResult_OK;
+    }
+
+    - (KResult)startPlaying
+    {
+        KResult res;
+
+        if ((res = [_src start]) != KResult_OK){
+            [self notifyError: KResult2Error(res)];
+            return res;
+        }
+        if ((res = [_dec start]) != KResult_OK){
+            [self notifyError: KResult2Error(res)];
+            return res;
+        }
+        if ((res = [_sink start]) != KResult_OK){
+            [self notifyError: KResult2Error(res)];
+            return res;
+        }
+        [self setStateAndNotify:KGraphState_STARTED];
+        
         return KResult_OK;
     }
 
@@ -172,8 +182,16 @@
     - (KResult)play:(NSString * _Nonnull)url autoStart:(BOOL)autoStart;
     {
         @synchronized (_state_mutex) {
-            if (_state!=KGraphState_NONE){
-                return KResult_InvalidState;
+            switch (_state) {
+                case KGraphState_PAUSED:
+                    return [self startPlaying];
+                    
+                case KGraphState_NONE:
+                case KGraphState_STOPPED:
+                    break;
+                    
+                default:
+                    return KResult_InvalidState;
             }
         }
         
