@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		912CEF362385E0C100EA9213 /* KQueueFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 912CEF342385E0C100EA9213 /* KQueueFilter.m */; };
 		91C197792382FD86002B2463 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C197782382FD86002B2463 /* AppDelegate.swift */; };
 		91C1977B2382FD86002B2463 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C1977A2382FD86002B2463 /* SceneDelegate.swift */; };
 		91C1977D2382FD86002B2463 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C1977C2382FD86002B2463 /* ViewController.swift */; };
@@ -43,6 +44,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		912CEF342385E0C100EA9213 /* KQueueFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KQueueFilter.m; sourceTree = "<group>"; };
+		912CEF352385E0C100EA9213 /* KQueueFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KQueueFilter.h; sourceTree = "<group>"; };
 		91C197752382FD86002B2463 /* KPlayTest5.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KPlayTest5.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		91C197782382FD86002B2463 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		91C1977A2382FD86002B2463 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -103,6 +106,33 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		912CEF322385E01600EA9213 /* Base */ = {
+			isa = PBXGroup;
+			children = (
+				91C197A12383022D002B2463 /* KPlayGraph.h */,
+				91C197992383022D002B2463 /* KPlayGraph.m */,
+				91C197922383022D002B2463 /* KMediaSample.h */,
+				91C1979C2383022D002B2463 /* KMediaSample.m */,
+				91C197982383022D002B2463 /* KFilter.h */,
+				91C1979E2383022D002B2463 /* KFilter.m */,
+				91C1979A2383022D002B2463 /* KPin.h */,
+				91C197A02383022D002B2463 /* KPin.m */,
+				91C1979B2383022D002B2463 /* KClock.h */,
+				91C1979F2383022D002B2463 /* KClock.m */,
+				91C1979D2383022D002B2463 /* myDebug.h */,
+			);
+			path = Base;
+			sourceTree = "<group>";
+		};
+		912CEF332385E0C100EA9213 /* KQueue */ = {
+			isa = PBXGroup;
+			children = (
+				912CEF342385E0C100EA9213 /* KQueueFilter.m */,
+				912CEF352385E0C100EA9213 /* KQueueFilter.h */,
+			);
+			path = KQueue;
+			sourceTree = "<group>";
+		};
 		91C1976C2382FD86002B2463 = {
 			isa = PBXGroup;
 			children = (
@@ -145,18 +175,9 @@
 		91C197912383022D002B2463 /* KPlay */ = {
 			isa = PBXGroup;
 			children = (
+				912CEF332385E0C100EA9213 /* KQueue */,
+				912CEF322385E01600EA9213 /* Base */,
 				91C197932383022D002B2463 /* Test */,
-				91C197A12383022D002B2463 /* KPlayGraph.h */,
-				91C197992383022D002B2463 /* KPlayGraph.m */,
-				91C197922383022D002B2463 /* KMediaSample.h */,
-				91C1979C2383022D002B2463 /* KMediaSample.m */,
-				91C197982383022D002B2463 /* KFilter.h */,
-				91C1979E2383022D002B2463 /* KFilter.m */,
-				91C1979A2383022D002B2463 /* KPin.h */,
-				91C197A02383022D002B2463 /* KPin.m */,
-				91C1979B2383022D002B2463 /* KClock.h */,
-				91C1979F2383022D002B2463 /* KClock.m */,
-				91C1979D2383022D002B2463 /* myDebug.h */,
 			);
 			path = KPlay;
 			sourceTree = "<group>";
@@ -325,6 +346,7 @@
 				91C197A62383022E002B2463 /* KFilter.m in Sources */,
 				91C197A32383022E002B2463 /* KTestGraph1.m in Sources */,
 				91C1977D2382FD86002B2463 /* ViewController.swift in Sources */,
+				912CEF362385E0C100EA9213 /* KQueueFilter.m in Sources */,
 				91C197A42383022E002B2463 /* KPlayGraph.m in Sources */,
 				91C197832382FD86002B2463 /* KPlayTest5.xcdatamodeld in Sources */,
 				91C197A22383022E002B2463 /* KTestFilters.m in Sources */,

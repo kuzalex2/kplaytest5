@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "KTestGraph1.h"
 #import "KTestFilters.h"
+#import "KQueueFilter.h"
 
 #define MYDEBUG
 #include "myDebug.h"
@@ -19,13 +20,20 @@
 
     KFilter *_src;
     KFilter *_dec;
+    KQueueFilter *_queue;
     KTestSinkFilter *_sink;
     
     KGraphState _state;
     NSObject *_state_mutex;
     bool _suppress_error = false;
 
-    
+    -(void) setEvents: (id<KPlayerEvents>)e
+    {
+        _events = e;
+        if ([self.events respondsToSelector:@selector(onStateChanged:)]) {
+            [self.events onStateChanged:_state];
+        }
+    }
     
 
     - (void)onError:(KFilter *)filter result:(KResult)result error:( NSError * _Nullable )error
@@ -84,6 +92,8 @@
         
         _src = [[KTestUrlSourceFilter alloc] initWithUrl:url];
         _dec = [[KTestTransformFilter alloc] init];
+        _queue = [[KQueueFilter alloc] init];
+        _queue.min_samples_queue=15;
         _sink = [[KTestSinkFilter alloc] init];
         
         
@@ -111,7 +121,21 @@
             return;
         }
         
-        if (![KTestGraph1 connectFilters:_dec :0 :_sink :0] ) {
+        if (![KTestGraph1 connectFilters:_dec :0 :_queue :0] ) {
+            DLog(@"Connec failed");
+            [self notifyError: KResult2Error(res)];
+            [self setStateAndNotify:KGraphState_NONE];
+            return;
+        }
+        
+        if ((res=[self prepareFilter:_queue]) != KResult_OK) {
+            DLog(@"<%@> Prepare failed", [_queue name]);
+            [self notifyError: KResult2Error(res)];
+            [self setStateAndNotify:KGraphState_NONE];
+            return;
+        }
+        
+        if (![KTestGraph1 connectFilters:_queue :0 :_sink :0] ) {
             DLog(@"Connec failed");
             [self notifyError: KResult2Error(res)];
             [self setStateAndNotify:KGraphState_NONE];
@@ -137,6 +161,7 @@
     {
         [_src stop:true];
         [_dec stop:true];
+        [_queue stop:true];
         [_sink stop:true];
 
         [self setStateAndNotify:KGraphState_NONE];
@@ -152,6 +177,10 @@
             return res;
         }
         if ((res = [_dec start]) != KResult_OK){
+            [self notifyError: KResult2Error(res)];
+            return res;
+        }
+        if ((res = [_queue start]) != KResult_OK){
             [self notifyError: KResult2Error(res)];
             return res;
         }
@@ -172,6 +201,10 @@
             return res;
         }
         if ((res = [_dec stop:true]) != KResult_OK){
+            [self notifyError: KResult2Error(res)];
+            return res;
+        }
+        if ((res = [_queue stop:true]) != KResult_OK){
             [self notifyError: KResult2Error(res)];
             return res;
         }
@@ -227,6 +260,10 @@
             return res;
         }
         if ((res = [_dec pause:true]) != KResult_OK){
+            [self notifyError: KResult2Error(res)];
+            return res;
+        }
+        if ((res = [_queue pause:true]) != KResult_OK){
             [self notifyError: KResult2Error(res)];
             return res;
         }

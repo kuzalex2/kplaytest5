@@ -250,7 +250,7 @@ NSString *KFilterState2String(KFilterState state)
     while (1)
     {
         @synchronized(_state_mutex) {
-            NSLog(@"State is %@", KFilterState2String(_state));
+            NSLog(@"<%@>State is %@", [self name], KFilterState2String(_state));
             switch (_state) {
                 case KFilterState_PAUSED:
                     return KResult_OK;

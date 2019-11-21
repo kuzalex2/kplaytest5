@@ -21,6 +21,7 @@ class ViewController: UIViewController, KPlayerEvents {
         super.viewDidLoad()
         textLabel.text = ""
         player.events = self
+       // self.onStateChanged(KGraphState_NONE)
     }
     
     func onError(_ error: Error) {
@@ -32,42 +33,26 @@ class ViewController: UIViewController, KPlayerEvents {
         DispatchQueue.main.async {
             
             var stateString: String = ""
+            
+            self.playBtn.isEnabled = (state == KGraphState_NONE || state == KGraphState_STOPPED || state == KGraphState_PAUSED);
+            self.pauseBtn.isEnabled = (state == KGraphState_STARTED);
+            self.stopBtn.isEnabled = (state == KGraphState_STARTED || state == KGraphState_PAUSED || state == KGraphState_BUILDING);
+            
         
             switch state {
             case KGraphState_NONE:
-                self.playBtn.isEnabled = true
-                self.pauseBtn.isEnabled = false
-                self.stopBtn.isEnabled = false
                 stateString = "none";
             case KGraphState_STOPPED:
-                self.playBtn.isEnabled = true
-                self.pauseBtn.isEnabled = false
-                self.stopBtn.isEnabled = false
                 stateString = "stopped";
             case KGraphState_BUILDING:
-                self.playBtn.isEnabled = false
-                self.pauseBtn.isEnabled = false
-                self.stopBtn.isEnabled = true
                 stateString = "building...";
             case KGraphState_STOPPING:
-                self.playBtn.isEnabled = false
-                self.pauseBtn.isEnabled = false
-                self.stopBtn.isEnabled = false
                 stateString = "stopping...";
             case KGraphState_PAUSING:
-                self.playBtn.isEnabled = false
-                self.pauseBtn.isEnabled = false
-                self.stopBtn.isEnabled = false
                 stateString = "pausing...";
             case KGraphState_PAUSED:
-                self.playBtn.isEnabled = true
-                self.pauseBtn.isEnabled = false
-                self.stopBtn.isEnabled = true
                 stateString = "paused";
             case KGraphState_STARTED:
-                self.playBtn.isEnabled = false
-                self.pauseBtn.isEnabled = true
-                self.stopBtn.isEnabled = true
                 stateString = "started";
             default:
                 break

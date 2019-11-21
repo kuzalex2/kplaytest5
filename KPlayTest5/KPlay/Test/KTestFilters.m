@@ -224,9 +224,12 @@
         
         KOutputPin *output = [[KOutputPin alloc] initWithFilter:self ];
         [self.outputPins addObject:output];
+        [self onStateChanged:_state];
     }
     return self;
 }
+
+
 
 -(KMediaType *)getOutputMediaType
 {
