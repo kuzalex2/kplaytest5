@@ -38,8 +38,13 @@ typedef enum
 @end
 
 
-@interface KTestGraph1 : NSObject<KPlayEvents, KPlayer>
+
+@interface KTestGraphChainBuilder : NSObject<KPlayEvents, KPlayer>
     @property (weak, nonatomic) id<KPlayerEvents> _Nullable events;
+@end
+
+@interface KTestGraph1 : KTestGraphChainBuilder
+    //@property (weak, nonatomic) id<KPlayerEvents> _Nullable events;
 @end
 
 

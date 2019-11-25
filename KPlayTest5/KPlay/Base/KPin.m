@@ -58,6 +58,16 @@ NSError *KResult2Error(KResult res)
     return TRUE;
 }
 
+-(BOOL)disconnect
+{
+    if (_peer){
+        _peer->_peer = nil;
+        _peer = nil;
+    }
+    
+    return TRUE;
+}
+
 -(BOOL)isMediaTypeSupported:(KMediaType *) type
 {
     return FALSE;

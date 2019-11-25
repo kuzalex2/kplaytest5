@@ -39,7 +39,9 @@
         _sem = dispatch_semaphore_create(0);
         // we want to work in PAUSED state
        // processInPause = TRUE;
-        
+        //FIXME: _min_samples_queue NOT WORKS!
+        //FIXME: _min_samples_queue NOT WORKS!
+        //FIXME: _min_samples_queue NOT WORKS!
         _min_samples_queue = MIN_SAMPLES_QUEUE;
         _max_samples_queue = MAX_SAMPLES_QUEUE;
         
