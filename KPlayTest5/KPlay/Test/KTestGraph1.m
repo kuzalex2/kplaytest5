@@ -384,6 +384,15 @@
        // if ([filter.events respondsToSelector:@selector(onStateChanged:state:)])
          //   [filter.events onStateChanged:filter state:state];
         DLog(@"<%@> onStateChanged %@ ", [filter name], KFilterState2String(state) );
+        
+        
+        if (_chain.count > 0 && filter == [_chain lastObject]){
+            if (state == KFilterState_PAUSED){
+                [self setStateAndNotify:KGraphState_PAUSED];
+                ///FIXME:!!!!!!!! all others
+                ///FIXME: mutex
+            }
+        }
     }
 
 
@@ -556,7 +565,7 @@
             }
         }
 
-        [self setStateAndNotify:KGraphState_PAUSED];
+        [self setStateAndNotify:KGraphState_PAUSING];
         
         return KResult_OK;
     }
