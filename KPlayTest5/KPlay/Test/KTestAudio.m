@@ -438,8 +438,11 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         
         if (_queue!=nil && [_queue isFull])
         {
-            usleep(100000);
-            return KResult_OK;
+            if ([_queue state] == AudioQueueRunning )
+            {
+                usleep(100000);
+                return KResult_OK;
+            }
         }
 
         
