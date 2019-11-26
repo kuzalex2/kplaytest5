@@ -11,6 +11,8 @@
 #define MYWARN
 #import "myDebug.h"
 
+#include <AudioToolbox/AudioToolbox.h>
+
 
 
 
@@ -135,8 +137,149 @@
 
 
 
+typedef enum  {
+    AudioQueueStopped,
+    AudioQueuePaused,
+    AudioQueueRunning
+} AudioQueueStatus;
+
+
+@interface AudioQueue : NSObject  {
+    AudioQueueStatus _status;
+    
+}
+
+    -(void)stop;
+    -(void)pause;
+    -(BOOL)isFull;
+    +(BOOL)isInputMediaTypeSupported:(KMediaType *)type;
+
+@end
+
+
+
+#define NUM_BUFFERS 3
+void audioQueueCallback(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef buffer);
+
+@implementation AudioQueue {
+    AudioQueueRef _queue;
+    AudioQueueBufferRef _buffers[NUM_BUFFERS];
+    uint32_t _buffer_size;
+    //@public int _consumed_samples;
+}
+    - (instancetype)initWithSample:(KMediaSample *) sample
+    {
+        if (sample==nil || sample.type == nil || ! [AudioQueue isInputMediaTypeSupported:sample.type]) {
+            DErr(@"invalid sample or type");
+            return nil;
+            
+        }
+        
+        if (sample.data.length < 1024) {
+            DErr(@"too small sample");
+            return nil;
+        }
+       
+        self = [super init];
+        if (self) {
+            self->_status = AudioQueueStopped;
+            AudioQueueNewOutput(CMAudioFormatDescriptionGetStreamBasicDescription(sample.type.format), audioQueueCallback, (__bridge void *)self, CFRunLoopGetCurrent(), kCFRunLoopCommonModes, 0, &_queue);
+            
+            self->_buffer_size = (uint32_t)sample.data.length;
+            
+            for (int i = 0; i < NUM_BUFFERS; i++)
+            {
+                AudioQueueAllocateBuffer(_queue, self->_buffer_size, &_buffers[i]);
+                        
+                _buffers[i]->mAudioDataByteSize = self->_buffer_size;
+               
+                //callback(NULL, queue, buffers[i]);
+            }
+            
+            self->_status = AudioQueuePaused;
+            AudioQueuePause(_queue);
+//            [self pushSample:sample];
+        }
+        return self;
+    }
+
+
+
+
+
+
+    - (KResult)pushSample:(KMediaSample *) sample
+    {
+        if (sample==nil)
+            return KResult_ERROR;
+        if (sample.data.length != _buffer_size) {
+            DLog(@"sample.data.length != _buffer_size %lu %d",(unsigned long)sample.data.length,_buffer_size);
+            return KResult_ERROR;
+        }
+         ///FIXME: impl
+        // real push
+        // state and size and play
+        return KResult_OK;
+    }
+
+    -(void) audioQueueCallback:(AudioQueueRef)queue buffer:(AudioQueueBufferRef) buffer
+    {
+        DErr(@"Here");
+    }
+ 
+
+    -(void)stop
+    {
+        ///FIXME: impl
+    }
+    -(void)pause
+    {
+        ///FIXME: impl
+    }
+    -(BOOL)isFull
+    {
+        ///FIXME: impl
+        return FALSE;
+    }
+
+
+
+
+
+    +(BOOL)isInputMediaTypeSupported:(KMediaType *)type
+    {
+        if ([type.name isEqualToString:@"audio/pcm"]){
+            // CMAudioFormatDescriptionRef format = type.format;
+            
+            const AudioStreamBasicDescription  * _Nullable pformat  = CMAudioFormatDescriptionGetStreamBasicDescription(type.format);
+            if (pformat==nil)
+                return FALSE;
+            //_format = AudioStreamBasicDescription
+            AudioStreamBasicDescription format = *pformat;
+            NSLog(@"%d", format.mBitsPerChannel);
+            
+            
+            
+            return TRUE;
+        }
+        return FALSE;
+    }
+
+
+@end
+
+void audioQueueCallback(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef buffer)
+{
+    AudioQueue *q = (__bridge AudioQueue *)custom_data;
+    [q audioQueueCallback:queue buffer:buffer];
+}
+
+
+
+
 @implementation KAudioPlayFilter {
-    AudioStreamBasicDescription _format;
+    const AudioStreamBasicDescription * _Nullable _format ;
+    AudioQueue *_queue;
 }
 
 - (instancetype)init
@@ -144,25 +287,14 @@
     self = [super init];
     if (self) {
         [self.inputPins addObject:[[KInputPin alloc] initWithFilter:self]];
+        _queue = nil;
     }
     return self;
 }
 
 -(BOOL)isInputMediaTypeSupported:(KMediaType *)type
 {
-   if ([type.name isEqualToString:@"audio/pcm"]){
-      // CMAudioFormatDescriptionRef format = type.format;
-       
-       const AudioStreamBasicDescription  * _Nullable pformat  = CMAudioFormatDescriptionGetStreamBasicDescription(type.format);
-       if (pformat==nil)
-           return FALSE;
-       //_format = AudioStreamBasicDescription
-       AudioStreamBasicDescription format = *pformat;
-       NSLog(@"%d", format.mBitsPerChannel);
-       
-        return TRUE;
-    }
-    return FALSE;
+    return [AudioQueue isInputMediaTypeSupported:type];
 }
 
 
@@ -170,10 +302,17 @@
 {
     switch (_state) {
         case KFilterState_STOPPED:
+            if (_queue!=nil){
+                [_queue stop];
+                _queue = nil;
+            }
             break;
         case KFilterState_STOPPING:
             break;
         case KFilterState_PAUSING:
+            if (_queue!=nil){
+                [_queue pause];
+            }
             break;
         case KFilterState_STARTED:
             break;
@@ -182,12 +321,23 @@
     }
 }
 
+
+
+
+
 -(KResult) onThreadTick
 {
     @autoreleasepool {
         KMediaSample *sample;
         NSError *error;
         KResult res;
+        
+        if (_queue!=nil && [_queue isFull])
+        {
+            usleep(100000);
+            return KResult_OK;
+        }
+
         
         KInputPin *pin = [self getInputPinAt:0];
         res = [pin pullSample:&sample probe:NO error:&error];
@@ -201,9 +351,15 @@
         
         DLog(@"%@ <%@> got sample type=%@ %ld bytes, ts=%lld/%d", self, [self name], sample.type.name, [sample.data length], sample.ts, sample.timescale);
         
-        usleep(100000);
-
-        return KResult_OK;
+        
+        if (_queue==nil) {
+            _queue = [[AudioQueue alloc] initWithSample:sample];
+            if (_queue == nil) {
+                return KResult_ERROR;
+            }
+        }
+        
+        return [_queue pushSample:sample];
     }
 }
 
