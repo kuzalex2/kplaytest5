@@ -15,7 +15,7 @@
 //    -(float) maxTsSec;
 //@end
 
-@interface KQueueFilter : KThreadFilter //<KBufferInfo>
+@interface KQueueFilter : KThreadFilter // <KBufferInfo>
 //    - (instancetype)init;
     -(KResult)onThreadTick;
     -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *_Nonnull*_Nullable)error;

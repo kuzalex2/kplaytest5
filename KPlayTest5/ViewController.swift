@@ -42,8 +42,8 @@ class KTestAudioGraph : KTestGraphChainBuilder {
             if (super.state == KGraphState_NONE){
                 super.chain?.removeAllObjects();
                 super.chain?.add(KAudioSourceToneFilter());
-                //super.chain?.add(KAudioPlayFilter());
-                super.chain?.add(KTestSinkFilter());
+                super.chain?.add(KAudioPlayFilter());
+                //super.chain?.add(KTestSinkFilter());
             }
         }
         
@@ -124,7 +124,7 @@ class ViewController: UIViewController, KPlayerEvents {
     @IBAction func onPlayClick(_ sender: Any) {
         NSLog("onPlay");
         
-        player.play("https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_ts/v9/fileSequence97.ts", autoStart: true)
+        _ = player.play("https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_ts/v9/fileSequence97.ts", autoStart: true)
         //player.play("https://kuzalex.com:8888/videos/streaming/examples/img_bipbop_adv_example_ts/v9/fileSequence97.ts", autoStart: true)
     }
     

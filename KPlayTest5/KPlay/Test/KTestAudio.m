@@ -7,6 +7,9 @@
 //
 
 #import "KTestAudio.h"
+#define MYDEBUG
+#define MYWARN
+#import "myDebug.h"
 
 
 
@@ -127,7 +130,85 @@
 @end
 
 
-@implementation KAudioPlayFilter
+
+
+
+
+
+@implementation KAudioPlayFilter {
+    AudioStreamBasicDescription _format;
+}
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        [self.inputPins addObject:[[KInputPin alloc] initWithFilter:self]];
+    }
+    return self;
+}
+
+-(BOOL)isInputMediaTypeSupported:(KMediaType *)type
+{
+   if ([type.name isEqualToString:@"audio/pcm"]){
+      // CMAudioFormatDescriptionRef format = type.format;
+       
+       const AudioStreamBasicDescription  * _Nullable pformat  = CMAudioFormatDescriptionGetStreamBasicDescription(type.format);
+       if (pformat==nil)
+           return FALSE;
+       //_format = AudioStreamBasicDescription
+       AudioStreamBasicDescription format = *pformat;
+       NSLog(@"%d", format.mBitsPerChannel);
+       
+        return TRUE;
+    }
+    return FALSE;
+}
+
+
+- (void)onStateChanged:(KFilter *)filter state:(KFilterState)state
+{
+    switch (_state) {
+        case KFilterState_STOPPED:
+            break;
+        case KFilterState_STOPPING:
+            break;
+        case KFilterState_PAUSING:
+            break;
+        case KFilterState_STARTED:
+            break;
+        case KFilterState_PAUSED:
+            break;
+    }
+}
+
+-(KResult) onThreadTick
+{
+    @autoreleasepool {
+        KMediaSample *sample;
+        NSError *error;
+        KResult res;
+        
+        KInputPin *pin = [self getInputPinAt:0];
+        res = [pin pullSample:&sample probe:NO error:&error];
+        
+        if (res != KResult_OK) {
+            if (error!=nil){
+                DErr(@"%@ %@", [self name], error);
+            }
+            return res;
+        }
+        
+        DLog(@"%@ <%@> got sample type=%@ %ld bytes, ts=%lld/%d", self, [self name], sample.type.name, [sample.data length], sample.ts, sample.timescale);
+        
+        usleep(100000);
+
+        return KResult_OK;
+    }
+}
+
+
+
 
 @end
 
