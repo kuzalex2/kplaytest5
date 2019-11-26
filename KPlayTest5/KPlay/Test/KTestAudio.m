@@ -190,6 +190,7 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
            // self->_status = AudioQueueStopped;
             if (AudioQueueNewOutput(CMAudioFormatDescriptionGetStreamBasicDescription(sample.type.format), audioQueueCallback0, (__bridge void *)self, nil, nil, 0, &_queue)!=noErr){
                 DErr(@"AudioQueueNewOutput failed");
+                return nil;
             }
             
               
@@ -216,6 +217,7 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     {
         if (sample==nil)
             return KResult_ERROR;
+        
         if (sample.data.length != _buffer_size) {
             DLog(@"sample.data.length != _buffer_size %lu %d",(unsigned long)sample.data.length,_buffer_size);
             return KResult_ERROR;
@@ -261,7 +263,7 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         
         while (true)
         {
-            DErr(@"Here");
+            DErr(@"audioQueueCallback check");
             KMediaSample *sample = nil;
             
             
@@ -277,26 +279,29 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
                 
                 memcpy(buffer->mAudioData, sample.data.bytes, sample.data.length);
                 
+                DErr(@"audioQueueCallback enqueue");
                 if ( AudioQueueEnqueueBuffer(_queue, buffer, 0, NULL) != noErr ){
                     DLog(@"AudioQueueEnqueueBuffer failed");
                 }
                 
-                DErr(@"Here 2");
+              
                 
                 return;
                 
             } else {
-                if ( AudioQueuePause(_queue) != noErr ){
-                    DLog(@"AudioQueuePause failed");
-                }
+               // if ( AudioQueuePause(_queue) != noErr ){
+               //     DLog(@"AudioQueuePause failed");
+               // }
                 
                 @synchronized (self->_samples) {
                     self->_wait_for_sample = TRUE;
                 }
                // _status = AudioQueuePaused;
                 
+                DErr(@"audioQueueCallback wait");
                 //dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 500 * NSEC_PER_MSEC);
                 dispatch_semaphore_wait(_sem, DISPATCH_TIME_FOREVER);
+                DErr(@"audioQueueCallback OK");
             }
         }
     }
@@ -304,33 +309,33 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
 
     -(void)stop
     {
-        if ( AudioQueueStop(_queue, false) != noErr ){
-            DLog(@"AudioQueueStop failed");
-        }
-        
-        AudioQueueDispose(_queue, true);
-        
-        ///FIXME: ??? sure?
-        @synchronized (self->_samples) {
-            if (_wait_for_sample){
-                dispatch_semaphore_signal(_sem);
-                _wait_for_sample = FALSE;
-            }
-        }
+//        if ( AudioQueueStop(_queue, false) != noErr ){
+//            DLog(@"AudioQueueStop failed");
+//        }
+//
+//        AudioQueueDispose(_queue, true);
+//
+//        ///FIXME: ??? sure?
+//        @synchronized (self->_samples) {
+//            if (_wait_for_sample){
+//                dispatch_semaphore_signal(_sem);
+//                _wait_for_sample = FALSE;
+//            }
+//        }
     }
     -(void)pause
     {
-        if ( AudioQueuePause(_queue) != noErr ){
-            DLog(@"AudioQueuePause failed");
-        }
-        
-        ///FIXME: ??? sure?
-        @synchronized (self->_samples) {
-            if (_wait_for_sample){
-                dispatch_semaphore_signal(_sem);
-                _wait_for_sample = FALSE;
-            }
-        }
+//        if ( AudioQueuePause(_queue) != noErr ){
+//            DLog(@"AudioQueuePause failed");
+//        }
+//
+//        ///FIXME: ??? sure?
+//        @synchronized (self->_samples) {
+//            if (_wait_for_sample){
+//                dispatch_semaphore_signal(_sem);
+//                _wait_for_sample = FALSE;
+//            }
+//        }
     }
     -(BOOL)isFull
     {
