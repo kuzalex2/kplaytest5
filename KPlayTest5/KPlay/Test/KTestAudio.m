@@ -126,6 +126,7 @@
     mySample.data = [NSData dataWithBytes:buffer length:BUFFER_SIZE];
 
     *sample = mySample;
+    sleep(2);
     return KResult_OK;
 }
 
@@ -160,7 +161,7 @@
 
 #define NUM_BUFFERS 3
 #define MAX_SAMPLES 10
-void audioQueueCallback(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef buffer);
+void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef buffer);
 
 @implementation AudioQueue {
     AudioQueueRef _queue;
@@ -169,6 +170,7 @@ void audioQueueCallback(void *custom_data, AudioQueueRef queue, AudioQueueBuffer
     dispatch_semaphore_t _sem;
     uint32_t _buffer_size;
     BOOL _wait_for_sample;
+    BOOL _started;
 }
     - (instancetype)initWithSample:(KMediaSample *) sample
     {
@@ -186,24 +188,20 @@ void audioQueueCallback(void *custom_data, AudioQueueRef queue, AudioQueueBuffer
         self = [super init];
         if (self) {
            // self->_status = AudioQueueStopped;
-            AudioQueueNewOutput(CMAudioFormatDescriptionGetStreamBasicDescription(sample.type.format), audioQueueCallback, (__bridge void *)self, CFRunLoopGetCurrent(), kCFRunLoopCommonModes, 0, &_queue);
+            if (AudioQueueNewOutput(CMAudioFormatDescriptionGetStreamBasicDescription(sample.type.format), audioQueueCallback0, (__bridge void *)self, nil, nil, 0, &_queue)!=noErr){
+                DErr(@"AudioQueueNewOutput failed");
+            }
             
+              
             self->_buffer_size = (uint32_t)sample.data.length;
             self->_sem = dispatch_semaphore_create(0);
             
-            for (int i = 0; i < NUM_BUFFERS; i++)
-            {
-                AudioQueueAllocateBuffer(_queue, self->_buffer_size, &_buffers[i]);
-                        
-                _buffers[i]->mAudioDataByteSize = self->_buffer_size;
-               
-                //callback(NULL, queue, buffers[i]);
-            }
+            self->_started=FALSE;
             
             self->_samples = [[NSMutableArray alloc] init];
             //self->_status = AudioQueuePaused;
             self->_wait_for_sample = FALSE;
-            AudioQueueStart(_queue, NULL);
+            
 //            [self pushSample:sample];
         }
         return self;
@@ -223,12 +221,35 @@ void audioQueueCallback(void *custom_data, AudioQueueRef queue, AudioQueueBuffer
             return KResult_ERROR;
         }
         
+        BOOL need_to_start = FALSE;
+        
         @synchronized (self->_samples) {
             [self->_samples addObject:sample];
             if (_wait_for_sample){
                 dispatch_semaphore_signal(_sem);
                 _wait_for_sample = FALSE;
             }
+            if (!_started && _samples.count>=3){
+                need_to_start = TRUE;
+            }
+        }
+        
+        if (need_to_start){
+            for (int i = 0; i < NUM_BUFFERS; i++)
+            {
+                if ( AudioQueueAllocateBuffer(_queue, self->_buffer_size, &_buffers[i]) != noErr ){
+                    DLog(@"AudioQueueAllocateBuffer failed");
+                }
+                        
+                _buffers[i]->mAudioDataByteSize = self->_buffer_size;
+                
+                [self audioQueueCallback:_queue buffer:_buffers[i]];
+         
+            }
+            if ( AudioQueueStart(_queue, NULL) != noErr ){
+                DLog(@"AudioQueueStart failed");
+            }
+            _started = TRUE;
         }
         
         return KResult_OK;
@@ -236,10 +257,11 @@ void audioQueueCallback(void *custom_data, AudioQueueRef queue, AudioQueueBuffer
 
     -(void) audioQueueCallback:(AudioQueueRef)queue buffer:(AudioQueueBufferRef) buffer
     {
-        DErr(@"Here");
+        
         
         while (true)
         {
+            DErr(@"Here");
             KMediaSample *sample = nil;
             
             
@@ -255,11 +277,19 @@ void audioQueueCallback(void *custom_data, AudioQueueRef queue, AudioQueueBuffer
                 
                 memcpy(buffer->mAudioData, sample.data.bytes, sample.data.length);
                 
-                AudioQueueEnqueueBuffer(_queue, buffer, 0, NULL);
+                if ( AudioQueueEnqueueBuffer(_queue, buffer, 0, NULL) != noErr ){
+                    DLog(@"AudioQueueEnqueueBuffer failed");
+                }
+                
+                DErr(@"Here 2");
+                
                 return;
                 
             } else {
-                AudioQueuePause(_queue);
+                if ( AudioQueuePause(_queue) != noErr ){
+                    DLog(@"AudioQueuePause failed");
+                }
+                
                 @synchronized (self->_samples) {
                     self->_wait_for_sample = TRUE;
                 }
@@ -274,7 +304,11 @@ void audioQueueCallback(void *custom_data, AudioQueueRef queue, AudioQueueBuffer
 
     -(void)stop
     {
-        AudioQueueStop(_queue, false);
+        if ( AudioQueueStop(_queue, false) != noErr ){
+            DLog(@"AudioQueueStop failed");
+        }
+        
+        AudioQueueDispose(_queue, true);
         
         ///FIXME: ??? sure?
         @synchronized (self->_samples) {
@@ -286,7 +320,9 @@ void audioQueueCallback(void *custom_data, AudioQueueRef queue, AudioQueueBuffer
     }
     -(void)pause
     {
-        AudioQueuePause(_queue);
+        if ( AudioQueuePause(_queue) != noErr ){
+            DLog(@"AudioQueuePause failed");
+        }
         
         ///FIXME: ??? sure?
         @synchronized (self->_samples) {
@@ -329,7 +365,7 @@ void audioQueueCallback(void *custom_data, AudioQueueRef queue, AudioQueueBuffer
 
 @end
 
-void audioQueueCallback(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef buffer)
+void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef buffer)
 {
     AudioQueue *q = (__bridge AudioQueue *)custom_data;
     [q audioQueueCallback:queue buffer:buffer];
