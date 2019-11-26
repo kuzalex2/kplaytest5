@@ -137,15 +137,15 @@
 
 
 
-typedef enum  {
-    AudioQueueStopped,
-    AudioQueuePaused,
-    AudioQueueRunning
-} AudioQueueStatus;
+//typedef enum  {
+//    AudioQueueStopped,
+//    AudioQueuePaused,
+//    AudioQueueRunning
+//} AudioQueueStatus;
 
 
 @interface AudioQueue : NSObject  {
-    AudioQueueStatus _status;
+  //  AudioQueueStatus _status;
     
 }
 
@@ -159,13 +159,16 @@ typedef enum  {
 
 
 #define NUM_BUFFERS 3
+#define MAX_SAMPLES 10
 void audioQueueCallback(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef buffer);
 
 @implementation AudioQueue {
     AudioQueueRef _queue;
     AudioQueueBufferRef _buffers[NUM_BUFFERS];
+    NSMutableArray *_samples;
+    dispatch_semaphore_t _sem;
     uint32_t _buffer_size;
-    //@public int _consumed_samples;
+    BOOL _wait_for_sample;
 }
     - (instancetype)initWithSample:(KMediaSample *) sample
     {
@@ -182,10 +185,11 @@ void audioQueueCallback(void *custom_data, AudioQueueRef queue, AudioQueueBuffer
        
         self = [super init];
         if (self) {
-            self->_status = AudioQueueStopped;
+           // self->_status = AudioQueueStopped;
             AudioQueueNewOutput(CMAudioFormatDescriptionGetStreamBasicDescription(sample.type.format), audioQueueCallback, (__bridge void *)self, CFRunLoopGetCurrent(), kCFRunLoopCommonModes, 0, &_queue);
             
             self->_buffer_size = (uint32_t)sample.data.length;
+            self->_sem = dispatch_semaphore_create(0);
             
             for (int i = 0; i < NUM_BUFFERS; i++)
             {
@@ -196,8 +200,10 @@ void audioQueueCallback(void *custom_data, AudioQueueRef queue, AudioQueueBuffer
                 //callback(NULL, queue, buffers[i]);
             }
             
-            self->_status = AudioQueuePaused;
-            AudioQueuePause(_queue);
+            self->_samples = [[NSMutableArray alloc] init];
+            //self->_status = AudioQueuePaused;
+            self->_wait_for_sample = FALSE;
+            AudioQueueStart(_queue, NULL);
 //            [self pushSample:sample];
         }
         return self;
@@ -216,30 +222,85 @@ void audioQueueCallback(void *custom_data, AudioQueueRef queue, AudioQueueBuffer
             DLog(@"sample.data.length != _buffer_size %lu %d",(unsigned long)sample.data.length,_buffer_size);
             return KResult_ERROR;
         }
-         ///FIXME: impl
-        // real push
-        // state and size and play
+        
+        @synchronized (self->_samples) {
+            [self->_samples addObject:sample];
+            if (_wait_for_sample){
+                dispatch_semaphore_signal(_sem);
+                _wait_for_sample = FALSE;
+            }
+        }
+        
         return KResult_OK;
     }
 
     -(void) audioQueueCallback:(AudioQueueRef)queue buffer:(AudioQueueBufferRef) buffer
     {
         DErr(@"Here");
+        
+        while (true)
+        {
+            KMediaSample *sample = nil;
+            
+            
+            @synchronized (self->_samples) {
+                if (_samples.count > 0){
+                    sample = [_samples objectAtIndex:0];
+                    [_samples removeObjectAtIndex:0];
+                }
+            }
+            
+            if (sample!=nil){
+                assert( buffer->mAudioDataByteSize == sample.data.length);
+                
+                memcpy(buffer->mAudioData, sample.data.bytes, sample.data.length);
+                
+                AudioQueueEnqueueBuffer(_queue, buffer, 0, NULL);
+                return;
+                
+            } else {
+                AudioQueuePause(_queue);
+                @synchronized (self->_samples) {
+                    self->_wait_for_sample = TRUE;
+                }
+               // _status = AudioQueuePaused;
+                
+                //dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 500 * NSEC_PER_MSEC);
+                dispatch_semaphore_wait(_sem, DISPATCH_TIME_FOREVER);
+            }
+        }
     }
  
 
     -(void)stop
     {
-        ///FIXME: impl
+        AudioQueueStop(_queue, false);
+        
+        ///FIXME: ??? sure?
+        @synchronized (self->_samples) {
+            if (_wait_for_sample){
+                dispatch_semaphore_signal(_sem);
+                _wait_for_sample = FALSE;
+            }
+        }
     }
     -(void)pause
     {
-        ///FIXME: impl
+        AudioQueuePause(_queue);
+        
+        ///FIXME: ??? sure?
+        @synchronized (self->_samples) {
+            if (_wait_for_sample){
+                dispatch_semaphore_signal(_sem);
+                _wait_for_sample = FALSE;
+            }
+        }
     }
     -(BOOL)isFull
     {
-        ///FIXME: impl
-        return FALSE;
+        @synchronized (self->_samples) {
+            return _samples.count > MAX_SAMPLES;
+        }
     }
 
 
