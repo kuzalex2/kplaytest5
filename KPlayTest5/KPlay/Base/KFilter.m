@@ -47,7 +47,13 @@ NSString *KFilterState2String(KFilterState state)
         _inputPins =  [NSMutableArray new];
         _outputPins =  [NSMutableArray new];
         _state_mutex = [NSObject new];
+        
         _state = KFilterState_STOPPED;
+        if ([self respondsToSelector:@selector(onStateChanged:state:)]){
+            [self onStateChanged:self state:_state];
+        }
+        
+        
     }
     return self;
 }

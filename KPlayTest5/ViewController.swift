@@ -11,7 +11,7 @@ import UIKit
 class KTestGraph1 : KTestGraphChainBuilder {
     
     override func play(_ url: String, autoStart: Bool) -> KResult {
-        ///FIXME: synchronized???
+       
         
         do {
             objc_sync_enter(super.state_mutex)
@@ -31,6 +31,27 @@ class KTestGraph1 : KTestGraphChainBuilder {
     }
 }
 
+class KTestAudioGraph : KTestGraphChainBuilder {
+    
+    override func play(_ url: String, autoStart: Bool) -> KResult {
+       
+        
+        do {
+            objc_sync_enter(super.state_mutex)
+            defer { objc_sync_exit(super.state_mutex)}
+            if (super.state == KGraphState_NONE){
+                super.chain?.removeAllObjects();
+                super.chain?.add(KAudioSourceToneFilter());
+                //super.chain?.add(KAudioPlayFilter());
+                super.chain?.add(KTestSinkFilter());
+            }
+        }
+        
+        
+       
+        return super.play(url, autoStart: autoStart)
+    }
+}
 class ViewController: UIViewController, KPlayerEvents {
 
     @IBOutlet weak var playBtn: UIButton!
@@ -38,7 +59,9 @@ class ViewController: UIViewController, KPlayerEvents {
     @IBOutlet weak var stopBtn: UIButton!
     @IBOutlet weak var textLabel: UILabel!
     
-    var player:KTestGraph1 = KTestGraph1()
+   // var player:KTestGraph1 = KTestGraph1()
+    var player = KTestAudioGraph()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()

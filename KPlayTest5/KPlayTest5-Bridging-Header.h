@@ -4,3 +4,4 @@
 
 #import "KPlay/Test/KTestGraph1.h"
 #import "KPlay/Test/KTestFilters.h"
+#import "KPlay/Test/KTestAudio.h"

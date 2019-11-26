@@ -224,7 +224,7 @@
         
         KOutputPin *output = [[KOutputPin alloc] initWithFilter:self ];
         [self.outputPins addObject:output];
-        [self onStateChanged:_state];
+        [self onStateChanged:self state:_state];
     }
     return self;
 }
@@ -236,7 +236,7 @@
     return _type;
 }
 
--(void)onStateChanged:(KFilterState)state
+- (void)onStateChanged:(KFilter *)filter state:(KFilterState)state
 {
     if (state==KFilterState_STOPPING || state==KFilterState_STOPPED){
         if (_download_task) {
@@ -329,6 +329,7 @@
 
 -(BOOL)isInputMediaTypeSupported:(KMediaType *)type
 {
+    // any type
     return TRUE;
 }
 
