@@ -25,10 +25,6 @@
    
     KMediaType *_type;
     long _count;
-   // OutSampleQueue *out_queue;
-    
-    //size_t sample_count_before_error;
-    
 }
 
 - (instancetype)init
@@ -70,7 +66,6 @@
         [self.outputPins addObject:[
                                     [KOutputPin alloc] initWithFilter:self]
          ];
-       // out_queue = [[OutSampleQueue alloc] initWithMinCount:5];
     }
     return self;
 }
@@ -126,7 +121,8 @@
     mySample.data = [NSData dataWithBytes:buffer length:BUFFER_SIZE];
 
     *sample = mySample;
-    sleep(2);
+    usleep(1400000);
+    
     return KResult_OK;
 }
 
@@ -138,39 +134,115 @@
 
 
 
-//typedef enum  {
-//    AudioQueueStopped,
-//    AudioQueuePaused,
-//    AudioQueueRunning
-//} AudioQueueStatus;
 
 
-@interface AudioQueue : NSObject  {
-  //  AudioQueueStatus _status;
-    
+typedef enum  {
+    AudioQueueStopped,
+    AudioQueuePaused,
+    AudioQueueRunning
+} AudioQueueState;
+
+@interface AudioQueueBase : NSObject
+
+@end
+
+@implementation AudioQueueBase{
+    AudioQueueState _state;
+    @protected AudioQueueRef _queue;
+    NSObject *_lock;
 }
+    - (instancetype)init
+    {
+        self = [super init];
+        if (self) {
+            self->_state = AudioQueueStopped;
+            self->_queue = nil;
+            self->_lock = [[NSObject alloc]init];
+        }
+        return self;
+    }
 
-    -(void)stop;
-    -(void)pause;
+    -(AudioQueueState) state
+    {
+        return _state;
+    }
+
+    -(void)start
+    {
+        @synchronized (_lock) {
+            if (_queue == nil)
+                return;
+            if (_state == AudioQueueRunning)
+                return;
+            
+            _state = AudioQueueRunning;
+        }
+        
+        DLog(@"AudioQueueStart");
+        
+        if ( AudioQueueStart(_queue, NULL) != noErr ){
+            DErr(@"AudioQueueStart failed");
+        }
+    }
+
+    -(void)pause
+    {
+        @synchronized (_lock) {
+            if (_queue == nil)
+                return;
+            if (_state == AudioQueuePaused)
+                return;
+            
+            _state = AudioQueuePaused;
+        }
+        
+        DLog(@"AudioQueuePause");
+        
+        if ( AudioQueuePause(_queue) != noErr ){
+            DErr(@"AudioQueuePause failed");
+        }
+    }
+
+
+    -(void)stop
+    {
+        @synchronized (_lock) {
+            if (_queue == nil)
+                return;
+            if (_state == AudioQueueStopped)
+                return;
+            
+            _state = AudioQueueStopped;
+        }
+        
+        DLog(@"AudioQueueStop");
+        
+        
+        if ( AudioQueueStop(_queue, true) != noErr ){
+            DErr(@"AudioQueueStop failed");
+        }
+    }
+@end
+
+
+
+
+@interface AudioQueue : AudioQueueBase
     -(BOOL)isFull;
     +(BOOL)isInputMediaTypeSupported:(KMediaType *)type;
-
 @end
 
 
 
 #define NUM_BUFFERS 3
 #define MAX_SAMPLES 10
+
 void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef buffer);
 
 @implementation AudioQueue {
-    AudioQueueRef _queue;
     AudioQueueBufferRef _buffers[NUM_BUFFERS];
     NSMutableArray *_samples;
-    dispatch_semaphore_t _sem;
     uint32_t _buffer_size;
-    BOOL _wait_for_sample;
-    BOOL _started;
 }
     - (instancetype)initWithSample:(KMediaSample *) sample
     {
@@ -187,7 +259,7 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
        
         self = [super init];
         if (self) {
-           // self->_status = AudioQueueStopped;
+
             if (AudioQueueNewOutput(CMAudioFormatDescriptionGetStreamBasicDescription(sample.type.format), audioQueueCallback0, (__bridge void *)self, nil, nil, 0, &_queue)!=noErr){
                 DErr(@"AudioQueueNewOutput failed");
                 return nil;
@@ -195,21 +267,18 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
             
               
             self->_buffer_size = (uint32_t)sample.data.length;
-            self->_sem = dispatch_semaphore_create(0);
-            
-            self->_started=FALSE;
-            
             self->_samples = [[NSMutableArray alloc] init];
-            //self->_status = AudioQueuePaused;
-            self->_wait_for_sample = FALSE;
-            
-//            [self pushSample:sample];
         }
         return self;
     }
 
 
-
+    -(BOOL)isFull
+     {
+         @synchronized (self->_samples) {
+             return _samples.count > MAX_SAMPLES;
+         }
+     }
 
 
 
@@ -219,28 +288,25 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
             return KResult_ERROR;
         
         if (sample.data.length != _buffer_size) {
-            DLog(@"sample.data.length != _buffer_size %lu %d",(unsigned long)sample.data.length,_buffer_size);
+            DErr(@"sample.data.length != _buffer_size %lu %d",(unsigned long)sample.data.length,_buffer_size);
             return KResult_ERROR;
         }
-        
-        BOOL need_to_start = FALSE;
+                
+        int nSamples = 0;
         
         @synchronized (self->_samples) {
             [self->_samples addObject:sample];
-            if (_wait_for_sample){
-                dispatch_semaphore_signal(_sem);
-                _wait_for_sample = FALSE;
-            }
-            if (!_started && _samples.count>=3){
-                need_to_start = TRUE;
-            }
+            nSamples = _samples.count;
         }
         
-        if (need_to_start){
+        if (nSamples > 3 && [self state] != AudioQueueRunning)
+        {
+            [self start];
+        
             for (int i = 0; i < NUM_BUFFERS; i++)
             {
                 if ( AudioQueueAllocateBuffer(_queue, self->_buffer_size, &_buffers[i]) != noErr ){
-                    DLog(@"AudioQueueAllocateBuffer failed");
+                    DErr(@"AudioQueueAllocateBuffer failed");
                 }
                         
                 _buffers[i]->mAudioDataByteSize = self->_buffer_size;
@@ -248,10 +314,6 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
                 [self audioQueueCallback:_queue buffer:_buffers[i]];
          
             }
-            if ( AudioQueueStart(_queue, NULL) != noErr ){
-                DLog(@"AudioQueueStart failed");
-            }
-            _started = TRUE;
         }
         
         return KResult_OK;
@@ -259,93 +321,33 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
 
     -(void) audioQueueCallback:(AudioQueueRef)queue buffer:(AudioQueueBufferRef) buffer
     {
+     
+        KMediaSample *sample = nil;
         
         
-        while (true)
-        {
-            DErr(@"audioQueueCallback check");
-            KMediaSample *sample = nil;
-            
-            
-            @synchronized (self->_samples) {
-                if (_samples.count > 0){
-                    sample = [_samples objectAtIndex:0];
-                    [_samples removeObjectAtIndex:0];
-                }
-            }
-            
-            if (sample!=nil){
-                assert( buffer->mAudioDataByteSize == sample.data.length);
-                
-                memcpy(buffer->mAudioData, sample.data.bytes, sample.data.length);
-                
-                DErr(@"audioQueueCallback enqueue");
-                if ( AudioQueueEnqueueBuffer(_queue, buffer, 0, NULL) != noErr ){
-                    DLog(@"AudioQueueEnqueueBuffer failed");
-                }
-                
-              
-                
-                return;
-                
-            } else {
-               // if ( AudioQueuePause(_queue) != noErr ){
-               //     DLog(@"AudioQueuePause failed");
-               // }
-                
-                @synchronized (self->_samples) {
-                    self->_wait_for_sample = TRUE;
-                }
-               // _status = AudioQueuePaused;
-                
-                DErr(@"audioQueueCallback wait");
-                //dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 500 * NSEC_PER_MSEC);
-                dispatch_semaphore_wait(_sem, DISPATCH_TIME_FOREVER);
-                DErr(@"audioQueueCallback OK");
-            }
-        }
-    }
- 
-
-    -(void)stop
-    {
-//        if ( AudioQueueStop(_queue, false) != noErr ){
-//            DLog(@"AudioQueueStop failed");
-//        }
-//
-//        AudioQueueDispose(_queue, true);
-//
-//        ///FIXME: ??? sure?
-//        @synchronized (self->_samples) {
-//            if (_wait_for_sample){
-//                dispatch_semaphore_signal(_sem);
-//                _wait_for_sample = FALSE;
-//            }
-//        }
-    }
-    -(void)pause
-    {
-//        if ( AudioQueuePause(_queue) != noErr ){
-//            DLog(@"AudioQueuePause failed");
-//        }
-//
-//        ///FIXME: ??? sure?
-//        @synchronized (self->_samples) {
-//            if (_wait_for_sample){
-//                dispatch_semaphore_signal(_sem);
-//                _wait_for_sample = FALSE;
-//            }
-//        }
-    }
-    -(BOOL)isFull
-    {
         @synchronized (self->_samples) {
-            return _samples.count > MAX_SAMPLES;
+            if (_samples.count > 0){
+                sample = [_samples objectAtIndex:0];
+                [_samples removeObjectAtIndex:0];
+            }
+        }
+        
+        if (sample!=nil){
+            assert( buffer->mAudioDataByteSize == sample.data.length);
+            
+            memcpy(buffer->mAudioData, sample.data.bytes, sample.data.length);
+            
+            DErr(@"audioQueueCallback enqueue");
+            if ( AudioQueueEnqueueBuffer(_queue, buffer, 0, NULL) != noErr ){
+                DErr(@"AudioQueueEnqueueBuffer failed");
+            }
+        } else {
+            
+            if ([self state] != AudioQueueStopped){
+                [self pause];
+            }
         }
     }
-
-
-
 
 
     +(BOOL)isInputMediaTypeSupported:(KMediaType *)type
