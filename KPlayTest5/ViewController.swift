@@ -8,6 +8,23 @@
 
 import UIKit
 
+class KTestGraph1 : KTestGraphChainBuilder {
+    
+    override func play(_ url: String, autoStart: Bool) -> KResult {
+        ///FIXME: synchronized???
+        
+        
+        if (super.state == KGraphState_NONE){
+            super.chain?.removeAllObjects();
+            super.chain?.add(KTestUrlSourceFilter(url: url));
+            super.chain?.add(KTestTransformFilter());
+            //super.chain?.add(KQueueFilter());
+            super.chain?.add(KTestSinkFilter());
+        }
+        return super.play(url, autoStart: autoStart)
+    }
+}
+
 class ViewController: UIViewController, KPlayerEvents {
 
     @IBOutlet weak var playBtn: UIButton!

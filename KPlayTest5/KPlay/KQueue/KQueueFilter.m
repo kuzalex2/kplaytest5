@@ -231,7 +231,8 @@
                 *error = _error;
                 _error = nil;
                 return KResult_ERROR;
-            } else if ([samples count]>_min_samples_queue || probe){
+           // } else if ([samples count]>_min_samples_queue || (>0 && probe)){
+            } else if ([samples count]>0){
                 *sample = [samples objectAtIndex:0];
                 if (!probe)
                     [samples removeObjectAtIndex:0];

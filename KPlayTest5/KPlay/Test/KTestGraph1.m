@@ -358,10 +358,9 @@
 
 @implementation KTestGraphChainBuilder
 
-    NSMutableArray<KFilter*> *_chain;
+    
 
-    KGraphState _state;
-    NSObject *_state_mutex;
+   
     bool _suppress_error = false;
 
     -(void) setEvents: (id<KPlayerEvents>)e
@@ -449,7 +448,7 @@
             
             if ( i+1 < _chain.count ) {
                 DLog(@"KTestGraphChainBuilder Connecting %@ -> %@", [_chain[i] name], [_chain[i+1] name]);
-                if (![KTestGraph1 connectFilters:_chain[i] :0 :_chain[i+1] :0] ) {
+                if (![KTestGraphChainBuilder connectFilters:_chain[i] :0 :_chain[i+1] :0] ) {
                     DLog(@"Connect failed");
                     [self notifyError: KResult2Error(res)];
                     [self setStateAndNotify:KGraphState_NONE];
@@ -641,25 +640,3 @@
 
 @end
 
-
-
-
-@implementation KTestGraph1
-
-    - (KResult)play:(NSString * _Nonnull)url autoStart:(BOOL)autoStart;
-    {
-       
-        @synchronized (_state_mutex) {
-            if (_state == KGraphState_NONE){
-                [_chain removeAllObjects];
-                [_chain addObject:[[KTestUrlSourceFilter alloc] initWithUrl:url]];
-                [_chain addObject:[[KTestTransformFilter alloc] init]];
-                //[_chain addObject:[[KQueueFilter alloc] init]];
-                [_chain addObject:[[KTestSinkFilter alloc] init]];
-            }
-        }
-        
-        return [super play:url autoStart:autoStart];
-    }
-
-@end

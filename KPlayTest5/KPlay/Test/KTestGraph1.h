@@ -41,11 +41,12 @@ typedef enum
 
 @interface KTestGraphChainBuilder : NSObject<KPlayEvents, KPlayer>
     @property (weak, nonatomic) id<KPlayerEvents> _Nullable events;
+    @property KGraphState state;
+    @property NSObject * _Nullable state_mutex;
+    @property NSMutableArray<KFilter*> * _Nullable chain;
 @end
 
-@interface KTestGraph1 : KTestGraphChainBuilder
-    //@property (weak, nonatomic) id<KPlayerEvents> _Nullable events;
-@end
+
 
 
 #endif /* KTestGraph1_h */
