@@ -13,14 +13,20 @@ class KTestGraph1 : KTestGraphChainBuilder {
     override func play(_ url: String, autoStart: Bool) -> KResult {
         ///FIXME: synchronized???
         
-        
-        if (super.state == KGraphState_NONE){
-            super.chain?.removeAllObjects();
-            super.chain?.add(KTestUrlSourceFilter(url: url));
-            super.chain?.add(KTestTransformFilter());
-            //super.chain?.add(KQueueFilter());
-            super.chain?.add(KTestSinkFilter());
+        do {
+            objc_sync_enter(super.state_mutex)
+            defer { objc_sync_exit(super.state_mutex)}
+            if (super.state == KGraphState_NONE){
+                super.chain?.removeAllObjects();
+                super.chain?.add(KTestUrlSourceFilter(url: url));
+                super.chain?.add(KTestTransformFilter());
+                //super.chain?.add(KQueueFilter());
+                super.chain?.add(KTestSinkFilter());
+            }
         }
+        
+        
+       
         return super.play(url, autoStart: autoStart)
     }
 }
