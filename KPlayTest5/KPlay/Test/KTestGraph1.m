@@ -376,6 +376,9 @@
     {
         //FIXME: process filter errors here and push to next
         DLog(@"<%@> onError %d %@", [filter name], result, error);
+        if ([self.events respondsToSelector:@selector(onError:)]) {
+            [self.events onError:error];
+        }
     }
     - (void)onStateChanged:(KFilter *)filter state:(KFilterState)state
     {

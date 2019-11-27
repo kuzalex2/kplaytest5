@@ -33,7 +33,7 @@ typedef enum
 
 @protocol KPlayerEvents<NSObject>
 @optional
-    - (void)onError:( NSError * _Nonnull )error;
+    - (void)onError:( NSError * _Nullable )error;
     - (void)onStateChanged:(KGraphState)state;
 @end
 

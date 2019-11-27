@@ -6,7 +6,7 @@
 //  Copyright © 2019 Instreamatic. All rights reserved.
 //
 
-//#define MYDEBUG
+#define MYDEBUG
 #include "myDebug.h"
 
 #import "KMediaSample.h"
@@ -46,19 +46,19 @@
         return self;
     }
 
-    - (BOOL) isEqual:(KMediaType *) type
-    {
-        if (type==nil)
-            return false;
-        if (_name==nil || type.name==nil)
-            return false;
-        if (! [_name isEqualToString:type.name] )
-            return false;
-    
-        if (_format == NULL && type->_format == NULL)
-            return TRUE;
-        return CMFormatDescriptionEqual(_format,type->_format);
-    }
+//    - (BOOL) isEqual:(KMediaType *) type
+//    {
+//        if (type==nil)
+//            return false;
+//        if (_name==nil || type.name==nil)
+//            return false;
+//        if (! [_name isEqualToString:type.name] )
+//            return false;
+//    
+//        if (_format == NULL && type->_format == NULL)
+//            return TRUE;
+//        return CMFormatDescriptionEqual(_format,type->_format);
+//    }
 @end
 
 

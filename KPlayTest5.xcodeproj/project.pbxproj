@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		91208973238E6B7900594FB8 /* KAudioPlayFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 91208972238E6B7900594FB8 /* KAudioPlayFilter.m */; };
 		912CEF362385E0C100EA9213 /* KQueueFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 912CEF342385E0C100EA9213 /* KQueueFilter.m */; };
 		918654EA238D1D1B00655EE3 /* KTestAudio.m in Sources */ = {isa = PBXBuildFile; fileRef = 918654E9238D1D1B00655EE3 /* KTestAudio.m */; };
 		91C197792382FD86002B2463 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C197782382FD86002B2463 /* AppDelegate.swift */; };
@@ -45,6 +46,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		91208971238E6B7900594FB8 /* KAudioPlayFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KAudioPlayFilter.h; sourceTree = "<group>"; };
+		91208972238E6B7900594FB8 /* KAudioPlayFilter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KAudioPlayFilter.m; sourceTree = "<group>"; };
 		912CEF342385E0C100EA9213 /* KQueueFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KQueueFilter.m; sourceTree = "<group>"; };
 		912CEF352385E0C100EA9213 /* KQueueFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KQueueFilter.h; sourceTree = "<group>"; };
 		918654E8238D1D1B00655EE3 /* KTestAudio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KTestAudio.h; sourceTree = "<group>"; };
@@ -194,6 +197,8 @@
 				91C197962383022D002B2463 /* KTestFilters.h */,
 				918654E8238D1D1B00655EE3 /* KTestAudio.h */,
 				918654E9238D1D1B00655EE3 /* KTestAudio.m */,
+				91208971238E6B7900594FB8 /* KAudioPlayFilter.h */,
+				91208972238E6B7900594FB8 /* KAudioPlayFilter.m */,
 			);
 			path = Test;
 			sourceTree = "<group>";
@@ -354,6 +359,7 @@
 				912CEF362385E0C100EA9213 /* KQueueFilter.m in Sources */,
 				91C197A42383022E002B2463 /* KPlayGraph.m in Sources */,
 				91C197832382FD86002B2463 /* KPlayTest5.xcdatamodeld in Sources */,
+				91208973238E6B7900594FB8 /* KAudioPlayFilter.m in Sources */,
 				918654EA238D1D1B00655EE3 /* KTestAudio.m in Sources */,
 				91C197A22383022E002B2463 /* KTestFilters.m in Sources */,
 				91C197A82383022E002B2463 /* KPin.m in Sources */,

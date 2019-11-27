@@ -17,8 +17,8 @@
 
 @interface KQueueFilter : KThreadFilter // <KBufferInfo>
 //    - (instancetype)init;
-    -(KResult)onThreadTick;
-    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *_Nonnull*_Nullable)error;
+    -(KResult)onThreadTick:(NSError *__strong*)ppError;
+    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong _Nonnull*_Nullable)error;
 
 //    -(void)onStateChanged:(KFilterState)state;
 //    -(BOOL)isInputMediaTypeSupported:(KMediaType *)type;

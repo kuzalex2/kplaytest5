@@ -5,6 +5,8 @@
 //  Created by kuzalex on 11/18/19.
 //  Copyright © 2019 kuzalex. All rights reserved.
 //
+//
+//
 
 import UIKit
 
@@ -41,7 +43,8 @@ class KTestAudioGraph : KTestGraphChainBuilder {
             defer { objc_sync_exit(super.state_mutex)}
             if (super.state == KGraphState_NONE){
                 super.chain?.removeAllObjects();
-                super.chain?.add(KAudioSourceToneFilter());
+                //super.chain?.add(KAudioSourceToneFilter());
+                super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/dom17.wav"));
                 super.chain?.add(KAudioPlayFilter());
                 //super.chain?.add(KTestSinkFilter());
             }
@@ -67,11 +70,19 @@ class ViewController: UIViewController, KPlayerEvents {
         super.viewDidLoad()
         textLabel.text = ""
         player.events = self
+        onPlayClick(nil)
        // self.onStateChanged(KGraphState_NONE)
     }
     
-    func onError(_ error: Error) {
-        print("onError \(error)")
+    func onError(_ error: Error?) {
+        
+        print("onError \(String(describing: error))")
+        
+        DispatchQueue.main.async() {
+            let alert = UIAlertController(title: "Error", message: "\(String(describing: error))", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+        }
     }
     
     func onStateChanged(_ state: KGraphState) {
@@ -121,7 +132,7 @@ class ViewController: UIViewController, KPlayerEvents {
         NSLog("onPauseClick");
         player.pause()
     }
-    @IBAction func onPlayClick(_ sender: Any) {
+    @IBAction func onPlayClick(_ sender: Any?) {
         NSLog("onPlay");
         
         _ = player.play("https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_ts/v9/fileSequence97.ts", autoStart: true)

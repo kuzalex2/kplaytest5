@@ -13,22 +13,22 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface KTestSourceFilter : KFilter
-    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError **)error;
+    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error;
 @end
 
 @interface KTestUrlSourceFilter : KFilter
     -(instancetype)initWithUrl:(NSString *)url;
-    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError **)error;
+    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error;
 @end
 
 @interface KTestSinkFilter : KThreadFilter {
     @public int _consumed_samples;
 }
-    -(KResult)onThreadTick;
+    -(KResult)onThreadTick:(NSError *__strong*)ppError;
 @end
 
 @interface KTestTransformFilter : KTransformFilter
-    -(KResult)onTransformSample:(KMediaSample *_Nonnull*_Nullable)sample;
+    -(KResult)onTransformSample:(KMediaSample *__strong _Nonnull*_Nullable)sample;
     -(BOOL)isInputMediaTypeSupported:(KMediaType *)type;
     -(KMediaType *)getOutputMediaType;
 @end

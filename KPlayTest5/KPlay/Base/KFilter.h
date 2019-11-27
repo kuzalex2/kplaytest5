@@ -53,7 +53,7 @@ NSString *KFilterState2String(KFilterState state);
     - (void)onStateChanged:(KFilter *)filter state:(KFilterState)state;
    
 
-    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *_Nonnull*_Nullable)error;
+    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong _Nonnull*_Nullable)error;
 
 
    // -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError **)error;
@@ -76,14 +76,14 @@ NSString *KFilterState2String(KFilterState state);
    // -(KResult)pause;
    // -(KResult)stop;
 
-    -(KResult)onThreadTick;
+    -(KResult)onThreadTick:(NSError *__strong*)ppError;
 @end
 
 @interface KTransformFilter : KFilter
     //-(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError **)error;
 
 
-    -(KResult)onTransformSample:(KMediaSample *_Nonnull*_Nullable)sample error:(NSError **)error;
+    -(KResult)onTransformSample:(KMediaSample *_Nonnull*_Nullable)sample error:(NSError *__strong*)error;
     -(BOOL)isInputMediaTypeSupported:(KMediaType *)type;
     -(KMediaType *)getOutputMediaType;
 @end

@@ -18,6 +18,8 @@ typedef enum
     KResult_InvalidState,
     KResult_ERROR,
   //  KResult_NOSAMPLE
+    KResult_ParseError,
+    KResult_UnsupportedFormat
 } KResult;
 
 NSError *KResult2Error(KResult res);
@@ -29,19 +31,19 @@ NSError *KResult2Error(KResult res);
     -(BOOL)connectTo:(KPin *)sink;
     -(BOOL)isMediaTypeSupported:(KMediaType *) type;
 
-    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError **)error;
+    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error;
 
 @end
 
 @interface KInputPin : KPin
     -(BOOL)isMediaTypeSupported:(KMediaType *) type;
-    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *_Nonnull*_Nullable)error;
+    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong _Nonnull*_Nullable)error;
 @end
 
 
 @interface KOutputPin : KPin
     -(BOOL)connectTo:(KPin *)sink;
-    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError **)error;
+    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error;
 @end
 
 

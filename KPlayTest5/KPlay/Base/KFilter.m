@@ -95,7 +95,7 @@ NSString *KFilterState2String(KFilterState state)
     }
 }
 
--(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError **)error
+-(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error
 {
     DErr(@"pullSample at %@ not implemented", [self name]);
     return KResult_ERROR;
@@ -185,7 +185,7 @@ NSString *KFilterState2String(KFilterState state)
     dispatch_semaphore_t _pausing_sem;
 }
 
--(KResult) onThreadTick
+-(KResult) onThreadTick:(NSError *__strong*)ppError
 {
     return KResult_OK;
 }
@@ -295,6 +295,7 @@ NSString *KFilterState2String(KFilterState state)
 -(void)threadProc {
     
     BOOL error = FALSE;
+    NSError *pError=nil;
     
     while(1)
     {
@@ -321,10 +322,10 @@ NSString *KFilterState2String(KFilterState state)
             usleep(100000);
             
         } else {
-            KResult res = [self onThreadTick];
+            KResult res = [self onThreadTick:&pError];
             if (res != KResult_OK) {
                 if ([self.events respondsToSelector:@selector(onError:result:error:)]) {
-                    [self.events onError:self result:res error:nil];
+                    [self.events onError:self result:res error:pError];
                 }
                 error = TRUE;
             }
@@ -385,7 +386,7 @@ stopping:
     return self;
 }
 
--(KResult)pullSample:(KMediaSample **)sample probe:(BOOL)probe error:(NSError **)error
+-(KResult)pullSample:(KMediaSample **)sample probe:(BOOL)probe error:(NSError *__strong*)error
 {
 
     if ([self.inputPins count] < 1 )
@@ -399,7 +400,7 @@ stopping:
     return [self onTransformSample:sample error:error];
 }
 
--(KResult)onTransformSample:(KMediaSample **)sample error:(NSError **)error
+-(KResult)onTransformSample:(KMediaSample **)sample error:(NSError *__strong*)error
 {
     return KResult_OK;
 }

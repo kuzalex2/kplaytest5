@@ -153,7 +153,7 @@
 
 
 
--(KResult)onThreadTick
+-(KResult)onThreadTick:(NSError *__strong*)ppError
 {
     KInputPin *pin = [self getInputPinAt:0];
     if (!pin){
@@ -176,8 +176,8 @@
         if (!queue_is_full)
         {
             KMediaSample *sample;
-            NSError *error;
-            KResult res = [pin pullSample:&sample probe:NO error:&error];
+           
+            KResult res = [pin pullSample:&sample probe:NO error:ppError];
 
 
             if (res!=KResult_OK) {
@@ -221,7 +221,7 @@
 }
 
 
--(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *_Nonnull*_Nullable)error;
+-(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong _Nonnull*_Nullable)error;
 {
     while(1)
     {

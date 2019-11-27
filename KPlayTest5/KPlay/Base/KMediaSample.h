@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     @property (readonly, nonatomic, retain) NSString *name;
     @property (nonatomic)  CMFormatDescriptionRef format;
-    - (BOOL) isEqual:(KMediaType *) type;
+   // - (BOOL) isEqual:(KMediaType *) type;
 @end
 
 @interface KMediaTypeImageBuffer : KMediaType

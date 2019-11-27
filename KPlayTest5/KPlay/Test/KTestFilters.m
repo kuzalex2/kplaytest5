@@ -154,7 +154,7 @@
     return type;
 }
 
-//-(KResult)onThreadTick
+//-(KResult)onThreadTick:(NSError *__strong*)ppError
 //{
 //   
 //    KMediaSample *sample= [[KMediaSample alloc]init];
@@ -178,7 +178,7 @@
 //// on stopped/paused -> dispatch_semaphore_signal(_sem);
 //
 //
--(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError **)error;
+-(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error;
 {
     KMediaSample *mySample= [[KMediaSample alloc]init];
     mySample.type = type;
@@ -246,7 +246,7 @@
 }
 
 
--(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError **)error;
+-(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error;
 {
     if (_outSample==nil)
     {
@@ -339,15 +339,15 @@
 //        _consumed_samples = 0;
 //}
 
--(KResult) onThreadTick
+-(KResult) onThreadTick:(NSError *__strong*)ppError
 {
     @autoreleasepool {
         KMediaSample *sample;
-        NSError *error;
+       // NSError *error;
         KResult res;
         
         KInputPin *pin = [self getInputPinAt:0];
-        res = [pin pullSample:&sample probe:NO error:&error];
+        res = [pin pullSample:&sample probe:NO error:ppError];
         
         if (res != KResult_OK) {
             return res;
@@ -394,7 +394,7 @@
     return mytype;
 }
 
--(KResult)onTransformSample:(KMediaSample **)sample
+-(KResult)onTransformSample:(KMediaSample *__strong*)sample
 {
     return KResult_OK;
 }

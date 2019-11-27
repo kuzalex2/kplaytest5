@@ -24,6 +24,12 @@ NSError *KResult2Error(KResult res)
         case KResult_ERROR:
             errorCode = [NSString stringWithFormat:@"Error"];
          break;
+        case KResult_ParseError:
+            errorCode = [NSString stringWithFormat:@"Parse Error"];
+            break;
+        case KResult_UnsupportedFormat:
+            errorCode = [NSString stringWithFormat:@"Unsupported format"];
+            break;
     }
     return [NSError errorWithDomain:@"KPlay"
                         code:res
@@ -75,7 +81,7 @@ NSError *KResult2Error(KResult res)
 
 
 
--(KResult)pullSample:(KMediaSample **)sample probe:(BOOL)probe error:(NSError **)error
+-(KResult)pullSample:(KMediaSample **)sample probe:(BOOL)probe error:(NSError *__strong*)error
 {
     return KResult_ERROR;
 }
@@ -97,7 +103,7 @@ NSError *KResult2Error(KResult res)
 
 
 
--(KResult)pullSample:(KMediaSample **)sample probe:(BOOL)probe error:(NSError **)error
+-(KResult)pullSample:(KMediaSample **)sample probe:(BOOL)probe error:(NSError *__strong*)error
 {
     if (_peer==nil)
         return KResult_ERROR;
@@ -153,7 +159,7 @@ NSError *KResult2Error(KResult res)
 
 
 
--(KResult)pullSample:(KMediaSample **)sample probe:(BOOL)probe error:(NSError **)error
+-(KResult)pullSample:(KMediaSample **)sample probe:(BOOL)probe error:(NSError *__strong*)error
 {
     if (_filter==nil)
         return KResult_ERROR;
