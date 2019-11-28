@@ -139,9 +139,6 @@
 
 
 
-//44 bytes!!!
-// WAVE file header format
-//#define HDR_SIZE 96
 #define HDR_SIZE0 20
 struct HEADER {
     unsigned char riff[4];                        // RIFF string
@@ -159,32 +156,336 @@ struct HEADER {
     unsigned int data_size;                        // NumSamples * NumChannels * BitsPerSample/8 - size of the next chunk that will be read
 };
 
-typedef enum  {
-    ParseHeaderStateNo,
-    ParseHeaderState1,
-    ParseHeaderWaitSample,
+@interface WavReader : NSObject{
+    @public struct HEADER header;
+    //  NSError *_error;
+    @public AudioStreamBasicDescription _format;
+}
+@end
+
+@implementation WavReader {
     
-} ParseHeaderState;
+}
+    BOOL readBytes(unsigned char **from, unsigned char *max, void *to, size_t nb)
+    {
+        if (*from + nb > max)
+            return FALSE;
+        memcpy (to, *from, nb);
+        (*from) += nb;
+        return TRUE;
+    }
+    -(KResult)parseHeader0:(NSData *)data
+    {
+    
+        if (data.length<HDR_SIZE0){
+            DErr(@"Error 1");
+            return KResult_ParseError;
+        }
+        
+        unsigned char *ptr = (unsigned char *)[data bytes];
+        unsigned char *stop = ptr + HDR_SIZE0;
+        
+        if (!readBytes(&ptr, stop, header.riff, sizeof(header.riff))){
+            DErr(@"Parse Error 2");
+            return KResult_ParseError;
+        }
+        
+        // CHECK R I F F
+        if (header.riff[0]!='R' || header.riff[1]!='I' || header.riff[2]!='F' || header.riff[3]!='F') {
+            DErr(@"Parse Error 3");
+            return KResult_ParseError;
+        }
+        
+        unsigned char buffer4[4];
+        
+        if (!readBytes(&ptr, stop, buffer4, sizeof(buffer4))){
+            DErr(@"Parse Error 4");
+            return KResult_ParseError;
+        }
+        
+        // convert little endian to big endian 4 byte int
+        
+        header.overall_size  = buffer4[0] |
+        (buffer4[1]<<8) |
+        (buffer4[2]<<16) |
+        (buffer4[3]<<24);
+        
+        DLog(@"(5-8) Overall size: bytes:%u, Kb:%u \n", header.overall_size, header.overall_size/1024);
+        
+        if (!readBytes(&ptr, stop, header.wave, sizeof(header.wave))){
+            DErr(@"Parse Error 5");
+            return KResult_ParseError;
+        }
+        
+        DLog(@"(9-12) Wave marker: %s\n", header.wave);
+        
+        // CHECK F M T 0x0
+        if (header.wave[0]!='W' || header.wave[1]!='A' || header.wave[2]!='V' || header.wave[3]!='E') {
+            DErr(@"Parse Error 5.1");
+            return KResult_ParseError;
+        }
+        
+        if (!readBytes(&ptr, stop, header.fmt_chunk_marker, sizeof(header.fmt_chunk_marker))){
+            DErr(@"Parse Error 6");
+            return KResult_ParseError;
+        }
+        
+        DLog(@"(13-16) Fmt marker: %s\n", header.fmt_chunk_marker);
+        
+        // CHECK F M T 0x0
+        if (header.fmt_chunk_marker[0]!='f' || header.fmt_chunk_marker[1]!='m' || header.fmt_chunk_marker[2]!='t' || header.fmt_chunk_marker[3]!=' ') {
+            DErr(@"Parse Error 6.1");
+            return KResult_ParseError;
+        }
+        
+        
+        
+        if (!readBytes(&ptr, stop, buffer4, sizeof(buffer4))){
+            DErr(@"Parse Error 7");
+            return KResult_ParseError;
+        }
+        
+        // convert little endian to big endian 4 byte integer
+        header.length_of_fmt = buffer4[0] |
+        (buffer4[1] << 8) |
+        (buffer4[2] << 16) |
+        (buffer4[3] << 24);
+        DLog(@"(17-20) Length of Fmt header: %u \n", header.length_of_fmt);
+        
+        if (header.length_of_fmt<16){
+            DErr(@"Parse Error 7.1");
+            return KResult_ParseError;
+        }
+        
+        return KResult_OK;
+    }
+    
+    -(KResult)parseHeader1:(NSData *)data
+    {
+
+        assert(header.length_of_fmt>=16);
+        
+        if (data.length<header.length_of_fmt+8){
+            DErr(@"Error 1");
+            return KResult_ParseError;
+        }
+        
+        unsigned char *ptr = (unsigned char *)[data bytes];
+        unsigned char *stop = ptr + header.length_of_fmt + 8;
+        
+        unsigned char buffer2[2];
+        unsigned char buffer4[4];
+        
+        
+        if (!readBytes(&ptr, stop, buffer2, sizeof(buffer2))){
+            DErr(@"Parse Error 8");
+            return KResult_ParseError;
+        }
+        header.format_type = buffer2[0] | (buffer2[1] << 8);
+        
+        if (header.format_type == 1)
+            _format.mFormatID = kAudioFormatLinearPCM;
+        else if (header.format_type == 6) {
+            // a-law
+            DErr(@"Parse Error 9");
+            return KResult_UnsupportedFormat;
+        }
+        else if (header.format_type == 7){
+            // mu-law
+            DErr(@"Parse Error 10");
+            return KResult_UnsupportedFormat;
+        }
+        
+        
+        if (!readBytes(&ptr, stop, buffer2, sizeof(buffer2))){
+            DErr(@"Parse Error 11");
+            return KResult_ParseError;
+        }
+        DLog(@"%u %u \n", buffer2[0], buffer2[1]);
+        
+        _format.mChannelsPerFrame = header.channels = buffer2[0] | (buffer2[1] << 8);
+        printf("(23-24) Channels: %u \n", _format.mChannelsPerFrame);
+        
+        
+        if (!readBytes(&ptr, stop, buffer4, sizeof(buffer4))){
+            DErr(@"Parse Error 12");
+            return KResult_ParseError;
+        }
+        
+        _format.mSampleRate = header.sample_rate = buffer4[0] |
+        (buffer4[1] << 8) |
+        (buffer4[2] << 16) |
+        (buffer4[3] << 24);
+        
+        DLog(@"(25-28) Sample rate: %u\n", header.sample_rate);
+        
+        if (!readBytes(&ptr, stop, buffer4, sizeof(buffer4))){
+            DErr(@"Parse Error 13");
+            return KResult_ParseError;
+        }
+        
+        header.byterate  = buffer4[0] |
+        (buffer4[1] << 8) |
+        (buffer4[2] << 16) |
+        (buffer4[3] << 24);
+        DLog(@"(29-32) Byte Rate: %u , Bit Rate:%u\n", header.byterate, header.byterate*8);
+        
+        if (!readBytes(&ptr, stop, buffer2, sizeof(buffer2))){
+            DErr(@"Parse Error 14");
+            return KResult_ParseError;
+        }
+        
+        header.block_align = buffer2[0] |
+        (buffer2[1] << 8);
+        DLog(@"(33-34) Block Alignment: %u \n", header.block_align);
+        
+        
+        if (!readBytes(&ptr, stop, buffer2, sizeof(buffer2))){
+            DErr(@"Parse Error 15");
+            return KResult_ParseError;
+        }
+        
+        header.bits_per_sample = buffer2[0] |
+        (buffer2[1] << 8);
+        DLog(@"(35-36) Bits per sample: %u \n", header.bits_per_sample);
+        
+        
+        if (!readBytes(&ptr, stop, header.data_chunk_header, sizeof(header.data_chunk_header))){
+            DErr(@"Parse Error 16");
+            return KResult_ParseError;
+        }
+        
+        DLog(@"(37-40) Data Marker: %s \n", header.data_chunk_header);
+        
+        // CHECK data
+        //    if (header.data_chunk_header[0]!='d' || header.data_chunk_header[1]!='a' || header.data_chunk_header[2]!='t' || header.data_chunk_header[3]!='a') {
+        //        DErr(@"Parse Error 16.1");
+        //        return KResult_ParseError;
+        //    }
+        
+        if (!readBytes(&ptr, stop, buffer4, sizeof(buffer4))){
+            DErr(@"Parse Error 17");
+            return KResult_ParseError;
+        }
+        
+        header.data_size = buffer4[0] |
+        (buffer4[1] << 8) |
+        (buffer4[2] << 16) |
+        (buffer4[3] << 24 );
+        DLog(@"(41-44) Size of data chunk: %u \n", header.data_size);
+        
+        
+        //fixme: save start position
+        
+        
+        return KResult_OK;
+    }
+
+    -(KResult)parseHeader2:(NSData *)data
+    {
+        assert(header.data_size>=0);
+        
+        if (data.length<header.data_size+8){
+            DErr(@"Error 19");
+            return KResult_ParseError;
+        }
+        
+        unsigned char *ptr = (unsigned char *)[data bytes];
+        unsigned char *stop = ptr + header.data_size + 8;
+        
+        unsigned char bufferx[header.data_size];
+        
+        
+        if (!readBytes(&ptr, stop, bufferx, sizeof(bufferx))){
+            DErr(@"Parse Error 20");
+            return KResult_ParseError;
+        }
+        
+        unsigned char buffer4[4];
+        unsigned char data_chunk_header[4];
+        unsigned int data_size;
+        
+        if (!readBytes(&ptr, stop, data_chunk_header, sizeof(data_chunk_header))){
+            DErr(@"Parse Error 21");
+            return KResult_ParseError;
+        }
+        
+        DLog(@" Data Marker: %s \n", data_chunk_header);
+        
+        // CHECK data
+        if (data_chunk_header[0]!='d' || data_chunk_header[1]!='a' || data_chunk_header[2]!='t' || data_chunk_header[3]!='a') {
+            DErr(@"Parse Error 22");
+            return KResult_ParseError;
+        }
+        
+        if (!readBytes(&ptr, stop, buffer4, sizeof(buffer4))){
+            DErr(@"Parse Error 22");
+            return KResult_ParseError;
+        }
+        
+        data_size = buffer4[0] |
+        (buffer4[1] << 8) |
+        (buffer4[2] << 16) |
+        (buffer4[3] << 24 );
+        DLog(@"Size of data chunk: %u \n", data_size);
+        
+        
+        // calculate no.of samples
+        if (header.channels * header.bits_per_sample!=0)
+        {
+            long num_samples = (8 * header.data_size) / (header.channels * header.bits_per_sample);
+            DLog(@"Number of samples:%lu \n", num_samples);
+        }
+        
+        long size_of_each_sample = (header.channels * header.bits_per_sample) / 8;
+        DLog(@"Size of each sample:%ld bytes\n", size_of_each_sample);
+        
+        if (header.byterate!=0)
+        {
+            // calculate duration of file
+            float duration_in_seconds = (float) header.overall_size / header.byterate;
+            DLog(@"Approx.Duration in seconds=%f\n", duration_in_seconds);
+        }
+        
+        //_format.mChannelsPerFrame
+        //_format.mSampleRate
+        
+        ////FIXME!
+        _format.mFormatFlags      = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
+        _format.mBitsPerChannel   = (UInt32)(8 * size_of_each_sample);
+        _format.mBytesPerFrame    = (UInt32)(size_of_each_sample * _format.mChannelsPerFrame);
+        ////FIXME!
+        _format.mFramesPerPacket  = 1;
+        ////FIXME!
+        _format.mBytesPerPacket   = _format.mBytesPerFrame * _format.mFramesPerPacket;
+        _format.mReserved         = 0;
+        
+        
+        
+        
+//        _type = [[KMediaType alloc] initWithName:@"audio/pcm"];
+//        [_type setFormat:cmformat];
+//
+//        _format_is_valid=TRUE;
+        return KResult_OK;
+
+    }
+
+
+@end
+
 
 @implementation KAudioSourceWavReaderFilter{
     NSURL *_url;
     KMediaType *_type;
     NSURLSessionDownloadTask *_download_task;
-    struct HEADER header;
-   // long _count;
-    
+    WavReader *reader;
     dispatch_semaphore_t _sem1;
-//    dispatch_semaphore_t _semHeader;
-  //  dispatch_semaphore_t _semSample;
     KMediaSample *_outSample;
     NSError *_error;
-    AudioStreamBasicDescription _format;
     BOOL _format_is_valid;
-   // ParseHeaderState _parseState;
-    
     NSUInteger _position;
     NSUInteger _start_data_position;
-    
 }
 
 -(instancetype)initWithUrl:(NSString *)url
@@ -192,13 +493,12 @@ typedef enum  {
     self = [super init];
     if (self) {
         self->_type = nil;
-        //self->outSample = nil;
         self->_download_task=nil;
         self->_url = [[NSURL alloc] initWithString:url];
         self->_format_is_valid=FALSE;
-    //    self->_parseState=ParseHeaderStateNo;
         self->_position=0;
         self->_start_data_position=0;
+        self->reader = [[WavReader alloc]init];
         
         if (!self->_url)
             return nil;
@@ -226,7 +526,6 @@ typedef enum  {
             self->_position=0;
             self->_start_data_position=0;
             self->_format_is_valid = FALSE;
-          //  self->_parseState=ParseHeaderStateNo;
             break;
         case KFilterState_PAUSING:
         case KFilterState_STARTED:
@@ -250,339 +549,7 @@ typedef enum  {
                       
 }
 
-BOOL readBytes(unsigned char **from, unsigned char *max, void *to, size_t nb)
-{
-    if (*from + nb > max)
-        return FALSE;
-    memcpy (to, *from, nb);
-    (*from) += nb;
-    return TRUE;
-}
 
--(KResult)parseHeader0:(NSData *)data
-{
-
-   // assert(ParseHeaderStateNo == _parseState);
-    
-    
-    if (data.length<HDR_SIZE0){
-        DErr(@"Error 1");
-        return KResult_ParseError;
-    }
-    
-    unsigned char *ptr = (unsigned char *)[data bytes];
-    unsigned char *stop = ptr + HDR_SIZE0;
-    
-    if (!readBytes(&ptr, stop, header.riff, sizeof(header.riff))){
-        DErr(@"Parse Error 2");
-        return KResult_ParseError;
-    }
-    
-    // CHECK R I F F
-    if (header.riff[0]!='R' || header.riff[1]!='I' || header.riff[2]!='F' || header.riff[3]!='F') {
-        DErr(@"Parse Error 3");
-        return KResult_ParseError;
-    }
-    
-    unsigned char buffer4[4];
-    
-    if (!readBytes(&ptr, stop, buffer4, sizeof(buffer4))){
-        DErr(@"Parse Error 4");
-        return KResult_ParseError;
-    }
-    
-    // convert little endian to big endian 4 byte int
-    
-    header.overall_size  = buffer4[0] |
-    (buffer4[1]<<8) |
-    (buffer4[2]<<16) |
-    (buffer4[3]<<24);
-    
-    DLog(@"(5-8) Overall size: bytes:%u, Kb:%u \n", header.overall_size, header.overall_size/1024);
-    
-    if (!readBytes(&ptr, stop, header.wave, sizeof(header.wave))){
-        DErr(@"Parse Error 5");
-        return KResult_ParseError;
-    }
-    
-    DLog(@"(9-12) Wave marker: %s\n", header.wave);
-    
-    // CHECK F M T 0x0
-    if (header.wave[0]!='W' || header.wave[1]!='A' || header.wave[2]!='V' || header.wave[3]!='E') {
-        DErr(@"Parse Error 5.1");
-        return KResult_ParseError;
-    }
-    
-    if (!readBytes(&ptr, stop, header.fmt_chunk_marker, sizeof(header.fmt_chunk_marker))){
-        DErr(@"Parse Error 6");
-        return KResult_ParseError;
-    }
-    
-    DLog(@"(13-16) Fmt marker: %s\n", header.fmt_chunk_marker);
-    
-    // CHECK F M T 0x0
-    if (header.fmt_chunk_marker[0]!='f' || header.fmt_chunk_marker[1]!='m' || header.fmt_chunk_marker[2]!='t' || header.fmt_chunk_marker[3]!=' ') {
-        DErr(@"Parse Error 6.1");
-        return KResult_ParseError;
-    }
-    
-    
-    
-    if (!readBytes(&ptr, stop, buffer4, sizeof(buffer4))){
-        DErr(@"Parse Error 7");
-        return KResult_ParseError;
-    }
-    
-    // convert little endian to big endian 4 byte integer
-    header.length_of_fmt = buffer4[0] |
-    (buffer4[1] << 8) |
-    (buffer4[2] << 16) |
-    (buffer4[3] << 24);
-    DLog(@"(17-20) Length of Fmt header: %u \n", header.length_of_fmt);
-    
-    if (header.length_of_fmt<16){
-        DErr(@"Parse Error 7.1");
-        return KResult_ParseError;
-    }
-    
-  //  _parseState = ParseHeaderState1;
-    return KResult_OK;
-}
-    
--(KResult)parseHeader1:(NSData *)data
-{
-
-  //  assert(ParseHeaderState1 == _parseState);
-    assert(header.length_of_fmt>=16);
-    
-    if (data.length<header.length_of_fmt+8){
-        DErr(@"Error 1");
-        return KResult_ParseError;
-    }
-    
-    unsigned char *ptr = (unsigned char *)[data bytes];
-    unsigned char *stop = ptr + header.length_of_fmt + 8;
-    
-    unsigned char buffer2[2];
-    unsigned char buffer4[4];
-    
-
-    if (!readBytes(&ptr, stop, buffer2, sizeof(buffer2))){
-        DErr(@"Parse Error 8");
-        return KResult_ParseError;
-    }
-    header.format_type = buffer2[0] | (buffer2[1] << 8);
-    
-    if (header.format_type == 1)
-        _format.mFormatID = kAudioFormatLinearPCM;
-    else if (header.format_type == 6) {
-        // a-law
-        DErr(@"Parse Error 9");
-        return KResult_UnsupportedFormat;
-    }
-    else if (header.format_type == 7){
-        // mu-law
-        DErr(@"Parse Error 10");
-        return KResult_UnsupportedFormat;
-    }
-    
-    
-    if (!readBytes(&ptr, stop, buffer2, sizeof(buffer2))){
-        DErr(@"Parse Error 11");
-        return KResult_ParseError;
-    }
-    DLog(@"%u %u \n", buffer2[0], buffer2[1]);
-    
-    _format.mChannelsPerFrame = header.channels = buffer2[0] | (buffer2[1] << 8);
-    printf("(23-24) Channels: %u \n", _format.mChannelsPerFrame);
-    
-    
-    if (!readBytes(&ptr, stop, buffer4, sizeof(buffer4))){
-        DErr(@"Parse Error 12");
-        return KResult_ParseError;
-    }
-    
-    _format.mSampleRate = header.sample_rate = buffer4[0] |
-                           (buffer4[1] << 8) |
-                           (buffer4[2] << 16) |
-                           (buffer4[3] << 24);
-
-    DLog(@"(25-28) Sample rate: %u\n", header.sample_rate);
-    
-    if (!readBytes(&ptr, stop, buffer4, sizeof(buffer4))){
-        DErr(@"Parse Error 13");
-        return KResult_ParseError;
-    }
- 
-    header.byterate  = buffer4[0] |
-                           (buffer4[1] << 8) |
-                           (buffer4[2] << 16) |
-                           (buffer4[3] << 24);
-    DLog(@"(29-32) Byte Rate: %u , Bit Rate:%u\n", header.byterate, header.byterate*8);
-    
-    if (!readBytes(&ptr, stop, buffer2, sizeof(buffer2))){
-        DErr(@"Parse Error 14");
-        return KResult_ParseError;
-    }
-  
-    header.block_align = buffer2[0] |
-                       (buffer2[1] << 8);
-    DLog(@"(33-34) Block Alignment: %u \n", header.block_align);
-    
-   
-    if (!readBytes(&ptr, stop, buffer2, sizeof(buffer2))){
-        DErr(@"Parse Error 15");
-        return KResult_ParseError;
-    }
-  
-    header.bits_per_sample = buffer2[0] |
-                       (buffer2[1] << 8);
-    DLog(@"(35-36) Bits per sample: %u \n", header.bits_per_sample);
-    
-
-    if (!readBytes(&ptr, stop, header.data_chunk_header, sizeof(header.data_chunk_header))){
-        DErr(@"Parse Error 16");
-        return KResult_ParseError;
-    }
- 
-    DLog(@"(37-40) Data Marker: %s \n", header.data_chunk_header);
-
-    // CHECK data
-//    if (header.data_chunk_header[0]!='d' || header.data_chunk_header[1]!='a' || header.data_chunk_header[2]!='t' || header.data_chunk_header[3]!='a') {
-//        DErr(@"Parse Error 16.1");
-//        return KResult_ParseError;
-//    }
-    
-    if (!readBytes(&ptr, stop, buffer4, sizeof(buffer4))){
-        DErr(@"Parse Error 17");
-        return KResult_ParseError;
-    }
-  
-    header.data_size = buffer4[0] |
-                   (buffer4[1] << 8) |
-                   (buffer4[2] << 16) |
-                   (buffer4[3] << 24 );
-    DLog(@"(41-44) Size of data chunk: %u \n", header.data_size);
-    
-    
-    //fixme: save start position
-
-    
-
-   
-    
-     return KResult_OK;
-}
-
--(KResult)parseHeader2:(NSData *)data
-{
-    assert(header.data_size>=0);
-    
-    if (data.length<header.data_size+8){
-        DErr(@"Error 19");
-        return KResult_ParseError;
-    }
-    
-    unsigned char *ptr = (unsigned char *)[data bytes];
-    unsigned char *stop = ptr + header.data_size + 8;
-    
-    unsigned char bufferx[header.data_size];
-    
-   
-    if (!readBytes(&ptr, stop, bufferx, sizeof(bufferx))){
-        DErr(@"Parse Error 20");
-        return KResult_ParseError;
-    }
-    
-    
-
-//    if (!readBytes(&ptr, stop, buffer2, sizeof(buffer2))){
-//        DErr(@"Parse Error 20");
-//        return KResult_ParseError;
-//    }
-//
-    
-    unsigned char buffer4[4];
-    unsigned char data_chunk_header[4];
-    unsigned int data_size;
-    
-    if (!readBytes(&ptr, stop, data_chunk_header, sizeof(data_chunk_header))){
-        DErr(@"Parse Error 21");
-        return KResult_ParseError;
-    }
-    
-    DLog(@" Data Marker: %s \n", data_chunk_header);
-
-        // CHECK data
-    if (data_chunk_header[0]!='d' || data_chunk_header[1]!='a' || data_chunk_header[2]!='t' || data_chunk_header[3]!='a') {
-        DErr(@"Parse Error 22");
-        return KResult_ParseError;
-    }
-        
-    if (!readBytes(&ptr, stop, buffer4, sizeof(buffer4))){
-        DErr(@"Parse Error 22");
-        return KResult_ParseError;
-    }
-      
-    data_size = buffer4[0] |
-        (buffer4[1] << 8) |
-        (buffer4[2] << 16) |
-        (buffer4[3] << 24 );
-    DLog(@"Size of data chunk: %u \n", data_size);
-
-    
-     // calculate no.of samples
-    if (header.channels * header.bits_per_sample!=0)
-    {
-        long num_samples = (8 * header.data_size) / (header.channels * header.bits_per_sample);
-        DLog(@"Number of samples:%lu \n", num_samples);
-    }
-    
-    long size_of_each_sample = (header.channels * header.bits_per_sample) / 8;
-    DLog(@"Size of each sample:%ld bytes\n", size_of_each_sample);
-    
-    if (header.byterate!=0)
-    {
-        // calculate duration of file
-        float duration_in_seconds = (float) header.overall_size / header.byterate;
-        DLog(@"Approx.Duration in seconds=%f\n", duration_in_seconds);
-    }
-    
-    //_format.mChannelsPerFrame
-    //_format.mSampleRate
-    
-    ////FIXME!
-    _format.mFormatFlags      = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
-    _format.mBitsPerChannel   = (UInt32)(8 * size_of_each_sample);
-    _format.mBytesPerFrame    = (UInt32)(size_of_each_sample * _format.mChannelsPerFrame);
-    ////FIXME!
-    _format.mFramesPerPacket  = 1;
-    ////FIXME!
-    _format.mBytesPerPacket   = _format.mBytesPerFrame * _format.mFramesPerPacket;
-    _format.mReserved         = 0;
-    
-    
-     CMFormatDescriptionRef      cmformat;
-     if (CMAudioFormatDescriptionCreate(kCFAllocatorDefault,
-                   &_format,
-                   0,
-                   NULL,
-                   0,
-                   NULL,
-                   NULL,
-                   &cmformat)!=noErr)
-     {
-         DErr(@"Could not create format from AudioStreamBasicDescription");
-         return KResult_ERROR;
-     }
-     
-     _type = [[KMediaType alloc] initWithName:@"audio/pcm"];
-     [_type setFormat:cmformat];
-    
-    _format_is_valid=TRUE;
-    return KResult_OK;
-
-}
 
 
 -(void)downloadNext:(NSUInteger)sz withSuccess:(void (^)(NSData *data))successCallback andError:(void (^)(NSError *err))errorCallback
@@ -630,27 +597,45 @@ BOOL readBytes(unsigned char **from, unsigned char *max, void *to, size_t nb)
         _position=0;
         [self downloadNext:HDR_SIZE0 withSuccess:^(NSData *data){
             KResult res;
-            if ((res=[self parseHeader0:data]) != KResult_OK) {
+            if ((res=[self->reader parseHeader0:data]) != KResult_OK) {
                 self->_error = KResult2Error(res);
                 return;
             }
-            [self downloadNext:self->header.length_of_fmt+8 withSuccess:^(NSData *data){
+            [self downloadNext:self->reader->header.length_of_fmt+8 withSuccess:^(NSData *data){
                 KResult res;
-                if ((res=[self parseHeader1:data]) != KResult_OK) {
+                if ((res=[self->reader parseHeader1:data]) != KResult_OK) {
                     self->_error = KResult2Error(res);
                     return;
                 }
                 
                 ///FIXME???
-                [self downloadNext:self->header.data_size+8 withSuccess:^(NSData *data){
+                [self downloadNext:self->reader->header.data_size+8 withSuccess:^(NSData *data){
                     KResult res;
-                    if ((res=[self parseHeader2:data]) != KResult_OK) {
+                    if ((res=[self->reader parseHeader2:data]) != KResult_OK) {
                         self->_error = KResult2Error(res);
                         return;
                     }
                     
+                    CMFormatDescriptionRef      cmformat;
+                    if (CMAudioFormatDescriptionCreate(kCFAllocatorDefault,
+                                                       &self->reader->_format,
+                                                       0,
+                                                       NULL,
+                                                       0,
+                                                       NULL,
+                                                       NULL,
+                                                       &cmformat)!=noErr)
+                    {
+                        DErr(@"Could not create format from AudioStreamBasicDescription");
+                        self->_error = KResult2Error(KResult_ERROR);
+                        return;
+                    }
                     
                     self->_start_data_position = self->_position;///???
+                    self->_type = [[KMediaType alloc] initWithName:@"audio/pcm"];
+                    [self->_type setFormat:cmformat];
+                    
+                    self->_format_is_valid=TRUE;
                     
                     dispatch_semaphore_signal(self->_sem1);
                     
@@ -687,8 +672,8 @@ BOOL readBytes(unsigned char **from, unsigned char *max, void *to, size_t nb)
                 self->_outSample = [[KMediaSample alloc] init];
                 self->_outSample.type = self->_type;
                 self->_outSample.data =  data;
-                self->_outSample.ts = self->_position/self->_format.mBytesPerFrame;
-                self->_outSample.timescale = self->_format.mSampleRate;
+                self->_outSample.ts = self->_position/self->reader->_format.mBytesPerFrame;
+                self->_outSample.timescale = self->reader->_format.mSampleRate;
                 
                 dispatch_semaphore_signal(self->_sem1);
                 
@@ -717,65 +702,6 @@ BOOL readBytes(unsigned char **from, unsigned char *max, void *to, size_t nb)
         _outSample = nil;
     return KResult_OK;
 }
-    
-    
-//    DErr(@"%lu",sizeof(hdr));
-//    if (_outSample==nil)
-//    {
-//        _sem = dispatch_semaphore_create(0);
-//        _outSample = nil;
-//        _error = nil;
-//
-//
-//        NSRange range;
-//        range.location=0;
-//        range.length=sizeof(hdr);
-//
-//        _download_task = [self downloadUrl:_url withRange:range completionHandler:^(NSURL *location, NSURLResponse *response, NSError *error)
-//                          {
-//            if (error==nil){
-//                DLog(@"<%@> Downloaded %@", [self name], self->_url.host);
-//                ///FIXME
-//                self->_type = [[KMediaType alloc]initWithName:@"video/mp2t"];
-//
-//                self->_outSample = [[KMediaSample alloc] init];
-//                self->_outSample.type = self->_type;
-//                self->_outSample.data =  [NSData dataWithContentsOfURL:location];
-//                //sample.discontinuity = insample.discontinuity;
-//
-//                self->_download_task=nil;
-//
-//            } else {
-//                DLog(@"<%@> Error: %@", [self name], error);
-//                self->_outSample = nil;
-//                self->_error = error;
-//                self->_download_task=nil;
-//            }
-//            dispatch_semaphore_signal(self->_sem);
-//        }];
-//        // 4
-//        [_download_task resume];
-//
-//        KResult res;
-//        if ( (res = [self waitSemaphoreOrState:_sem]) != KResult_OK ){
-//            if (_download_task) {
-//                [_download_task cancel];
-//            }
-//            //*error = res;
-//            return res;
-//        }
-//    }
-//
-//    if (_outSample == nil) {
-//        *error = _error;
-//        return KResult_ERROR;
-//    }
-//
-//    *sample = _outSample;
-//    if (!probe)
-//        _outSample = nil;
-//    return KResult_OK;
-//}
 
 @end
 
