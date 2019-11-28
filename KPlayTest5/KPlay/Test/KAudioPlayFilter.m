@@ -313,7 +313,7 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
             if (_queue!=nil){
                 [_queue stop_];
                 [_queue flushSamples];
-                // and fluish?
+               
                // _queue = nil;
             }
             break;
