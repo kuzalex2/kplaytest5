@@ -141,7 +141,8 @@
 
 //44 bytes!!!
 // WAVE file header format
-#define HDR_SIZE 96
+//#define HDR_SIZE 96
+#define HDR_SIZE0 20
 struct HEADER {
     unsigned char riff[4];                        // RIFF string
     unsigned int overall_size    ;                // overall size of file in bytes
@@ -158,7 +159,12 @@ struct HEADER {
     unsigned int data_size;                        // NumSamples * NumChannels * BitsPerSample/8 - size of the next chunk that will be read
 };
 
-
+typedef enum  {
+    ParseHeaderStateNo,
+    ParseHeaderState1,
+    ParseHeaderWaitSample,
+    
+} ParseHeaderState;
 
 @implementation KAudioSourceWavReaderFilter{
     NSURL *_url;
@@ -167,13 +173,18 @@ struct HEADER {
     struct HEADER header;
    // long _count;
     
-    dispatch_semaphore_t _semHeader;
-    dispatch_semaphore_t _semSample;
+    dispatch_semaphore_t _sem1;
+//    dispatch_semaphore_t _semHeader;
+  //  dispatch_semaphore_t _semSample;
     KMediaSample *_outSample;
     NSError *_error;
     AudioStreamBasicDescription _format;
     BOOL _format_is_valid;
+   // ParseHeaderState _parseState;
+    
     NSUInteger _position;
+    NSUInteger _start_data_position;
+    
 }
 
 -(instancetype)initWithUrl:(NSString *)url
@@ -185,7 +196,9 @@ struct HEADER {
         self->_download_task=nil;
         self->_url = [[NSURL alloc] initWithString:url];
         self->_format_is_valid=FALSE;
+    //    self->_parseState=ParseHeaderStateNo;
         self->_position=0;
+        self->_start_data_position=0;
         
         if (!self->_url)
             return nil;
@@ -211,7 +224,9 @@ struct HEADER {
                 [_download_task cancel];
             }
             self->_position=0;
-            self->_format_is_valid=FALSE;
+            self->_start_data_position=0;
+            self->_format_is_valid = FALSE;
+          //  self->_parseState=ParseHeaderStateNo;
             break;
         case KFilterState_PAUSING:
         case KFilterState_STARTED:
@@ -244,18 +259,19 @@ BOOL readBytes(unsigned char **from, unsigned char *max, void *to, size_t nb)
     return TRUE;
 }
 
--(KResult)parseHeader:(NSData *)data
+-(KResult)parseHeader0:(NSData *)data
 {
-    _format_is_valid = FALSE;
+
+   // assert(ParseHeaderStateNo == _parseState);
     
     
-    if (data.length<HDR_SIZE){
+    if (data.length<HDR_SIZE0){
         DErr(@"Error 1");
         return KResult_ParseError;
     }
     
     unsigned char *ptr = (unsigned char *)[data bytes];
-    unsigned char *stop = ptr + HDR_SIZE;
+    unsigned char *stop = ptr + HDR_SIZE0;
     
     if (!readBytes(&ptr, stop, header.riff, sizeof(header.riff))){
         DErr(@"Parse Error 2");
@@ -269,7 +285,7 @@ BOOL readBytes(unsigned char **from, unsigned char *max, void *to, size_t nb)
     }
     
     unsigned char buffer4[4];
-    unsigned char buffer2[2];
+    
     if (!readBytes(&ptr, stop, buffer4, sizeof(buffer4))){
         DErr(@"Parse Error 4");
         return KResult_ParseError;
@@ -291,12 +307,25 @@ BOOL readBytes(unsigned char **from, unsigned char *max, void *to, size_t nb)
     
     DLog(@"(9-12) Wave marker: %s\n", header.wave);
     
+    // CHECK F M T 0x0
+    if (header.wave[0]!='W' || header.wave[1]!='A' || header.wave[2]!='V' || header.wave[3]!='E') {
+        DErr(@"Parse Error 5.1");
+        return KResult_ParseError;
+    }
+    
     if (!readBytes(&ptr, stop, header.fmt_chunk_marker, sizeof(header.fmt_chunk_marker))){
         DErr(@"Parse Error 6");
         return KResult_ParseError;
     }
     
     DLog(@"(13-16) Fmt marker: %s\n", header.fmt_chunk_marker);
+    
+    // CHECK F M T 0x0
+    if (header.fmt_chunk_marker[0]!='f' || header.fmt_chunk_marker[1]!='m' || header.fmt_chunk_marker[2]!='t' || header.fmt_chunk_marker[3]!=' ') {
+        DErr(@"Parse Error 6.1");
+        return KResult_ParseError;
+    }
+    
     
     
     if (!readBytes(&ptr, stop, buffer4, sizeof(buffer4))){
@@ -311,6 +340,33 @@ BOOL readBytes(unsigned char **from, unsigned char *max, void *to, size_t nb)
     (buffer4[3] << 24);
     DLog(@"(17-20) Length of Fmt header: %u \n", header.length_of_fmt);
     
+    if (header.length_of_fmt<16){
+        DErr(@"Parse Error 7.1");
+        return KResult_ParseError;
+    }
+    
+  //  _parseState = ParseHeaderState1;
+    return KResult_OK;
+}
+    
+-(KResult)parseHeader1:(NSData *)data
+{
+
+  //  assert(ParseHeaderState1 == _parseState);
+    assert(header.length_of_fmt>=16);
+    
+    if (data.length<header.length_of_fmt+8){
+        DErr(@"Error 1");
+        return KResult_ParseError;
+    }
+    
+    unsigned char *ptr = (unsigned char *)[data bytes];
+    unsigned char *stop = ptr + header.length_of_fmt + 8;
+    
+    unsigned char buffer2[2];
+    unsigned char buffer4[4];
+    
+
     if (!readBytes(&ptr, stop, buffer2, sizeof(buffer2))){
         DErr(@"Parse Error 8");
         return KResult_ParseError;
@@ -383,7 +439,7 @@ BOOL readBytes(unsigned char **from, unsigned char *max, void *to, size_t nb)
                        (buffer2[1] << 8);
     DLog(@"(35-36) Bits per sample: %u \n", header.bits_per_sample);
     
-    
+
     if (!readBytes(&ptr, stop, header.data_chunk_header, sizeof(header.data_chunk_header))){
         DErr(@"Parse Error 16");
         return KResult_ParseError;
@@ -391,6 +447,12 @@ BOOL readBytes(unsigned char **from, unsigned char *max, void *to, size_t nb)
  
     DLog(@"(37-40) Data Marker: %s \n", header.data_chunk_header);
 
+    // CHECK data
+//    if (header.data_chunk_header[0]!='d' || header.data_chunk_header[1]!='a' || header.data_chunk_header[2]!='t' || header.data_chunk_header[3]!='a') {
+//        DErr(@"Parse Error 16.1");
+//        return KResult_ParseError;
+//    }
+    
     if (!readBytes(&ptr, stop, buffer4, sizeof(buffer4))){
         DErr(@"Parse Error 17");
         return KResult_ParseError;
@@ -401,27 +463,90 @@ BOOL readBytes(unsigned char **from, unsigned char *max, void *to, size_t nb)
                    (buffer4[2] << 16) |
                    (buffer4[3] << 24 );
     DLog(@"(41-44) Size of data chunk: %u \n", header.data_size);
+    
+    
+    //fixme: save start position
 
+    
 
-    // calculate no.of samples
+   
+    
+     return KResult_OK;
+}
+
+-(KResult)parseHeader2:(NSData *)data
+{
+    assert(header.data_size>=0);
+    
+    if (data.length<header.data_size+8){
+        DErr(@"Error 19");
+        return KResult_ParseError;
+    }
+    
+    unsigned char *ptr = (unsigned char *)[data bytes];
+    unsigned char *stop = ptr + header.data_size + 8;
+    
+    unsigned char bufferx[header.data_size];
+    
+   
+    if (!readBytes(&ptr, stop, bufferx, sizeof(bufferx))){
+        DErr(@"Parse Error 20");
+        return KResult_ParseError;
+    }
+    
+    
+
+//    if (!readBytes(&ptr, stop, buffer2, sizeof(buffer2))){
+//        DErr(@"Parse Error 20");
+//        return KResult_ParseError;
+//    }
+//
+    
+    unsigned char buffer4[4];
+    unsigned char data_chunk_header[4];
+    unsigned int data_size;
+    
+    if (!readBytes(&ptr, stop, data_chunk_header, sizeof(data_chunk_header))){
+        DErr(@"Parse Error 21");
+        return KResult_ParseError;
+    }
+    
+    DLog(@" Data Marker: %s \n", data_chunk_header);
+
+        // CHECK data
+    if (data_chunk_header[0]!='d' || data_chunk_header[1]!='a' || data_chunk_header[2]!='t' || data_chunk_header[3]!='a') {
+        DErr(@"Parse Error 22");
+        return KResult_ParseError;
+    }
+        
+    if (!readBytes(&ptr, stop, buffer4, sizeof(buffer4))){
+        DErr(@"Parse Error 22");
+        return KResult_ParseError;
+    }
+      
+    data_size = buffer4[0] |
+        (buffer4[1] << 8) |
+        (buffer4[2] << 16) |
+        (buffer4[3] << 24 );
+    DLog(@"Size of data chunk: %u \n", data_size);
+
+    
+     // calculate no.of samples
     if (header.channels * header.bits_per_sample!=0)
     {
         long num_samples = (8 * header.data_size) / (header.channels * header.bits_per_sample);
         DLog(@"Number of samples:%lu \n", num_samples);
     }
-
+    
     long size_of_each_sample = (header.channels * header.bits_per_sample) / 8;
     DLog(@"Size of each sample:%ld bytes\n", size_of_each_sample);
-
+    
     if (header.byterate!=0)
     {
         // calculate duration of file
         float duration_in_seconds = (float) header.overall_size / header.byterate;
         DLog(@"Approx.Duration in seconds=%f\n", duration_in_seconds);
     }
-    
-    
-    ////FIXME!
     
     //_format.mChannelsPerFrame
     //_format.mSampleRate
@@ -456,82 +581,42 @@ BOOL readBytes(unsigned char **from, unsigned char *max, void *to, size_t nb)
     
     _format_is_valid=TRUE;
     return KResult_OK;
-    
-    
-    
 
-    
 }
 
--(void)downloadHeader
-{
-    _semHeader = dispatch_semaphore_create(0);
-    _error = nil;
-    
-    NSRange range;
-    range.location=0;
-    range.length=HDR_SIZE;
-    _position=HDR_SIZE;
-    
-    _download_task = [self downloadUrl:_url withRange:range completionHandler:^(NSURL *location, NSURLResponse *response, NSError *error)
-                      {
-        if (error==nil){
-            DLog(@"<%@> Downloaded %@", [self name], self->_url.host);
-            self->_download_task=nil;
-            KResult res;
-            if ((res=[self parseHeader:[NSData dataWithContentsOfURL:location]]) != KResult_OK) {
-                self->_error = KResult2Error(res);
-            }
-//
-            
-        } else {
-            DLog(@"<%@> Error: %@", [self name], error);
-            self->_outSample = nil;
-            self->_error = error;
-            self->_download_task=nil;
-        }
-        dispatch_semaphore_signal(self->_semHeader);
-    }];
-    // 4
-    [_download_task resume];
-}
 
--(void)downloadSample
+-(void)downloadNext:(NSUInteger)sz withSuccess:(void (^)(NSData *data))successCallback andError:(void (^)(NSError *err))errorCallback
 {
-    _semSample = dispatch_semaphore_create(0);
+    
     _error = nil;
     
     NSRange range;
     range.location=_position;
-    range.length=1024*64;///FIXME!!!!
-    _position+=range.length;
+    range.length=sz;
+    _position+=sz;
     
     _download_task = [self downloadUrl:_url withRange:range completionHandler:^(NSURL *location, NSURLResponse *response, NSError *error)
-                      {
-        if (error==nil){
-            DLog(@"<%@> Downloaded %@", [self name], self->_url.host);
-            self->_download_task=nil;
-           // KResult res;
-            
-            self->_outSample = [[KMediaSample alloc] init];
-            self->_outSample.type = self->_type;
-            self->_outSample.data =  [NSData dataWithContentsOfURL:location];
-            self->_outSample.ts = range.location/self->_format.mBytesPerFrame;
-            self->_outSample.timescale = self->_format.mSampleRate;
-
-            
-        } else {
-            DLog(@"<%@> Error: %@", [self name], error);
-            self->_outSample = nil;
-            self->_error = error;
-            self->_download_task=nil;
-        }
-        dispatch_semaphore_signal(self->_semSample);
-    }];
-    // 4
-    [_download_task resume];
+                          {
+            if (error==nil){
+                DLog(@"<%@> Downloaded %@", [self name], self->_url.host);
+                self->_download_task=nil;
+                
+                successCallback([NSData dataWithContentsOfURL:location]);
+                
+            } else {
+                DLog(@"<%@> Error: %@", [self name], error);
+                self->_outSample = nil;
+                self->_error = error;
+                self->_download_task=nil;
+                errorCallback(error);
+                dispatch_semaphore_signal(self->_sem1);
+            }
+           
+        }];
+        // 4
+        [_download_task resume];
+    
 }
-
 
 
 -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error;
@@ -540,22 +625,77 @@ BOOL readBytes(unsigned char **from, unsigned char *max, void *to, size_t nb)
     
     ///FIXME type format
     if (!_format_is_valid) {
-        [self downloadHeader];
-                  
-        if ( (res = [self waitSemaphoreOrState:_semHeader]) != KResult_OK ){
+        
+        _sem1 = dispatch_semaphore_create(0);
+        _position=0;
+        [self downloadNext:HDR_SIZE0 withSuccess:^(NSData *data){
+            KResult res;
+            if ((res=[self parseHeader0:data]) != KResult_OK) {
+                self->_error = KResult2Error(res);
+                return;
+            }
+            [self downloadNext:self->header.length_of_fmt+8 withSuccess:^(NSData *data){
+                KResult res;
+                if ((res=[self parseHeader1:data]) != KResult_OK) {
+                    self->_error = KResult2Error(res);
+                    return;
+                }
+                
+                ///FIXME???
+                [self downloadNext:self->header.data_size+8 withSuccess:^(NSData *data){
+                    KResult res;
+                    if ((res=[self parseHeader2:data]) != KResult_OK) {
+                        self->_error = KResult2Error(res);
+                        return;
+                    }
+                    
+                    
+                    self->_start_data_position = self->_position;///???
+                    
+                    dispatch_semaphore_signal(self->_sem1);
+                    
+                    
+                } andError:^(NSError *err){}];
+                
+                
+                
+            } andError:^(NSError *err){}];
+            
+        } andError:^(NSError *err){}];
+        
+        if ( (res = [self waitSemaphoreOrState:_sem1]) != KResult_OK ){
             if (_download_task) {
                 [_download_task cancel];
             }
             _format_is_valid = FALSE;
             return res;
         }
+        
     }
-    
+
+        
+        
+        
+      
     if (_format_is_valid) {
         if (_outSample==nil){
-            [self downloadSample];
             
-            if ( (res = [self waitSemaphoreOrState:_semSample]) != KResult_OK ){
+            
+            ///FIXME!!!! and check < header.data_size
+            [self downloadNext:1024*64 withSuccess:^(NSData *data){
+               // KResult res;
+                self->_outSample = [[KMediaSample alloc] init];
+                self->_outSample.type = self->_type;
+                self->_outSample.data =  data;
+                self->_outSample.ts = self->_position/self->_format.mBytesPerFrame;
+                self->_outSample.timescale = self->_format.mSampleRate;
+                
+                dispatch_semaphore_signal(self->_sem1);
+                
+                
+            } andError:^(NSError *err){}];
+            
+            if ( (res = [self waitSemaphoreOrState:_sem1]) != KResult_OK ){
                 if (_download_task) {
                     [_download_task cancel];
                 }
