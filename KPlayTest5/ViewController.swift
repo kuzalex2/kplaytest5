@@ -61,8 +61,24 @@ class ViewController: UIViewController, KPlayerEvents {
     @IBOutlet weak var pauseBtn: UIButton!
     @IBOutlet weak var stopBtn: UIButton!
     @IBOutlet weak var textLabel: UILabel!
+    @IBOutlet weak var timeLabel: UILabel!
+    @IBOutlet weak var progressSlider: UISlider!
     
-   // var player:KTestGraph1 = KTestGraph1()
+    
+    @IBAction func valueChanged(_ sender: Any) {
+         NSLog("valueChanged");
+    }
+    @IBAction func touchDown(_ sender: Any) {
+        NSLog("touchDown");
+    }
+   
+    @IBAction func touchUpI(_ sender: Any) {
+        NSLog("touchUpI");
+    }
+    @IBAction func touchUpO(_ sender: Any) {
+        NSLog("touchUpO");
+    }
+    // var player:KTestGraph1 = KTestGraph1()
     var player = KTestAudioGraph()
     
     
