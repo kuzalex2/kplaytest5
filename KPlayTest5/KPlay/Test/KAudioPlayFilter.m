@@ -14,9 +14,10 @@
 #include <AudioToolbox/AudioToolbox.h>
 
 typedef enum  {
-    AudioQueueStopped,
-    AudioQueuePaused,
-    AudioQueueRunning
+    AudioQueueStopped_,
+    AudioQueueWaitForRun_,
+    AudioQueueRunning_,
+    AudioQueuePaused_
 } AudioQueueState;
 
 @interface AudioQueueBase : NSObject
@@ -25,15 +26,15 @@ typedef enum  {
 
 @implementation AudioQueueBase{
     AudioQueueState _state;
-    @protected AudioQueueRef _queue;
+    @protected AudioQueueRef _avqueue;
     NSObject *_lock;
 }
     - (instancetype)init
     {
         self = [super init];
         if (self) {
-            self->_state = AudioQueueStopped;
-            self->_queue = nil;
+            self->_state = AudioQueueStopped_;
+            self->_avqueue = nil;
             self->_lock = [[NSObject alloc]init];
         }
         return self;
@@ -44,58 +45,77 @@ typedef enum  {
         return _state;
     }
 
-    -(void)start
+    -(void)waitForRun_
     {
         @synchronized (_lock) {
-            if (_queue == nil)
+            if (_avqueue == nil)
                 return;
-            if (_state == AudioQueueRunning)
+            if (_state == AudioQueueRunning_)
                 return;
             
-            _state = AudioQueueRunning;
+            _state = AudioQueueWaitForRun_;
         }
         
-        DLog(@"AudioQueueStart");
+        DLog(@"AudioQueueWaitForRun_");
         
-        if ( AudioQueueStart(_queue, NULL) != noErr ){
+        if ( AudioQueuePause(_avqueue) != noErr ){
+            DErr(@"AudioQueuePause failed");
+        }
+    }
+
+    -(void)start_
+    {
+        @synchronized (_lock) {
+            if (_avqueue == nil)
+                return;
+            if (_state != AudioQueueWaitForRun_)
+                return;
+            
+            _state = AudioQueueRunning_;
+        }
+        
+        DLog(@"AudioQueueRunning_");
+        
+        if ( AudioQueueStart(_avqueue, NULL) != noErr ){
             DErr(@"AudioQueueStart failed");
         }
     }
 
-    -(void)pause
+
+    -(void)pause_
     {
         @synchronized (_lock) {
-            if (_queue == nil)
+            if (_avqueue == nil)
                 return;
-            if (_state == AudioQueuePaused)
+            if (_state == AudioQueuePaused_)
                 return;
             
-            _state = AudioQueuePaused;
+            _state = AudioQueuePaused_;
         }
         
-        DLog(@"AudioQueuePause");
+        DLog(@"AudioQueuePaused_");
         
-        if ( AudioQueuePause(_queue) != noErr ){
+        if ( AudioQueuePause(_avqueue) != noErr ){
             DErr(@"AudioQueuePause failed");
         }
     }
 
 
-    -(void)stop
+    -(void)stop_
     {
         @synchronized (_lock) {
-            if (_queue == nil)
+            if (_avqueue == nil)
                 return;
-            if (_state == AudioQueueStopped)
+            if (_state == AudioQueueStopped_)
                 return;
             
-            _state = AudioQueueStopped;
+            _state = AudioQueueStopped_;
         }
         
-        DLog(@"AudioQueueStop");
+        DLog(@"AudioQueueStopped_");
         
         
-        if ( AudioQueueStop(_queue, true) != noErr ){
+        if ( AudioQueueStop(_avqueue, true) != noErr ){
             DErr(@"AudioQueueStop failed");
         }
     }
@@ -137,7 +157,7 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         self = [super init];
         if (self) {
 
-            if (AudioQueueNewOutput(CMAudioFormatDescriptionGetStreamBasicDescription(sample.type.format), audioQueueCallback0, (__bridge void *)self, nil, nil, 0, &_queue)!=noErr){
+            if (AudioQueueNewOutput(CMAudioFormatDescriptionGetStreamBasicDescription(sample.type.format), audioQueueCallback0, (__bridge void *)self, nil, nil, 0, &_avqueue)!=noErr){
                 DErr(@"AudioQueueNewOutput failed");
                 return nil;
             }
@@ -156,6 +176,13 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
              return _samples.count > MAX_SAMPLES;
          }
      }
+
+    -(void)flushSamples
+    {
+        @synchronized (self->_samples) {
+            [_samples removeAllObjects];
+        }
+    }
 
 
 
@@ -176,19 +203,19 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
             nSamples = _samples.count;
         }
         
-        if (nSamples > 3 && [self state] != AudioQueueRunning)
+        if (nSamples > 3 && [self state] == AudioQueueWaitForRun_)
         {
-            [self start];
+            [self start_];
         
             for (int i = 0; i < NUM_BUFFERS; i++)
             {
-                if ( AudioQueueAllocateBuffer(_queue, self->_buffer_size, &_buffers[i]) != noErr ){
+                if ( AudioQueueAllocateBuffer(_avqueue, self->_buffer_size, &_buffers[i]) != noErr ){
                     DErr(@"AudioQueueAllocateBuffer failed");
                 }
                         
                 _buffers[i]->mAudioDataByteSize = self->_buffer_size;
                 
-                [self audioQueueCallback:_queue buffer:_buffers[i]];
+                [self audioQueueCallback:_avqueue buffer:_buffers[i]];
          
             }
         }
@@ -215,13 +242,13 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
             memcpy(buffer->mAudioData, sample.data.bytes, sample.data.length);
             
             DErr(@"audioQueueCallback enqueue");
-            if ( AudioQueueEnqueueBuffer(_queue, buffer, 0, NULL) != noErr ){
+            if ( AudioQueueEnqueueBuffer(_avqueue, buffer, 0, NULL) != noErr ){
                 DErr(@"AudioQueueEnqueueBuffer failed");
             }
         } else {
             
-            if ([self state] != AudioQueueStopped){
-                [self pause];
+            if ([self state] != AudioQueueStopped_){///FIXME
+                [self waitForRun_];
             }
         }
     }
@@ -284,18 +311,24 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     switch (_state) {
         case KFilterState_STOPPED:
             if (_queue!=nil){
-                [_queue stop];
-                _queue = nil;
+                [_queue stop_];
+                [_queue flushSamples];
+                // and fluish?
+               // _queue = nil;
             }
             break;
         case KFilterState_STOPPING:
             break;
         case KFilterState_PAUSING:
             if (_queue!=nil){
-                [_queue pause];
+                [_queue pause_];
             }
             break;
         case KFilterState_STARTED:
+            if (_queue!=nil){
+                [_queue waitForRun_];
+               // _queue = nil;
+            }
             break;
         case KFilterState_PAUSED:
             break;
@@ -316,7 +349,7 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         
         if (_queue!=nil && [_queue isFull])
         {
-            if ([_queue state] == AudioQueueRunning )
+            if ([_queue state] == AudioQueueRunning_ )
             {
                 usleep(100000);
                 return KResult_OK;

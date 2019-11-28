@@ -376,6 +376,8 @@
     {
         //FIXME: process filter errors here and push to next
         DLog(@"<%@> onError %d %@", [filter name], result, error);
+        if (_suppress_error)
+            return;
         if ([self.events respondsToSelector:@selector(onError:)]) {
             [self.events onError:error];
         }

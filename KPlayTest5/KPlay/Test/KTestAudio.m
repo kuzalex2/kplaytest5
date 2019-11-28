@@ -141,7 +141,7 @@
 
 //44 bytes!!!
 // WAVE file header format
-#define HDR_SIZE 44
+#define HDR_SIZE 96
 struct HEADER {
     unsigned char riff[4];                        // RIFF string
     unsigned int overall_size    ;                // overall size of file in bytes
@@ -225,7 +225,7 @@ struct HEADER {
 {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
    
-    NSString *rangeString = [NSString stringWithFormat:@"bytes=%lu-%lu", (unsigned long)range.location, range.location+range.length];
+    NSString *rangeString = [NSString stringWithFormat:@"bytes=%lu-%lu", (unsigned long)range.location, range.location+range.length-1];
     [request setValue:rangeString forHTTPHeaderField:@"Range"];
     
                                       
@@ -512,9 +512,12 @@ BOOL readBytes(unsigned char **from, unsigned char *max, void *to, size_t nb)
             DLog(@"<%@> Downloaded %@", [self name], self->_url.host);
             self->_download_task=nil;
            // KResult res;
+            
             self->_outSample = [[KMediaSample alloc] init];
             self->_outSample.type = self->_type;
             self->_outSample.data =  [NSData dataWithContentsOfURL:location];
+            self->_outSample.ts = range.location/self->_format.mBytesPerFrame;
+            self->_outSample.timescale = self->_format.mSampleRate;
 
             
         } else {
@@ -549,14 +552,16 @@ BOOL readBytes(unsigned char **from, unsigned char *max, void *to, size_t nb)
     }
     
     if (_format_is_valid) {
-        [self downloadSample];
-                  
-        if ( (res = [self waitSemaphoreOrState:_semSample]) != KResult_OK ){
-            if (_download_task) {
-                [_download_task cancel];
+        if (_outSample==nil){
+            [self downloadSample];
+            
+            if ( (res = [self waitSemaphoreOrState:_semSample]) != KResult_OK ){
+                if (_download_task) {
+                    [_download_task cancel];
+                }
+                _format_is_valid = FALSE;
+                return res;
             }
-            _format_is_valid = FALSE;
-            return res;
         }
     }
     

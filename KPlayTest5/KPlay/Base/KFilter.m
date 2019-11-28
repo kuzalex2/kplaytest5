@@ -49,9 +49,9 @@ NSString *KFilterState2String(KFilterState state)
         _state_mutex = [NSObject new];
         
         _state = KFilterState_STOPPED;
-        if ([self respondsToSelector:@selector(onStateChanged:state:)]){
-            [self onStateChanged:self state:_state];
-        }
+        //if ([self respondsToSelector:@selector(onStateChanged:state:)]){
+          //  [self onStateChanged:self state:_state];
+        //}
         
         
     }
