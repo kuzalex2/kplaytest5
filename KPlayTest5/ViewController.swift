@@ -77,9 +77,7 @@ class ViewController: UIViewController, KPlayerEvents {
     var positionTimer: Timer?
     var inSeek:Bool = false
     
-    @IBAction func valueChanged(_ sender: Any) {
-         NSLog("valueChanged");
-    }
+   
     
     
     
@@ -127,6 +125,22 @@ class ViewController: UIViewController, KPlayerEvents {
         showPlayerPosition(valid: true);
     }
     
+    @IBAction func valueChanged(_ sender: Any) {
+        NSLog("valueChanged");
+        
+        if (!inSeek) {
+            return;
+        }
+           
+        if let mi = self.player.mediaInfo {
+            let durationSec = Float(mi.duration() / mi.timeScale());
+            let timeSec = Float(self.progressSlider.value) * durationSec / 1;
+            self.timeLabel.text = String(format: "%.02f", timeSec);
+        }
+    }
+            
+            
+          
     func showPlayerPosition(valid:Bool)
     {
         if (!valid){
