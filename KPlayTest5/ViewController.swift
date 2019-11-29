@@ -175,7 +175,7 @@ class ViewController: UIViewController, KPlayerEvents {
                     
                     if durationSec>0 {
                         self.progressSlider.value = timeSec/Float(durationSec)
-                        NSLog("State=%@ pos=%@", state2String(state:player.state), self.timeLabel.text ?? "");
+                        //NSLog("State=%@ pos=%@", state2String(state:player.state), self.timeLabel.text ?? "");
                     }
                 }
             }

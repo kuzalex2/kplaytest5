@@ -682,7 +682,13 @@ struct HEADER {
     if (_format_is_valid) {
         if (_outSample==nil){
             
-            int64_t chunk_size = 1024*64;//FIXME!!!
+            int64_t bytesPerSec =
+                self->reader->_format.mSampleRate *
+                //512 * //FIXME: почему не работапет???
+                self->reader->_format.mBytesPerFrame *
+                self->reader->_format.mFramesPerPacket;
+            
+            int64_t chunk_size = bytesPerSec;//FIXME!!!
             ///FIXME!!!! and check < header.data_size
             [self downloadNext:chunk_size withSuccess:^(NSData *data){
                // KResult res;
@@ -729,7 +735,7 @@ struct HEADER {
     int64_t bytesPerSec =
         self->reader->_format.mSampleRate *
         self->reader->_format.mBytesPerFrame *
-    self->reader->_format.mFramesPerPacket ;//*
+        self->reader->_format.mFramesPerPacket ;//*
        // self->reader->_format.mChannelsPerFrame;
     
     int64_t offset = bytesPerSec * sec;

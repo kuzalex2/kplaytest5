@@ -236,6 +236,26 @@
         return KResult_OK;
     }
 
+    - (KResult)startPlayingWithPause
+    {
+        KResult res;
+        
+        for (size_t i = 0; i< _chain.count; i++)
+        {
+            DLog(@"KTestGraphChainBuilder pausing %@", [_chain[i] name]);
+            if ((res = [_chain[i] pause:true]) != KResult_OK){
+                [self notifyError: KResult2Error(res)];
+                return res;
+            }
+        }
+        
+        [self setStateAndNotify:KGraphState_PAUSED];
+        
+        return [self startPlaying];
+    }
+
+    
+
     - (KResult)stopPlaying
     {
         KResult res;
@@ -258,11 +278,14 @@
     - (KResult)play:(NSString * _Nonnull)url autoStart:(BOOL)autoStart;
     {
         _suppress_error = false;
-        @synchronized (_state_mutex) {
-            switch (_state) {
+        
+        
+            switch ([self state]) {
                 case KGraphState_PAUSED:
-                case KGraphState_STOPPED:
                     return [self startPlaying];
+                case KGraphState_STOPPED:
+                    return [self startPlayingWithPause];
+                    
                     
                 case KGraphState_NONE:
                 
@@ -271,7 +294,7 @@
                 default:
                     return KResult_InvalidState;
             }
-        }
+        
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [self buildGraphSync:url autoStart:autoStart];
@@ -311,8 +334,8 @@
     - (KResult)stop
     {
         _suppress_error = true;
-        @synchronized (_state_mutex) {
-            switch (_state) {
+        
+            switch ([self state]) {
                 case KGraphState_NONE:
                     return KResult_OK;
                 case KGraphState_BUILDING:
@@ -321,7 +344,7 @@
                 default:
                     return [self stopPlaying];
                 }
-        }
+        
     }
 
     
