@@ -124,15 +124,17 @@ class ViewController: UIViewController, KPlayerEvents {
             let durationSec = mi.duration() / mi.timeScale();
             self.durationLabel.text = "\(durationSec)";
             
-            //if let mi = self.player.mediaInfo, let pi = self.player.positionInfo {
-            //                    let durationSec = mi.duration / mi.timeScale;
-            //                    self.durationLabel.text = String(format: "@d / %d", Int(durationSec));
-            //
-            //                    let timeSec = pi.position / pi.timeScale;
-            //                    self.durationLabel.text = String(format: "@d / %d", Int(timeSec));
-            //
-            //                    self.progressSlider.isEnabled = true;
+            if let pi = self.player.positionInfo {
             
+                let timeSec = Float(pi.position()) / Float(pi.timeScale());
+                self.timeLabel.text = String(format: "%.02f", timeSec)
+                
+                self.progressSlider.isEnabled = true;
+                
+                if durationSec>0 {
+                    self.progressSlider.value = timeSec/Float(durationSec)
+                }
+            }
             
         } else {
             showPlayerPosition(valid: false)
@@ -171,7 +173,7 @@ class ViewController: UIViewController, KPlayerEvents {
             case KGraphState_PAUSED:
                 self.showPlayerPosition(valid: true);
                 self.positionTimer?.invalidate();
-                self.positionTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(self.runTimedCode), userInfo: nil, repeats: true)
+                self.positionTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.runTimedCode), userInfo: nil, repeats: true)
 
                 
                 stateString = "paused";

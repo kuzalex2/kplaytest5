@@ -7,6 +7,7 @@
 //
 
 #import "KAudioPlayFilter.h"
+#import "KPlayGraph.h"
 #define MYDEBUG
 #define MYWARN
 #import "myDebug.h"
@@ -20,7 +21,7 @@ typedef enum  {
     AudioQueuePaused_
 } AudioQueueState;
 
-@interface AudioQueueBase : NSObject
+@interface AudioQueueBase : NSObject<KPlayPositionInfo>
 
 @end
 
@@ -119,6 +120,48 @@ typedef enum  {
             DErr(@"AudioQueueStop failed");
         }
     }
+
+    ///
+    ///  KPlayPositionInfo
+    ///
+
+    -(int64_t)position
+    {
+        ///FIXME!!!!!: thread safe _avqueue from superclass!!!
+        ///FIXME!!!!!: thread safe _avqueue from superclass!!!
+        ///FIXME!!!!!: thread safe _avqueue from superclass!!!
+        ///FIXME!!!!!: thread safe _avqueue from superclass!!!
+        ///FIXME!!!!!: thread safe _avqueue from superclass!!!
+        ///FIXME!!!!!: thread safe _avqueue from superclass!!!
+        ///FIXME!!!!!: thread safe _avqueue from superclass!!!
+        ///FIXME!!!!!: thread safe _avqueue from superclass!!!
+
+        
+        
+        @synchronized (_lock) {
+            if (_avqueue == nil)
+                return 0;
+            AudioTimeStamp timeStamp;
+            Boolean disc;
+            OSStatus status2 = AudioQueueGetCurrentTime(_avqueue, NULL, &timeStamp, &disc);
+            if( status2 != noErr )
+                return 0;
+            return timeStamp.mSampleTime;
+        }
+        
+        
+      // if (_format_is_valid && self->reader->_format.mBytesPerFrame!=0)
+        //    return self->reader->header.data_size2/self->reader->_format.mBytesPerFrame;
+        return 0;
+    }
+
+    -(int64_t)timeScale
+    {
+       
+        return 48000;
+    }
+
+    
 @end
 
 
@@ -380,6 +423,25 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         return [_queue pushSample:sample];
     }
    // }
+}
+
+///
+///  KPlayPositionInfo
+///
+
+-(int64_t)position
+{
+    if (_queue!=nil)
+        return [_queue position];
+    return 0;
+}
+
+-(int64_t)timeScale
+{
+    if (_queue!=nil)
+        return [_queue timeScale];
+   
+    return 0;
 }
 
 

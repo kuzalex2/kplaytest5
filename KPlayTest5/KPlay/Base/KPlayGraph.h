@@ -32,17 +32,16 @@ typedef enum
 @end
 
 @protocol KPlayMediaInfo<NSObject>
--(int64_t)duration;
--(int64_t)timeScale;
+    -(int64_t)duration;
+    -(int64_t)timeScale;
     //-(NSInteger)durationSec;
     //@property int32_t duration;
     //@property int32_t timeScale;
 @end
 
 @protocol KPlayPositionInfo<NSObject>
-    //-(NSInteger)durationSec;
-    @property int32_t position;
-    @property int32_t timeScale;
+    -(int64_t)position;
+    -(int64_t)timeScale;
 @end
 
 
