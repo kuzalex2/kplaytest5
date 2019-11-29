@@ -6,7 +6,12 @@
 //  Copyright © 2019 kuzalex. All rights reserved.
 //
 //
-//
+// TODO: pipe0.wav переписать parser wav data_size2
+// TODO: обработчик ошибок в  returns NSError KRESULTOK=nil
+// TODO: from stop -> to play with PAUSE
+// pause seek play
+
+
 
 import UIKit
 
@@ -44,8 +49,8 @@ class KTestAudioGraph : KPlayGraphChainBuilder {
             if (super.state == KGraphState_NONE){
                 super.chain?.removeAllObjects();
                 //super.chain?.add(KAudioSourceToneFilter());
-            //super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/dom17.wav"));
-            super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/pipe0.wav"));
+            super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/dom17.wav"));
+            //super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/pipe0.wav"));
             //super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/pipe.wav"));
             //super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/2.wav"));
 
@@ -70,20 +75,30 @@ class ViewController: UIViewController, KPlayerEvents {
     @IBOutlet weak var durationLabel: UILabel!
     
     var positionTimer: Timer?
+    var inSeek:Bool = false
     
     @IBAction func valueChanged(_ sender: Any) {
          NSLog("valueChanged");
     }
+    
+    
+    
+    
     @IBAction func touchDown(_ sender: Any) {
         NSLog("touchDown");
+        inSeek=true;
     }
-   
     @IBAction func touchUpI(_ sender: Any) {
         NSLog("touchUpI");
+        inSeek=false;
     }
     @IBAction func touchUpO(_ sender: Any) {
         NSLog("touchUpO");
+        inSeek=false;
     }
+    
+    
+    
     // var player:KTestGraph1 = KTestGraph1()
     var player = KTestAudioGraph()
     
@@ -126,14 +141,17 @@ class ViewController: UIViewController, KPlayerEvents {
             self.durationLabel.text = "\(durationSec)";
             
             if let pi = self.player.positionInfo {
+                
+                if (!inSeek){
             
-                let timeSec = Float(pi.position()) / Float(pi.timeScale());
-                self.timeLabel.text = String(format: "%.02f", timeSec)
-                
-                self.progressSlider.isEnabled = true;
-                
-                if durationSec>0 {
-                    self.progressSlider.value = timeSec/Float(durationSec)
+                    let timeSec = Float(pi.position()) / Float(pi.timeScale());
+                    self.timeLabel.text = String(format: "%.02f", timeSec)
+                    
+                    self.progressSlider.isEnabled = true;
+                    
+                    if durationSec>0 {
+                        self.progressSlider.value = timeSec/Float(durationSec)
+                    }
                 }
             }
             

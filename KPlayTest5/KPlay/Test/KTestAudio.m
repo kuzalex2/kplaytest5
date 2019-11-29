@@ -152,9 +152,9 @@ struct HEADER {
     unsigned int byterate;                        // SampleRate * NumChannels * BitsPerSample/8
     unsigned int block_align;                    // NumChannels * BitsPerSample/8
     unsigned int bits_per_sample;                // bits per sample, 8- 8bits, 16- 16 bits etc
-    unsigned char data_chunk_header [4];        // DATA string or FLLR string
-    unsigned int data_size;                        // NumSamples * NumChannels * BitsPerSample/8 - size of the next chunk that will be read
-    unsigned int data_size2;
+    unsigned char _data_chunk_header [4];        // DATA string or FLLR string
+    unsigned int _data_size;                        // NumSamples * NumChannels * BitsPerSample/8 - size of the next chunk that will be read
+   // unsigned int data_size2;
 };
 
 @interface WavReader : NSObject{
@@ -351,12 +351,12 @@ struct HEADER {
         DLog(@"(35-36) Bits per sample: %u \n", header.bits_per_sample);
         
         
-        if (!readBytes(&ptr, stop, header.data_chunk_header, sizeof(header.data_chunk_header))){
+        if (!readBytes(&ptr, stop, header._data_chunk_header, sizeof(header._data_chunk_header))){
             DErr(@"Parse Error 16");
             return KResult_ParseError;
         }
         
-        DLog(@"(37-40) Data Marker: %s \n", header.data_chunk_header);
+        DLog(@"(37-40) Data Marker: %s \n", header._data_chunk_header);
         
         // CHECK data
         //    if (header.data_chunk_header[0]!='d' || header.data_chunk_header[1]!='a' || header.data_chunk_header[2]!='t' || header.data_chunk_header[3]!='a') {
@@ -369,11 +369,11 @@ struct HEADER {
             return KResult_ParseError;
         }
         
-        header.data_size = buffer4[0] |
+        header._data_size = buffer4[0] |
         (buffer4[1] << 8) |
         (buffer4[2] << 16) |
         (buffer4[3] << 24 );
-        DLog(@"(41-44) Size of data chunk: %u \n", header.data_size);
+        DLog(@"(41-44) Size of data chunk: %u \n", header._data_size);
         
         
         //fixme: save start position
@@ -384,57 +384,63 @@ struct HEADER {
 
     -(KResult)parseHeader2:(NSData *)data
     {
-        assert(header.data_size>=0);
         
-        if (data.length<header.data_size+8){
-            DErr(@"Error 19");
-            return KResult_ParseError;
+        if (strncmp((const char*)header._data_chunk_header, "data", 4)!=0){
+            
+            assert(header._data_size>=0);
+             
+             if (data.length<header._data_size+8){
+                 DErr(@"Error 19");
+                 return KResult_ParseError;
+             }
+             
+             unsigned char *ptr = (unsigned char *)[data bytes];
+             unsigned char *stop = ptr + header._data_size + 8;
+             
+             unsigned char bufferx[header._data_size];
+             
+             
+             if (!readBytes(&ptr, stop, bufferx, sizeof(bufferx))){
+                 DErr(@"Parse Error 20");
+                 return KResult_ParseError;
+             }
+             
+             unsigned char buffer4[4];
+             
+             if (!readBytes(&ptr, stop, header._data_chunk_header, sizeof(header._data_chunk_header))){
+                 DErr(@"Parse Error 21");
+                 return KResult_ParseError;
+             }
+             
+             DLog(@" Data Marker: %s \n", header._data_chunk_header);
+             
+             // CHECK data
+            if (strncmp((const char*)header._data_chunk_header, "data", 4)!=0){
+                 DErr(@"Parse Error 22");
+                 return KResult_ParseError;
+             }
+             
+             if (!readBytes(&ptr, stop, buffer4, sizeof(buffer4))){
+                 DErr(@"Parse Error 22");
+                 return KResult_ParseError;
+             }
+             
+             header._data_size = buffer4[0] |
+             (buffer4[1] << 8) |
+             (buffer4[2] << 16) |
+             (buffer4[3] << 24 );
+             DLog(@"Size of data chunk: %u \n", header._data_size);
         }
         
-        unsigned char *ptr = (unsigned char *)[data bytes];
-        unsigned char *stop = ptr + header.data_size + 8;
-        
-        unsigned char bufferx[header.data_size];
+       
         
         
-        if (!readBytes(&ptr, stop, bufferx, sizeof(bufferx))){
-            DErr(@"Parse Error 20");
-            return KResult_ParseError;
-        }
-        
-        unsigned char buffer4[4];
-        unsigned char data_chunk_header[4];
-       // unsigned int data_size;
-        
-        if (!readBytes(&ptr, stop, data_chunk_header, sizeof(data_chunk_header))){
-            DErr(@"Parse Error 21");
-            return KResult_ParseError;
-        }
-        
-        DLog(@" Data Marker: %s \n", data_chunk_header);
-        
-        // CHECK data
-        if (data_chunk_header[0]!='d' || data_chunk_header[1]!='a' || data_chunk_header[2]!='t' || data_chunk_header[3]!='a') {
-            DErr(@"Parse Error 22");
-            return KResult_ParseError;
-        }
-        
-        if (!readBytes(&ptr, stop, buffer4, sizeof(buffer4))){
-            DErr(@"Parse Error 22");
-            return KResult_ParseError;
-        }
-        
-        header.data_size2 = buffer4[0] |
-        (buffer4[1] << 8) |
-        (buffer4[2] << 16) |
-        (buffer4[3] << 24 );
-        DLog(@"Size of data chunk: %u \n", header.data_size2);
         
         
         // calculate no.of samples
         if (header.channels * header.bits_per_sample!=0)
         {
-            long num_samples = (8 * header.data_size) / (header.channels * header.bits_per_sample);
+            long num_samples = (8 * header._data_size) / (header.channels * header.bits_per_sample);
             DLog(@"Number of samples:%lu \n", num_samples);
         }
         
@@ -621,7 +627,7 @@ struct HEADER {
                 }
                 
                 ///FIXME???
-                [self downloadNext:self->reader->header.data_size+8 withSuccess:^(NSData *data){
+                [self downloadNext:self->reader->header._data_size+8 withSuccess:^(NSData *data){
                     KResult res;
                     if ((res=[self->reader parseHeader2:data]) != KResult_OK) {
                         self->_error = KResult2Error(res);
@@ -726,7 +732,7 @@ struct HEADER {
 -(int64_t)duration
 {
     if (_format_is_valid && self->reader->_format.mBytesPerFrame!=0)
-        return self->reader->header.data_size2/self->reader->_format.mBytesPerFrame;
+        return self->reader->header._data_size/self->reader->_format.mBytesPerFrame;
     return 0;
 }
 
