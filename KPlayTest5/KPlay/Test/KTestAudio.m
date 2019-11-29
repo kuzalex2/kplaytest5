@@ -682,14 +682,14 @@ struct HEADER {
     if (_format_is_valid) {
         if (_outSample==nil){
             
-            
+            int64_t chunk_size = 1024*64;//FIXME!!!
             ///FIXME!!!! and check < header.data_size
-            [self downloadNext:1024*64 withSuccess:^(NSData *data){
+            [self downloadNext:chunk_size withSuccess:^(NSData *data){
                // KResult res;
                 self->_outSample = [[KMediaSample alloc] init];
                 self->_outSample.type = self->_type;
                 self->_outSample.data =  data;
-                self->_outSample.ts = self->_position/self->reader->_format.mBytesPerFrame;
+                self->_outSample.ts = (self->_position-chunk_size)/self->reader->_format.mBytesPerFrame;
                 self->_outSample.timescale = self->reader->_format.mSampleRate;
                 
                 dispatch_semaphore_signal(self->_sem1);
@@ -729,8 +729,8 @@ struct HEADER {
     int64_t bytesPerSec =
         self->reader->_format.mSampleRate *
         self->reader->_format.mBytesPerFrame *
-        self->reader->_format.mFramesPerPacket *
-        self->reader->_format.mChannelsPerFrame;
+    self->reader->_format.mFramesPerPacket ;//*
+       // self->reader->_format.mChannelsPerFrame;
     
     int64_t offset = bytesPerSec * sec;
     offset/=self->reader->_format.mBytesPerFrame;
