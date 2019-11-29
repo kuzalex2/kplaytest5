@@ -46,6 +46,7 @@ NSString *KFilterState2String(KFilterState state);
     -(KResult)start;
     -(KResult)pause:(BOOL)waitUntilPaused;
     -(KResult)stop:(BOOL)waitUntilStopped;
+    -(KResult)seek:(float)sec;
 
     - (KOutputPin *) getOutputPinAt:(size_t)i;
     - (KInputPin *) getInputPinAt:(size_t)i;

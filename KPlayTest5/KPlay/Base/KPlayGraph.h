@@ -11,7 +11,7 @@
     - (KResult)play:(NSString * _Nonnull)url autoStart:(BOOL)autoStart;
     - (KResult)pause;
     - (KResult)stop;
-    //- (void)seek:
+    - (KResult)seek:(float)sec;
 @end
 
 typedef enum
@@ -22,7 +22,8 @@ typedef enum
     KGraphState_STOPPING,
     KGraphState_PAUSING,
     KGraphState_PAUSED,
-    KGraphState_STARTED
+    KGraphState_STARTED,
+    KGraphState_SEEKING
 } KGraphState;
 
 @protocol KPlayerEvents<NSObject>

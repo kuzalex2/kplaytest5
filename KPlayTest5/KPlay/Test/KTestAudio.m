@@ -8,7 +8,7 @@
 
 #import "KTestAudio.h"
 #define MYDEBUG
-#define MYWARN
+//#define MYWARN
 #import "myDebug.h"
 
 #include <AudioToolbox/AudioToolbox.h>
@@ -211,14 +211,14 @@ struct HEADER {
         (buffer4[2]<<16) |
         (buffer4[3]<<24);
         
-        DLog(@"(5-8) Overall size: bytes:%u, Kb:%u \n", header.overall_size, header.overall_size/1024);
+        WLog(@"(5-8) Overall size: bytes:%u, Kb:%u \n", header.overall_size, header.overall_size/1024);
         
         if (!readBytes(&ptr, stop, header.wave, sizeof(header.wave))){
             DErr(@"Parse Error 5");
             return KResult_ParseError;
         }
         
-        DLog(@"(9-12) Wave marker: %s\n", header.wave);
+        WLog(@"(9-12) Wave marker: %s\n", header.wave);
         
         // CHECK F M T 0x0
         if (header.wave[0]!='W' || header.wave[1]!='A' || header.wave[2]!='V' || header.wave[3]!='E') {
@@ -231,7 +231,7 @@ struct HEADER {
             return KResult_ParseError;
         }
         
-        DLog(@"(13-16) Fmt marker: %s\n", header.fmt_chunk_marker);
+        WLog(@"(13-16) Fmt marker: %s\n", header.fmt_chunk_marker);
         
         // CHECK F M T 0x0
         if (header.fmt_chunk_marker[0]!='f' || header.fmt_chunk_marker[1]!='m' || header.fmt_chunk_marker[2]!='t' || header.fmt_chunk_marker[3]!=' ') {
@@ -251,7 +251,7 @@ struct HEADER {
         (buffer4[1] << 8) |
         (buffer4[2] << 16) |
         (buffer4[3] << 24);
-        DLog(@"(17-20) Length of Fmt header: %u \n", header.length_of_fmt);
+        WLog(@"(17-20) Length of Fmt header: %u \n", header.length_of_fmt);
         
         if (header.length_of_fmt<16){
             DErr(@"Parse Error 7.1");
@@ -302,10 +302,10 @@ struct HEADER {
             DErr(@"Parse Error 11");
             return KResult_ParseError;
         }
-        DLog(@"%u %u \n", buffer2[0], buffer2[1]);
+        WLog(@"%u %u \n", buffer2[0], buffer2[1]);
         
         header.channels = buffer2[0] | (buffer2[1] << 8);
-        printf("(23-24) Channels: %u \n", _format.mChannelsPerFrame);
+        WLog(@"(23-24) Channels: %u \n", _format.mChannelsPerFrame);
         
         
         if (!readBytes(&ptr, stop, buffer4, sizeof(buffer4))){
@@ -318,7 +318,7 @@ struct HEADER {
         (buffer4[2] << 16) |
         (buffer4[3] << 24);
         
-        DLog(@"(25-28) Sample rate: %u\n", header.sample_rate);
+        WLog(@"(25-28) Sample rate: %u\n", header.sample_rate);
         
         if (!readBytes(&ptr, stop, buffer4, sizeof(buffer4))){
             DErr(@"Parse Error 13");
@@ -329,7 +329,7 @@ struct HEADER {
         (buffer4[1] << 8) |
         (buffer4[2] << 16) |
         (buffer4[3] << 24);
-        DLog(@"(29-32) Byte Rate: %u , Bit Rate:%u\n", header.byterate, header.byterate*8);
+        WLog(@"(29-32) Byte Rate: %u , Bit Rate:%u\n", header.byterate, header.byterate*8);
         
         if (!readBytes(&ptr, stop, buffer2, sizeof(buffer2))){
             DErr(@"Parse Error 14");
@@ -338,7 +338,7 @@ struct HEADER {
         
         header.block_align = buffer2[0] |
         (buffer2[1] << 8);
-        DLog(@"(33-34) Block Alignment: %u \n", header.block_align);
+        WLog(@"(33-34) Block Alignment: %u \n", header.block_align);
         
         
         if (!readBytes(&ptr, stop, buffer2, sizeof(buffer2))){
@@ -348,7 +348,7 @@ struct HEADER {
         
         header.bits_per_sample = buffer2[0] |
         (buffer2[1] << 8);
-        DLog(@"(35-36) Bits per sample: %u \n", header.bits_per_sample);
+        WLog(@"(35-36) Bits per sample: %u \n", header.bits_per_sample);
         
         
         if (!readBytes(&ptr, stop, header._data_chunk_header, sizeof(header._data_chunk_header))){
@@ -356,7 +356,7 @@ struct HEADER {
             return KResult_ParseError;
         }
         
-        DLog(@"(37-40) Data Marker: %s \n", header._data_chunk_header);
+        WLog(@"(37-40) Data Marker: %s \n", header._data_chunk_header);
         
         // CHECK data
         //    if (header.data_chunk_header[0]!='d' || header.data_chunk_header[1]!='a' || header.data_chunk_header[2]!='t' || header.data_chunk_header[3]!='a') {
@@ -373,7 +373,7 @@ struct HEADER {
         (buffer4[1] << 8) |
         (buffer4[2] << 16) |
         (buffer4[3] << 24 );
-        DLog(@"(41-44) Size of data chunk: %u \n", header._data_size);
+        WLog(@"(41-44) Size of data chunk: %u \n", header._data_size);
         
         
         //fixme: save start position
@@ -412,7 +412,7 @@ struct HEADER {
                  return KResult_ParseError;
              }
              
-             DLog(@" Data Marker: %s \n", header._data_chunk_header);
+             WLog(@" Data Marker: %s \n", header._data_chunk_header);
              
              // CHECK data
             if (strncmp((const char*)header._data_chunk_header, "data", 4)!=0){
@@ -429,7 +429,7 @@ struct HEADER {
              (buffer4[1] << 8) |
              (buffer4[2] << 16) |
              (buffer4[3] << 24 );
-             DLog(@"Size of data chunk: %u \n", header._data_size);
+             WLog(@"Size of data chunk: %u \n", header._data_size);
         }
         
        
@@ -441,17 +441,17 @@ struct HEADER {
         if (header.channels * header.bits_per_sample!=0)
         {
             long num_samples = (8 * header._data_size) / (header.channels * header.bits_per_sample);
-            DLog(@"Number of samples:%lu \n", num_samples);
+            WLog(@"Number of samples:%lu \n", num_samples);
         }
         
         long size_of_each_sample = (header.channels * header.bits_per_sample) / 8;
-        DLog(@"Size of each sample:%ld bytes\n", size_of_each_sample);
+        WLog(@"Size of each sample:%ld bytes\n", size_of_each_sample);
         
         if (header.byterate!=0)
         {
             // calculate duration of file
             float duration_in_seconds = (float) header.overall_size / header.byterate;
-            DLog(@"Approx.Duration in seconds=%f\n", duration_in_seconds);
+            WLog(@"Approx.Duration in seconds=%f\n", duration_in_seconds);
         }
         
         ////FIXME!
@@ -720,6 +720,14 @@ struct HEADER {
     *sample = _outSample;
     if (!probe)
         _outSample = nil;
+    return KResult_OK;
+}
+
+-(KResult)seek:(float)sec
+{
+    ///FIXME: @sync????? aaa
+    _outSample = nil;
+    _position=1114208*2;
     return KResult_OK;
 }
 

@@ -36,6 +36,8 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     int64_t _sample_rate;
     AudioQueueBufferRef _buffers[NUM_BUFFERS];
     @protected uint32_t _buffer_size;
+    int64_t _firstTs;
+    BOOL _firstTsValid;
 }
     - (instancetype)init
     {
@@ -45,6 +47,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
             self->_avqueue = nil;
             self->_lock = [[NSObject alloc]init];
             self->_sample_rate = 1000;
+            self->_firstTsValid=false;
         }
         return self;
     }
@@ -215,11 +218,11 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
             Boolean disc;
             OSStatus status2 = AudioQueueGetCurrentTime(_avqueue, NULL, &timeStamp, &disc);
             if( status2 != noErr )
-                return 0;
-            return timeStamp.mSampleTime;
+                return (_firstTsValid?_firstTs:0);
+            return timeStamp.mSampleTime + (_firstTsValid?_firstTs:0);
         }
      
-        return 0;
+        return (_firstTsValid?_firstTs:0);
     }
 
     -(int64_t)timeScale
@@ -292,6 +295,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     {
         @synchronized (self->_samples) {
             [_samples removeAllObjects];
+            _firstTsValid=false;
         }
     }
 
@@ -312,6 +316,10 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         @synchronized (self->_samples) {
             [self->_samples addObject:sample];
             nSamples = _samples.count;
+            if (!_firstTsValid){
+                _firstTsValid=true;
+                _firstTs=sample.ts;
+            }
         }
         
         if (nSamples > 3 && [self state] == AudioQueueWaitForRun_)
@@ -462,6 +470,13 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         return [_queue pushSample:sample];
     }
    // }
+}
+
+-(KResult)seek:(float)sec
+{
+    [_queue stop_];
+    [_queue flushSamples];
+    return KResult_OK;
 }
 
 ///

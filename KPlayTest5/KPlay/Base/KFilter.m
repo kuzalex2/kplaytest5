@@ -167,6 +167,10 @@ NSString *KFilterState2String(KFilterState state)
     [self setStateAndNotify:KFilterState_STOPPED];
     return KResult_OK;
 }
+-(KResult)seek:(float)sec
+{
+    return KResult_OK;
+}
 
 @end
 
@@ -253,13 +257,21 @@ NSString *KFilterState2String(KFilterState state)
 
 -(KResult)pause:(BOOL)waitUntilPaused
 {
+    BOOL first=TRUE;
     while (1)
     {
         @synchronized(_state_mutex) {
             NSLog(@"<%@>State is %@", [self name], KFilterState2String(_state));
             switch (_state) {
                 case KFilterState_PAUSED:
-                    return KResult_OK;
+                    if (!first)
+                        return KResult_OK;
+                    
+                    [self setStateAndNotify:KFilterState_PAUSING];
+                    _pausing_sem = dispatch_semaphore_create(0);
+                    break;
+                    
+                    
                 
                 case KFilterState_STOPPING:
                     return KResult_InvalidState;
@@ -283,6 +295,7 @@ NSString *KFilterState2String(KFilterState state)
         if (!waitUntilPaused)
             return KResult_OK;
         
+        first=FALSE;
         //dispatch_time(DISPATCH_TIME_NOW, 500 * NSEC_PER_MSEC)
        // NSLog(@"Here 1");
         dispatch_semaphore_wait(_pausing_sem, DISPATCH_TIME_FOREVER);
@@ -334,10 +347,12 @@ NSString *KFilterState2String(KFilterState state)
         @synchronized(_state_mutex) {
             switch (_state) {
                 case KFilterState_PAUSING:
-                    [self setStateAndNotify:KFilterState_PAUSED];
-                   // NSLog(@"Here 3");
-                    dispatch_semaphore_signal(_pausing_sem);
-                   // NSLog(@"Here 4");
+                    if (doThreadTick){
+                        [self setStateAndNotify:KFilterState_PAUSED];
+                        // NSLog(@"Here 3");
+                        dispatch_semaphore_signal(_pausing_sem);
+                        // NSLog(@"Here 4");
+                    }
                     break;
                     
                 case KFilterState_STOPPING:

@@ -86,13 +86,10 @@ class ViewController: UIViewController, KPlayerEvents {
         NSLog("touchDown");
         inSeek=true;
     }
-    @IBAction func touchUpI(_ sender: Any) {
-        NSLog("touchUpI");
-        inSeek=false;
-    }
+    
     @IBAction func touchUpO(_ sender: Any) {
         NSLog("touchUpO");
-        inSeek=false;
+        touchUpI(sender);
     }
     
     
@@ -138,6 +135,19 @@ class ViewController: UIViewController, KPlayerEvents {
             self.timeLabel.text = String(format: "%.02f", timeSec);
         }
     }
+    
+    @IBAction func touchUpI(_ sender: Any) {
+        NSLog("touchUpI");
+        inSeek=false;
+        
+        if let mi = self.player.mediaInfo {
+            let durationSec = Float(mi.duration() / mi.timeScale());
+            let timeSec = Float(self.progressSlider.value) * durationSec / 1;
+            
+            player.seek(timeSec);
+           
+        }
+    }
             
             
           
@@ -156,7 +166,7 @@ class ViewController: UIViewController, KPlayerEvents {
             
             if let pi = self.player.positionInfo {
                 
-                if (!inSeek){
+                if (!inSeek && player.state != KGraphState_SEEKING){
             
                     let timeSec = Float(pi.position()) / Float(pi.timeScale());
                     self.timeLabel.text = String(format: "%.02f", timeSec)
@@ -165,6 +175,7 @@ class ViewController: UIViewController, KPlayerEvents {
                     
                     if durationSec>0 {
                         self.progressSlider.value = timeSec/Float(durationSec)
+                        NSLog("State=%@ pos=%@", state2String(state:player.state), self.timeLabel.text ?? "");
                     }
                 }
             }
@@ -172,6 +183,36 @@ class ViewController: UIViewController, KPlayerEvents {
         } else {
             showPlayerPosition(valid: false)
         }
+    }
+    
+    func state2String(state:KGraphState)->String{
+        switch state {
+        case KGraphState_NONE:
+            return "none";
+           
+        case KGraphState_STOPPED:
+            return "stopped";
+            
+
+        case KGraphState_BUILDING:
+            return "building...";
+        case KGraphState_STOPPING:
+            return "stopping...";
+        case KGraphState_PAUSING:
+            return "pausing...";
+        case KGraphState_PAUSED:
+           
+            
+            return "paused";
+        case KGraphState_STARTED:
+            return "started";
+        case KGraphState_SEEKING:
+            return "seeking";
+        default:
+            assert(false);
+        }
+       
+        
     }
     
     func onStateChanged(_ state: KGraphState) {
@@ -212,8 +253,10 @@ class ViewController: UIViewController, KPlayerEvents {
                 stateString = "paused";
             case KGraphState_STARTED:
                 stateString = "started";
+            case KGraphState_SEEKING:
+                stateString = "seeking";
             default:
-                break
+                assert(false);
             }
             UIView.transition(with: self.textLabel,
                               duration: 1.25,

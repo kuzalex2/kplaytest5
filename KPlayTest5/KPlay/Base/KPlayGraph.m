@@ -51,7 +51,7 @@
         
         
         if (_chain.count > 0 && filter == [_chain lastObject]){
-            if (state == KFilterState_PAUSED){
+            if (state == KFilterState_PAUSED && [self state]!=KGraphState_SEEKING){
                 [self setStateAndNotify:KGraphState_PAUSED];
                 ///FIXME:!!!!!!!! all others
                 ///FIXME: mutex
@@ -94,7 +94,68 @@
         return self;
     }
 
-    - (void)buildGraph:(NSString * _Nonnull)url autoStart:(BOOL)autoStart
+
+    - (void)seekSync:(float)sec prevState:(KGraphState)prevState
+    {
+        [self setStateAndNotify:KGraphState_SEEKING];
+            
+        KResult res;
+            
+        for (size_t i = 0; i< _chain.count; i++)
+        {
+            res = [_chain[i] pause:true];
+            if (res!=KResult_OK) {
+                DLog(@"<%@> pause failed", [_chain[i] name]);
+                           
+                [self notifyError: KResult2Error(res)];
+                [self setStateAndNotify:KGraphState_NONE];
+                return;
+            }
+        }
+            
+        for (size_t i = 0; i< _chain.count; i++)
+        {
+            KResult res = [_chain[i] seek:sec];
+            if (res!=KResult_OK) {
+                DLog(@"<%@> seek failed", [_chain[i] name]);
+                           
+                [self notifyError: KResult2Error(res)];
+                [self setStateAndNotify:KGraphState_NONE];
+                return;
+            }
+        }
+        
+        for (size_t i = 0; i< _chain.count; i++)
+        {
+            res = [_chain[i] pause:true];
+            if (res!=KResult_OK) {
+                DLog(@"<%@> pause failed", [_chain[i] name]);
+                           
+                [self notifyError: KResult2Error(res)];
+                [self setStateAndNotify:KGraphState_NONE];
+                return;
+            }
+        }
+            
+        switch (prevState) {
+            case KGraphState_STOPPED:
+                [self setStateAndNotify:KGraphState_STOPPED];
+                break;
+            case KGraphState_PAUSING:
+            case KGraphState_PAUSED:
+                [self setStateAndNotify:KGraphState_PAUSED];
+                break;
+            case KGraphState_STARTED:
+                [self setStateAndNotify:KGraphState_PAUSED];
+                [self startPlaying];
+                break;
+            default:
+                assert(false);
+        }
+    }
+     
+
+    - (void)buildGraphSync:(NSString * _Nonnull)url autoStart:(BOOL)autoStart
     {
         [self setStateAndNotify:KGraphState_BUILDING];
         
@@ -213,7 +274,7 @@
         }
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [self buildGraph:url autoStart:autoStart];
+            [self buildGraphSync:url autoStart:autoStart];
            });
         
         return KResult_OK;
@@ -261,6 +322,31 @@
                     return [self stopPlaying];
                 }
         }
+    }
+
+    
+    - (KResult)seek:(float)sec
+    {
+        _suppress_error = false;
+        KGraphState prevState;
+        @synchronized (_state_mutex) {
+            switch (_state) {
+                case KGraphState_STOPPED:
+                case KGraphState_PAUSING:
+                case KGraphState_PAUSED:
+                case KGraphState_STARTED:
+                    prevState = _state;
+                    break;
+                default:
+                    return KResult_InvalidState;
+                }
+        }
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self seekSync:sec prevState:prevState];
+           });
+        
+        return KResult_OK;
     }
 
 
