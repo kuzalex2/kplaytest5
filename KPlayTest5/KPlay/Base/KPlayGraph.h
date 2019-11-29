@@ -43,6 +43,7 @@ typedef enum
 @protocol KPlayPositionInfo<NSObject>
     -(int64_t)position;
     -(int64_t)timeScale;
+    -(BOOL)isRunning;
 @end
 
 

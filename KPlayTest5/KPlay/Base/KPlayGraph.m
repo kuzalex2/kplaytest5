@@ -240,6 +240,8 @@
     {
         KResult res;
         
+        [self setStateAndNotify:KGraphState_PAUSING];
+        
         for (size_t i = 0; i< _chain.count; i++)
         {
             DLog(@"KTestGraphChainBuilder pausing %@", [_chain[i] name]);
@@ -265,7 +267,7 @@
             DLog(@"KTestGraphChainBuilder stopPlaying %@", [_chain[i] name]);
             if ((res = [_chain[i] stop:true]) != KResult_OK){
                 [self notifyError: KResult2Error(res)];
-                return res;
+                //return res;
             }
         }
         
@@ -283,8 +285,13 @@
             switch ([self state]) {
                 case KGraphState_PAUSED:
                     return [self startPlaying];
-                case KGraphState_STOPPED:
-                    return [self startPlayingWithPause];
+                case KGraphState_STOPPED:{
+                    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                        [self startPlayingWithPause];
+                    });
+                    return KResult_OK;
+                    
+                }
                     
                     
                 case KGraphState_NONE:

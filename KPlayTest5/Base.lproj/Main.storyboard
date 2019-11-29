@@ -47,7 +47,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <slider opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="cqN-0s-S5o">
-                                <rect key="frame" x="88" y="491" width="269" height="30"/>
+                                <rect key="frame" x="88" y="491" width="258" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <connections>
                                     <action selector="touchDown:" destination="BYZ-38-t0r" eventType="touchDown" id="dyJ-hD-C8p"/>
@@ -70,6 +70,10 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="6ng-kw-HvD">
+                                <rect key="frame" x="197" y="431" width="20" height="20"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
@@ -79,6 +83,7 @@
                         <outlet property="pauseBtn" destination="rK7-nL-R0K" id="dTP-Ky-b6B"/>
                         <outlet property="playBtn" destination="lIj-9U-rrk" id="jE2-BJ-OmD"/>
                         <outlet property="progressSlider" destination="cqN-0s-S5o" id="rnk-Cu-MQr"/>
+                        <outlet property="spinner" destination="6ng-kw-HvD" id="g6K-en-iY4"/>
                         <outlet property="stopBtn" destination="rEA-Ys-C1v" id="PKH-UF-28L"/>
                         <outlet property="textLabel" destination="toJ-UB-wk0" id="L5p-o0-OML"/>
                         <outlet property="timeLabel" destination="Xlg-7w-UYM" id="jSb-I9-XRU"/>

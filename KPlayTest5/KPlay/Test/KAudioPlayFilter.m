@@ -57,13 +57,20 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         return _state;
     }
 
-    -(void)waitForRun_
+    -(BOOL)isRunning
     {
         @synchronized (_lock) {
             if (_avqueue == nil)
-                return;
-            if (_state == AudioQueueRunning_)
-                return;
+                return FALSE;
+            return _state == AudioQueueRunning_;
+        }
+    }
+
+    -(void)waitForRun_
+    {
+       @synchronized (_lock) {
+        if (_avqueue == nil)
+            return;
             
             _state = AudioQueueWaitForRun_;
         }///FIXME!!!!!!!!!!
@@ -221,8 +228,6 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
                 return (_firstTsValid?_firstTs:0);
             return timeStamp.mSampleTime + (_firstTsValid?_firstTs:0);
         }
-     
-        return (_firstTsValid?_firstTs:0);
     }
 
     -(int64_t)timeScale
@@ -311,7 +316,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
             return KResult_ERROR;
         }
                 
-        int nSamples = 0;
+        NSUInteger nSamples = 0;
         
         @synchronized (self->_samples) {
             [self->_samples addObject:sample];
@@ -497,6 +502,13 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
    
     return 0;
 }
+
+- (BOOL)isRunning {
+    if (_queue!=nil)
+        return [_queue isRunning];
+    return FALSE;
+}
+
 
 
 

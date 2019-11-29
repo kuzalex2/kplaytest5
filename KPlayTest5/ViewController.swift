@@ -8,8 +8,7 @@
 //
 // TODO: pipe0.wav переписать parser wav data_size2
 // TODO: обработчик ошибок в  returns NSError KRESULTOK=nil
-// TODO: from stop -> to play with PAUSE
-// pause seek play
+
 
 
 
@@ -73,6 +72,7 @@ class ViewController: UIViewController, KPlayerEvents {
     @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var progressSlider: UISlider!
     @IBOutlet weak var durationLabel: UILabel!
+    @IBOutlet weak var spinner: UIActivityIndicatorView!
     
     var positionTimer: Timer?
     var inSeek:Bool = false
@@ -103,7 +103,8 @@ class ViewController: UIViewController, KPlayerEvents {
         textLabel.text = ""
         player.events = self
         onPlayClick(nil)
-       // self.onStateChanged(KGraphState_NONE)
+        spinner.startAnimating()
+        spinner.isHidden = true
     }
     
     func onError(_ error: Error?) {
@@ -166,6 +167,11 @@ class ViewController: UIViewController, KPlayerEvents {
             
             if let pi = self.player.positionInfo {
                 
+                
+                if player.state == KGraphState_STARTED {
+                    self.spinner.isHidden = pi.isRunning()
+                }
+                
                 if (!inSeek && player.state != KGraphState_SEEKING){
             
                     let timeSec = Float(pi.position()) / Float(pi.timeScale());
@@ -223,7 +229,7 @@ class ViewController: UIViewController, KPlayerEvents {
             
             self.playBtn.isEnabled = (state == KGraphState_NONE || state == KGraphState_STOPPED || state == KGraphState_PAUSED);
             self.pauseBtn.isEnabled = (state == KGraphState_STARTED);
-            self.stopBtn.isEnabled = (state == KGraphState_STARTED || state == KGraphState_PAUSED || state == KGraphState_BUILDING);
+            self.stopBtn.isEnabled = (state != KGraphState_STOPPED && state != KGraphState_NONE);
             
         
             switch state {
@@ -231,19 +237,24 @@ class ViewController: UIViewController, KPlayerEvents {
                 self.showPlayerPosition(valid: false);
                 self.positionTimer?.invalidate();
                 stateString = "none";
+                self.spinner.isHidden = true
                
             case KGraphState_STOPPED:
                 stateString = "stopped";
                 self.showPlayerPosition(valid: false);
                 self.positionTimer?.invalidate();
+                self.spinner.isHidden = true
                
 
             case KGraphState_BUILDING:
                 stateString = "building...";
+                self.spinner.isHidden = false
             case KGraphState_STOPPING:
                 stateString = "stopping...";
+                self.spinner.isHidden = false
             case KGraphState_PAUSING:
                 stateString = "pausing...";
+                self.spinner.isHidden = false
             case KGraphState_PAUSED:
                 self.showPlayerPosition(valid: true);
                 self.positionTimer?.invalidate();
@@ -251,10 +262,15 @@ class ViewController: UIViewController, KPlayerEvents {
 
                 
                 stateString = "paused";
+                self.spinner.isHidden = true
             case KGraphState_STARTED:
                 stateString = "started";
+                
+                self.spinner.isHidden = self.player.positionInfo?.isRunning() ?? false;
+//                NSLog("hidd %d", self.spinner.isHidden);
             case KGraphState_SEEKING:
                 stateString = "seeking";
+                self.spinner.isHidden = false
             default:
                 assert(false);
             }
@@ -264,7 +280,7 @@ class ViewController: UIViewController, KPlayerEvents {
                               animations: { [weak self] in
                                 self?.textLabel.text = stateString
                 }, completion: nil)
-            print("onStateChanged %@", state)
+            print("onStateChanged %@", self.state2String(state: state))
         }
     }
   

@@ -440,8 +440,7 @@ struct HEADER {
         // calculate no.of samples
         if (header.channels * header.bits_per_sample!=0)
         {
-            long num_samples = (8 * header._data_size) / (header.channels * header.bits_per_sample);
-            WLog(@"Number of samples:%lu \n", num_samples);
+            WLog(@"Number of samples:%lu \n", (8 * header._data_size) / (header.channels * header.bits_per_sample));
         }
         
         long size_of_each_sample = (header.channels * header.bits_per_sample) / 8;
@@ -449,9 +448,7 @@ struct HEADER {
         
         if (header.byterate!=0)
         {
-            // calculate duration of file
-            float duration_in_seconds = (float) header.overall_size / header.byterate;
-            WLog(@"Approx.Duration in seconds=%f\n", duration_in_seconds);
+            WLog(@"Approx.Duration in seconds=%f\n", (float) header.overall_size / header.byterate);
         }
         
         _format.mSampleRate = header.sample_rate;

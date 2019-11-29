@@ -227,7 +227,9 @@ NSString *KFilterState2String(KFilterState state)
                     return KResult_OK;
                 
                 case KFilterState_PAUSING:
-                    return KResult_InvalidState;
+                    
+                    goto sleep;
+//                    return KResult_InvalidState;
                     
                 case KFilterState_PAUSED:
                 case KFilterState_STARTED:
@@ -245,6 +247,11 @@ NSString *KFilterState2String(KFilterState state)
         
         //dispatch_time(DISPATCH_TIME_NOW, 500 * NSEC_PER_MSEC)
         dispatch_semaphore_wait(_stopping_sem, DISPATCH_TIME_FOREVER);
+        continue;
+    sleep:
+        //wait until paused
+        usleep(10000);
+        
     }
 }
 
@@ -347,7 +354,7 @@ NSString *KFilterState2String(KFilterState state)
         @synchronized(_state_mutex) {
             switch (_state) {
                 case KFilterState_PAUSING:
-                    if (doThreadTick){
+                    if (doThreadTick || error){
                         [self setStateAndNotify:KFilterState_PAUSED];
                         // NSLog(@"Here 3");
                         dispatch_semaphore_signal(_pausing_sem);

@@ -547,7 +547,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.instreamatic.KPlayer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kuzalex.KPlayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "KPlayTest5/KPlayTest5-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -568,7 +568,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.instreamatic.KPlayer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kuzalex.KPlayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "KPlayTest5/KPlayTest5-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
