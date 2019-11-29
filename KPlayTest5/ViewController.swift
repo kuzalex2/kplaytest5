@@ -10,7 +10,7 @@
 
 import UIKit
 
-class KTestGraph1 : KTestGraphChainBuilder {
+class KTestGraph1 : KPlayGraphChainBuilder {
     
     override func play(_ url: String, autoStart: Bool) -> KResult {
        
@@ -33,7 +33,7 @@ class KTestGraph1 : KTestGraphChainBuilder {
     }
 }
 
-class KTestAudioGraph : KTestGraphChainBuilder {
+class KTestAudioGraph : KPlayGraphChainBuilder {
     
     override func play(_ url: String, autoStart: Bool) -> KResult {
        

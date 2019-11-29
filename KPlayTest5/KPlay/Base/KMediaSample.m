@@ -3,7 +3,7 @@
 //  KPlayer
 //
 //  Created by test name on 15.04.2019.
-//  Copyright © 2019 Instreamatic. All rights reserved.
+//  Copyright © 2019 kuzalex. All rights reserved.
 //
 
 #define MYDEBUG
