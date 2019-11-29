@@ -304,7 +304,7 @@ struct HEADER {
         }
         DLog(@"%u %u \n", buffer2[0], buffer2[1]);
         
-        _format.mChannelsPerFrame = header.channels = buffer2[0] | (buffer2[1] << 8);
+        header.channels = buffer2[0] | (buffer2[1] << 8);
         printf("(23-24) Channels: %u \n", _format.mChannelsPerFrame);
         
         
@@ -313,7 +313,7 @@ struct HEADER {
             return KResult_ParseError;
         }
         
-        _format.mSampleRate = header.sample_rate = buffer4[0] |
+        header.sample_rate = buffer4[0] |
         (buffer4[1] << 8) |
         (buffer4[2] << 16) |
         (buffer4[3] << 24);
@@ -448,14 +448,13 @@ struct HEADER {
             DLog(@"Approx.Duration in seconds=%f\n", duration_in_seconds);
         }
         
-        //_format.mChannelsPerFrame
-        //_format.mSampleRate
-        
         ////FIXME!
+        _format.mSampleRate = header.sample_rate;
+        _format.mChannelsPerFrame = header.channels;
         _format.mFormatFlags      = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
-        _format.mBitsPerChannel   = (UInt32)(8 * size_of_each_sample);
-        _format.mBytesPerFrame    = (UInt32)(size_of_each_sample * _format.mChannelsPerFrame);
-        ////FIXME!
+        _format.mBitsPerChannel   = (UInt32)(8 * size_of_each_sample / _format.mChannelsPerFrame);
+        _format.mBytesPerFrame    = (UInt32)(size_of_each_sample /** _format.mChannelsPerFrame*/);
+        ////FIXME!aaa
         _format.mFramesPerPacket  = 1;
         ////FIXME!
         _format.mBytesPerPacket   = _format.mBytesPerFrame * _format.mFramesPerPacket;
@@ -608,12 +607,16 @@ struct HEADER {
             KResult res;
             if ((res=[self->reader parseHeader0:data]) != KResult_OK) {
                 self->_error = KResult2Error(res);
+                self->_outSample = nil;
+                dispatch_semaphore_signal(self->_sem1);
                 return;
             }
             [self downloadNext:self->reader->header.length_of_fmt+8 withSuccess:^(NSData *data){
                 KResult res;
                 if ((res=[self->reader parseHeader1:data]) != KResult_OK) {
                     self->_error = KResult2Error(res);
+                    self->_outSample = nil;
+                    dispatch_semaphore_signal(self->_sem1);
                     return;
                 }
                 
@@ -622,6 +625,8 @@ struct HEADER {
                     KResult res;
                     if ((res=[self->reader parseHeader2:data]) != KResult_OK) {
                         self->_error = KResult2Error(res);
+                        self->_outSample = nil;
+                        dispatch_semaphore_signal(self->_sem1);
                         return;
                     }
                     

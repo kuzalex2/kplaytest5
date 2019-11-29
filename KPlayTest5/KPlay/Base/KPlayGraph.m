@@ -296,6 +296,8 @@
         NSError *error;
         KResult res;
 
+        f.events = self;
+        
         if ((res = [f pause:true]) != KResult_OK ) {
             return res;
         }
@@ -307,7 +309,7 @@
             }
         }
               
-        f.events = self;
+        
         
         return KResult_OK;
     }

@@ -36,7 +36,7 @@ class KTestGraph1 : KPlayGraphChainBuilder {
 class KTestAudioGraph : KPlayGraphChainBuilder {
     
     override func play(_ url: String, autoStart: Bool) -> KResult {
-       
+        
         
         do {
             objc_sync_enter(super.state_mutex)
@@ -44,9 +44,10 @@ class KTestAudioGraph : KPlayGraphChainBuilder {
             if (super.state == KGraphState_NONE){
                 super.chain?.removeAllObjects();
                 //super.chain?.add(KAudioSourceToneFilter());
-                super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/dom17.wav"));
-               // super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/pipe.wav"));
-                //super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/2.wav"));
+            //super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/dom17.wav"));
+            super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/pipe0.wav"));
+            //super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/pipe.wav"));
+            //super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/2.wav"));
 
                 super.chain?.add(KAudioPlayFilter());
                 //super.chain?.add(KTestSinkFilter());

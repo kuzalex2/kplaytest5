@@ -31,7 +31,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
 
 @implementation AudioQueueBase{
     AudioQueueState _state;
-    /*@protected*/ AudioQueueRef _avqueue;
+    AudioQueueRef _avqueue;
     NSObject *_lock;
     int64_t _sample_rate;
     AudioQueueBufferRef _buffers[NUM_BUFFERS];
@@ -63,7 +63,11 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
                 return;
             
             _state = AudioQueueWaitForRun_;
-        }
+        }///FIXME!!!!!!!!!!
+        ///FIXME!!!!!!!!!!
+        ///FIXME!!!!!!!!!!
+        ///FIXME!!!!!!!!!!
+        ///FIXME!!!!!!!!!! lock to all!!!!
         
         DLog(@"AudioQueueWaitForRun_");
         
