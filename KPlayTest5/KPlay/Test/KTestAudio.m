@@ -454,15 +454,12 @@ struct HEADER {
             WLog(@"Approx.Duration in seconds=%f\n", duration_in_seconds);
         }
         
-        ////FIXME!
         _format.mSampleRate = header.sample_rate;
         _format.mChannelsPerFrame = header.channels;
         _format.mFormatFlags      = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
         _format.mBitsPerChannel   = (UInt32)(8 * size_of_each_sample / _format.mChannelsPerFrame);
         _format.mBytesPerFrame    = (UInt32)(size_of_each_sample /** _format.mChannelsPerFrame*/);
-        ////FIXME!aaa
         _format.mFramesPerPacket  = 1;
-        ////FIXME!
         _format.mBytesPerPacket   = _format.mBytesPerFrame * _format.mFramesPerPacket;
         _format.mReserved         = 0;
         
@@ -725,9 +722,26 @@ struct HEADER {
 
 -(KResult)seek:(float)sec
 {
+    assert(_format_is_valid);
+    
+    
+    
+    int64_t bytesPerSec =
+        self->reader->_format.mSampleRate *
+        self->reader->_format.mBytesPerFrame *
+        self->reader->_format.mFramesPerPacket *
+        self->reader->_format.mChannelsPerFrame;
+    
+    int64_t offset = bytesPerSec * sec;
+    offset/=self->reader->_format.mBytesPerFrame;
+    offset*=self->reader->_format.mBytesPerFrame;
+    
+  
+    
     ///FIXME: @sync????? aaa
     _outSample = nil;
-    _position=1114208*2;
+    _position = _start_data_position + offset;
+//    _position=1114208*2;
     return KResult_OK;
 }
 
