@@ -25,10 +25,17 @@ typedef enum  {
 
 @end
 
+void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef buffer);
+
+#define NUM_BUFFERS 3
+
 @implementation AudioQueueBase{
     AudioQueueState _state;
-    @protected AudioQueueRef _avqueue;
+    /*@protected*/ AudioQueueRef _avqueue;
     NSObject *_lock;
+    int64_t _sample_rate;
+    AudioQueueBufferRef _buffers[NUM_BUFFERS];
+    @protected uint32_t _buffer_size;
 }
     - (instancetype)init
     {
@@ -37,6 +44,7 @@ typedef enum  {
             self->_state = AudioQueueStopped_;
             self->_avqueue = nil;
             self->_lock = [[NSObject alloc]init];
+            self->_sample_rate = 1000;
         }
         return self;
     }
@@ -120,6 +128,75 @@ typedef enum  {
             DErr(@"AudioQueueStop failed");
         }
     }
+            
+          
+
+    -(KResult)initOutput:(KMediaSample * _Nonnull)sample
+    {
+        const AudioStreamBasicDescription *fmt = CMAudioFormatDescriptionGetStreamBasicDescription(sample.type.format);
+        @synchronized (_lock) {
+             if (fmt == nil || AudioQueueNewOutput(fmt, audioQueueCallback2, (__bridge void *)self, nil, nil, 0, &_avqueue)!=noErr){
+                DErr(@"AudioQueueNewOutput failed");
+                return KResult_ERROR;
+            }
+        }
+        _sample_rate = fmt->mSampleRate;
+        _buffer_size = (uint32_t)sample.data.length;
+        
+        return KResult_OK;
+    }
+
+     -(KResult)allocBuffers
+    {
+               
+        for (int i = 0; i < NUM_BUFFERS; i++)
+        {
+            @synchronized (_lock) {
+
+                if ( AudioQueueAllocateBuffer(_avqueue, _buffer_size, &_buffers[i]) != noErr ){
+                    DErr(@"AudioQueueAllocateBuffer failed");
+                    return KResult_ERROR;
+                }
+            }
+            
+            _buffers[i]->mAudioDataByteSize = self->_buffer_size;
+            
+            [self audioQueueCallback:_avqueue buffer:_buffers[i]];
+            
+        }
+        return KResult_OK;
+    }
+
+    -(KMediaSample *)getNextSample
+    {
+        return nil;
+    }
+
+    -(void) audioQueueCallback:(AudioQueueRef)queue buffer:(AudioQueueBufferRef) buffer
+    {
+ 
+        KMediaSample *sample = [self getNextSample];
+        
+       
+        if (sample!=nil){
+            assert( buffer->mAudioDataByteSize == sample.data.length);
+            
+            memcpy(buffer->mAudioData, sample.data.bytes, sample.data.length);
+            
+            @synchronized (_lock) {
+
+                DErr(@"audioQueueCallback enqueue");
+                if ( AudioQueueEnqueueBuffer(_avqueue, buffer, 0, NULL) != noErr ){
+                    DErr(@"AudioQueueEnqueueBuffer failed");
+                }
+            }
+        } else {
+            
+            if ([self state] != AudioQueueStopped_){///FIXME
+                [self waitForRun_];
+            }
+        }
+    }
 
     ///
     ///  KPlayPositionInfo
@@ -127,17 +204,6 @@ typedef enum  {
 
     -(int64_t)position
     {
-        ///FIXME!!!!!: thread safe _avqueue from superclass!!!
-        ///FIXME!!!!!: thread safe _avqueue from superclass!!!
-        ///FIXME!!!!!: thread safe _avqueue from superclass!!!
-        ///FIXME!!!!!: thread safe _avqueue from superclass!!!
-        ///FIXME!!!!!: thread safe _avqueue from superclass!!!
-        ///FIXME!!!!!: thread safe _avqueue from superclass!!!
-        ///FIXME!!!!!: thread safe _avqueue from superclass!!!
-        ///FIXME!!!!!: thread safe _avqueue from superclass!!!
-
-        
-        
         @synchronized (_lock) {
             if (_avqueue == nil)
                 return 0;
@@ -148,23 +214,26 @@ typedef enum  {
                 return 0;
             return timeStamp.mSampleTime;
         }
-        
-        
-      // if (_format_is_valid && self->reader->_format.mBytesPerFrame!=0)
-        //    return self->reader->header.data_size2/self->reader->_format.mBytesPerFrame;
+     
         return 0;
     }
 
     -(int64_t)timeScale
     {
-       
-        return 48000;
+        return _sample_rate;
     }
+
+
+    
 
     
 @end
 
-
+void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef buffer)
+{
+    AudioQueueBase *q = (__bridge AudioQueueBase *)custom_data;
+    [q audioQueueCallback:queue buffer:buffer];
+}
 
 
 @interface AudioQueue : AudioQueueBase
@@ -174,15 +243,13 @@ typedef enum  {
 
 
 
-#define NUM_BUFFERS 3
+
 #define MAX_SAMPLES 10
 
-void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef buffer);
+
 
 @implementation AudioQueue {
-    AudioQueueBufferRef _buffers[NUM_BUFFERS];
     NSMutableArray *_samples;
-    uint32_t _buffer_size;
 }
     - (instancetype)initWithSample:(KMediaSample *) sample
     {
@@ -200,13 +267,10 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         self = [super init];
         if (self) {
 
-            if (AudioQueueNewOutput(CMAudioFormatDescriptionGetStreamBasicDescription(sample.type.format), audioQueueCallback0, (__bridge void *)self, nil, nil, 0, &_avqueue)!=noErr){
-                DErr(@"AudioQueueNewOutput failed");
+            if ([super initOutput:sample]!=KResult_OK) {
                 return nil;
             }
             
-              
-            self->_buffer_size = (uint32_t)sample.data.length;
             self->_samples = [[NSMutableArray alloc] init];
         }
         return self;
@@ -234,7 +298,7 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         if (sample==nil)
             return KResult_ERROR;
         
-        if (sample.data.length != _buffer_size) {
+        if (sample.data.length != self->_buffer_size) {
             DErr(@"sample.data.length != _buffer_size %lu %d",(unsigned long)sample.data.length,_buffer_size);
             return KResult_ERROR;
         }
@@ -249,53 +313,28 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         if (nSamples > 3 && [self state] == AudioQueueWaitForRun_)
         {
             [self start_];
+            
+            [super allocBuffers];
         
-            for (int i = 0; i < NUM_BUFFERS; i++)
-            {
-                if ( AudioQueueAllocateBuffer(_avqueue, self->_buffer_size, &_buffers[i]) != noErr ){
-                    DErr(@"AudioQueueAllocateBuffer failed");
-                }
-                        
-                _buffers[i]->mAudioDataByteSize = self->_buffer_size;
-                
-                [self audioQueueCallback:_avqueue buffer:_buffers[i]];
-         
-            }
+            
         }
         
         return KResult_OK;
     }
 
-    -(void) audioQueueCallback:(AudioQueueRef)queue buffer:(AudioQueueBufferRef) buffer
+    -(KMediaSample *)getNextSample
     {
-     
         KMediaSample *sample = nil;
-        
-        
         @synchronized (self->_samples) {
             if (_samples.count > 0){
                 sample = [_samples objectAtIndex:0];
                 [_samples removeObjectAtIndex:0];
             }
         }
-        
-        if (sample!=nil){
-            assert( buffer->mAudioDataByteSize == sample.data.length);
-            
-            memcpy(buffer->mAudioData, sample.data.bytes, sample.data.length);
-            
-            DErr(@"audioQueueCallback enqueue");
-            if ( AudioQueueEnqueueBuffer(_avqueue, buffer, 0, NULL) != noErr ){
-                DErr(@"AudioQueueEnqueueBuffer failed");
-            }
-        } else {
-            
-            if ([self state] != AudioQueueStopped_){///FIXME
-                [self waitForRun_];
-            }
-        }
+        return sample;
     }
 
+   
 
     +(BOOL)isInputMediaTypeSupported:(KMediaType *)type
     {
@@ -305,9 +344,9 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
             const AudioStreamBasicDescription  * _Nullable pformat  = CMAudioFormatDescriptionGetStreamBasicDescription(type.format);
             if (pformat==nil)
                 return FALSE;
-            //_format = AudioStreamBasicDescription
-            AudioStreamBasicDescription format = *pformat;
-            NSLog(@"%d", format.mBitsPerChannel);
+            //_format = AudioStream
+          //  _format = *pformat;
+           
             
             
             
@@ -319,17 +358,13 @@ void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
 
 @end
 
-void audioQueueCallback0(void *custom_data, AudioQueueRef queue, AudioQueueBufferRef buffer)
-{
-    AudioQueue *q = (__bridge AudioQueue *)custom_data;
-    [q audioQueueCallback:queue buffer:buffer];
-}
+
 
 
 
 
 @implementation KAudioPlayFilter {
-    const AudioStreamBasicDescription * _Nullable _format ;
+   // const AudioStreamBasicDescription * _Nullable _format ;
     AudioQueue *_queue;
 }
 
