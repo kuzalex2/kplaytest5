@@ -45,6 +45,9 @@ class KTestAudioGraph : KPlayGraphChainBuilder {
                 super.chain?.removeAllObjects();
                 //super.chain?.add(KAudioSourceToneFilter());
                 super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/dom17.wav"));
+               // super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/pipe.wav"));
+                //super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/2.wav"));
+
                 super.chain?.add(KAudioPlayFilter());
                 //super.chain?.add(KTestSinkFilter());
             }
@@ -63,7 +66,9 @@ class ViewController: UIViewController, KPlayerEvents {
     @IBOutlet weak var textLabel: UILabel!
     @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var progressSlider: UISlider!
+    @IBOutlet weak var durationLabel: UILabel!
     
+    var positionTimer: Timer?
     
     @IBAction func valueChanged(_ sender: Any) {
          NSLog("valueChanged");
@@ -101,6 +106,39 @@ class ViewController: UIViewController, KPlayerEvents {
         }
     }
     
+    @objc func runTimedCode()
+    {
+        showPlayerPosition(valid: true);
+    }
+    
+    func showPlayerPosition(valid:Bool)
+    {
+        if (!valid){
+            self.timeLabel.text = "-";
+            self.durationLabel.text = "-";
+            self.progressSlider.value=0;
+            self.progressSlider.isEnabled = false;
+            return;
+        }
+        if let mi = self.player.mediaInfo {
+            let durationSec = mi.duration() / mi.timeScale();
+            self.durationLabel.text = "\(durationSec)";
+            
+            //if let mi = self.player.mediaInfo, let pi = self.player.positionInfo {
+            //                    let durationSec = mi.duration / mi.timeScale;
+            //                    self.durationLabel.text = String(format: "@d / %d", Int(durationSec));
+            //
+            //                    let timeSec = pi.position / pi.timeScale;
+            //                    self.durationLabel.text = String(format: "@d / %d", Int(timeSec));
+            //
+            //                    self.progressSlider.isEnabled = true;
+            
+            
+        } else {
+            showPlayerPosition(valid: false)
+        }
+    }
+    
     func onStateChanged(_ state: KGraphState) {
         
         DispatchQueue.main.async {
@@ -114,9 +152,16 @@ class ViewController: UIViewController, KPlayerEvents {
         
             switch state {
             case KGraphState_NONE:
+                self.showPlayerPosition(valid: false);
+                self.positionTimer?.invalidate();
                 stateString = "none";
+               
             case KGraphState_STOPPED:
                 stateString = "stopped";
+                self.showPlayerPosition(valid: false);
+                self.positionTimer?.invalidate();
+               
+
             case KGraphState_BUILDING:
                 stateString = "building...";
             case KGraphState_STOPPING:
@@ -124,6 +169,11 @@ class ViewController: UIViewController, KPlayerEvents {
             case KGraphState_PAUSING:
                 stateString = "pausing...";
             case KGraphState_PAUSED:
+                self.showPlayerPosition(valid: true);
+                self.positionTimer?.invalidate();
+                self.positionTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(self.runTimedCode), userInfo: nil, repeats: true)
+
+                
                 stateString = "paused";
             case KGraphState_STARTED:
                 stateString = "started";

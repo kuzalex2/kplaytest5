@@ -31,10 +31,26 @@ typedef enum
     - (void)onStateChanged:(KGraphState)state;
 @end
 
+@protocol KPlayMediaInfo<NSObject>
+-(int64_t)duration;
+-(int64_t)timeScale;
+    //-(NSInteger)durationSec;
+    //@property int32_t duration;
+    //@property int32_t timeScale;
+@end
+
+@protocol KPlayPositionInfo<NSObject>
+    //-(NSInteger)durationSec;
+    @property int32_t position;
+    @property int32_t timeScale;
+@end
 
 
 @interface KPlayGraphChainBuilder : NSObject<KPlayEvents, KPlayer>
     @property (weak, nonatomic) id<KPlayerEvents> _Nullable events;
+    @property (weak, nonatomic) id<KPlayMediaInfo> _Nullable mediaInfo;
+    @property (weak, nonatomic) id<KPlayPositionInfo> _Nullable positionInfo;
+
     @property KGraphState state;
     @property NSObject * _Nonnull state_mutex;
     @property NSMutableArray<KFilter*> * _Nullable chain;

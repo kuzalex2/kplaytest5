@@ -104,7 +104,7 @@
         {
             DLog(@"KTestGraphChainBuilder Prepare %@", [_chain[i] name]);
             if ( (res=[self prepareFilter:_chain[i]]) != KResult_OK ) {
-                DLog(@"<%@> Prepare failed", [_chain[i] name]);
+                DLog(@"<%@> Prepare faileKPlayMediaInfod", [_chain[i] name]);
                 
                 [self notifyError: KResult2Error(res)];
                 [self setStateAndNotify:KGraphState_NONE];
@@ -121,7 +121,20 @@
                 }
             }
         }
-               
+        
+        
+        for (size_t i = 0; i< _chain.count; i++) {
+            if (self.mediaInfo == nil) {
+                if ([_chain[i] conformsToProtocol:@protocol(KPlayMediaInfo) ]) {
+                    self.mediaInfo = (id<KPlayMediaInfo> ) _chain[i];
+                }
+            }
+            if (self.positionInfo == nil) {
+                if ([_chain[i] conformsToProtocol:@protocol(KPlayPositionInfo) ]) {
+                    self.positionInfo = (id<KPlayPositionInfo> ) _chain[i];
+                }
+            }
+        }
         
         
         [self setStateAndNotify:KGraphState_PAUSED];

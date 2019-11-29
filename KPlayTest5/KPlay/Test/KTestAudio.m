@@ -154,6 +154,7 @@ struct HEADER {
     unsigned int bits_per_sample;                // bits per sample, 8- 8bits, 16- 16 bits etc
     unsigned char data_chunk_header [4];        // DATA string or FLLR string
     unsigned int data_size;                        // NumSamples * NumChannels * BitsPerSample/8 - size of the next chunk that will be read
+    unsigned int data_size2;
 };
 
 @interface WavReader : NSObject{
@@ -403,7 +404,7 @@ struct HEADER {
         
         unsigned char buffer4[4];
         unsigned char data_chunk_header[4];
-        unsigned int data_size;
+       // unsigned int data_size;
         
         if (!readBytes(&ptr, stop, data_chunk_header, sizeof(data_chunk_header))){
             DErr(@"Parse Error 21");
@@ -423,11 +424,11 @@ struct HEADER {
             return KResult_ParseError;
         }
         
-        data_size = buffer4[0] |
+        header.data_size2 = buffer4[0] |
         (buffer4[1] << 8) |
         (buffer4[2] << 16) |
         (buffer4[3] << 24 );
-        DLog(@"Size of data chunk: %u \n", data_size);
+        DLog(@"Size of data chunk: %u \n", header.data_size2);
         
         
         // calculate no.of samples
@@ -474,6 +475,11 @@ struct HEADER {
 
 @end
 
+//@protocol KPlayMediaInfo<NSObject>
+//    //-(NSInteger)durationSec;
+//    @property int32_t duration;
+//    @property int32_t timeScale;
+//@end
 
 @implementation KAudioSourceWavReaderFilter{
     NSURL *_url;
@@ -487,6 +493,9 @@ struct HEADER {
     NSUInteger _position;
     NSUInteger _start_data_position;
 }
+
+
+
 
 -(instancetype)initWithUrl:(NSString *)url
 {
@@ -701,6 +710,26 @@ struct HEADER {
     if (!probe)
         _outSample = nil;
     return KResult_OK;
+}
+
+
+
+///
+///  KPlayMediaInfo
+///
+
+-(int64_t)duration
+{
+    if (_format_is_valid && self->reader->_format.mBytesPerFrame!=0)
+        return self->reader->header.data_size2/self->reader->_format.mBytesPerFrame;
+    return 0;
+}
+
+-(int64_t)timeScale
+{
+    if (_format_is_valid)
+        return self->reader->_format.mSampleRate;
+    return 1000;
 }
 
 @end

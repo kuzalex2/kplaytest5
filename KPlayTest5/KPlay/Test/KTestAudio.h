@@ -7,6 +7,7 @@
 //
 
 #import "KFilter.h"
+#import "KPlayGraph.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -15,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 
-@interface KAudioSourceWavReaderFilter : KFilter
+@interface KAudioSourceWavReaderFilter : KFilter<KPlayMediaInfo>
     -(instancetype)initWithUrl:(NSString *)url;
     -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error;
 @end
