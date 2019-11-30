@@ -47,11 +47,7 @@ class KTestAudioGraph : KPlayGraphChainBuilder {
             defer { objc_sync_exit(super.state_mutex)}
             if (super.state == KGraphState_NONE){
                 super.chain?.removeAllObjects();
-                //super.chain?.add(KAudioSourceToneFilter());
-            super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/dom17.wav"));
-            //super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/pipe0.wav"));
-            //super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/pipe.wav"));
-            //super.chain?.add(KAudioSourceWavReaderFilter(url: "http://p.kuzalex.com/wav/2.wav"));
+            super.chain?.add(KAudioSourceWavReaderFilter(url: url));
 
                 super.chain?.add(KAudioPlayFilter());
                 //super.chain?.add(KTestSinkFilter());
@@ -295,8 +291,12 @@ class ViewController: UIViewController, KPlayerEvents {
     @IBAction func onPlayClick(_ sender: Any?) {
         NSLog("onPlay");
         
-        _ = player.play("https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_ts/v9/fileSequence97.ts", autoStart: true)
-        //player.play("https://kuzalex.com:8888/videos/streaming/examples/img_bipbop_adv_example_ts/v9/fileSequence97.ts", autoStart: true)
+        _ = player.play("http://p.kuzalex.com/wav/gr.wav", autoStart: true)
+        //_ = player.play("http://p.kuzalex.com/wav/dom17.wav", autoStart: true)
+//        _ = player.play("http://p.kuzalex.com/wav/pipe0.wav", autoStart: true)
+//        _ = player.play("http://p.kuzalex.com/wav/pipe.wav", autoStart: true)
+//        _ = player.play("http://p.kuzalex.com/wav/2.wav", autoStart: true)
+//
     }
     
     
