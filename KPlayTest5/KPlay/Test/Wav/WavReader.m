@@ -66,6 +66,7 @@ BOOL read32Size(unsigned char **ptr, unsigned char *stop, unsigned int *res)
 
 @synthesize nextBytesToRead = _nextBytesToRead;
 @synthesize dataSize = _dataSize;
+@synthesize duration = _duration;
 
 -(int64_t)nextBytesToRead{
     switch (_state) {
@@ -102,6 +103,17 @@ BOOL read32Size(unsigned char **ptr, unsigned char *stop, unsigned int *res)
     }
 }
 
+-(int64_t)duration{
+    switch (_state) {
+        case WavReaderStateSample:
+            if (_format.mBytesPerFrame!=0)
+                return header.data_size/_format.mBytesPerFrame;
+            return 0;
+        default:
+            assert(0);
+            return 0;
+    }
+}
 
 - (instancetype)init
 {

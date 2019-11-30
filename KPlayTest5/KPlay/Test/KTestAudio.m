@@ -147,7 +147,6 @@
     dispatch_semaphore_t _sem1;
     KMediaSample *_outSample;
     NSError *_error;
-    BOOL _format_is_valid;
     
     NSUInteger _position;
     NSUInteger _start_data_position;
@@ -163,7 +162,6 @@
         self->_type = nil;
         self->_download_task=nil;
         self->_url = [[NSURL alloc] initWithString:url];
-        self->_format_is_valid=FALSE;
         self->_position=0;
         self->_start_data_position=0;
         self->reader = [[WavReader alloc]init];
@@ -193,7 +191,7 @@
             }
             self->_position=self->_start_data_position;
             //self->_start_data_position=0;
-            self->_format_is_valid = FALSE;
+            //self->_format_is_valid = FALSE;
             break;
         case KFilterState_PAUSING:
         case KFilterState_STARTED:
@@ -282,7 +280,6 @@
             self->_outSample = nil;
             self->_position=0;
             self->_start_data_position=0;
-            self->_format_is_valid = FALSE;
             [self->reader reset];
             dispatch_semaphore_signal(self->_sem1);
             return;
@@ -310,7 +307,6 @@
             self->_type = [[KMediaType alloc] initWithName:@"audio/pcm"];
             [self->_type setFormat:cmformat];
             
-            self->_format_is_valid=TRUE;
             
             //dispatch_semaphore_signal(self->_sem1);
             //return;
@@ -340,7 +336,6 @@
             }
             _position=0;
             _start_data_position=0;
-            _format_is_valid = FALSE;
             [reader reset];
             return res;
         }
@@ -362,7 +357,7 @@
 
 -(KResult)seek:(float)sec
 {
-    assert(_format_is_valid);
+    assert(self->reader.state == WavReaderStateSample);
     
     
     
@@ -393,14 +388,14 @@
 
 -(int64_t)duration
 {
-    if (_format_is_valid && self->reader.format.mBytesPerFrame!=0)
-        return self->reader.dataSize/self->reader.format.mBytesPerFrame;
+    if (self->reader.state == WavReaderStateSample )
+        return self->reader.duration;
     return 0;
 }
 
 -(int64_t)timeScale
 {
-    if (_format_is_valid)
+    if (self->reader.state == WavReaderStateSample)
         return self->reader.format.mSampleRate;
     return 1000;
 }

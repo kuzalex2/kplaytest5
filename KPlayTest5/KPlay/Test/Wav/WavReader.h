@@ -23,6 +23,7 @@ typedef enum WavReaderState {
     @property WavReaderState state;
     @property (nonatomic) int64_t nextBytesToRead;
     @property (nonatomic) int64_t dataSize;
+    @property (nonatomic) int64_t duration;
     @property AudioStreamBasicDescription format;
 
     -(KResult)parseData:(NSData *)data;
