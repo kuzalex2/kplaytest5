@@ -26,6 +26,7 @@
 		91C197A82383022E002B2463 /* KPin.m in Sources */ = {isa = PBXBuildFile; fileRef = 91C197A02383022D002B2463 /* KPin.m */; };
 		91C197B1238328BB002B2463 /* KPlayTest5Test1.m in Sources */ = {isa = PBXBuildFile; fileRef = 91C197B0238328BB002B2463 /* KPlayTest5Test1.m */; };
 		91C197BF23832931002B2463 /* KPlayTest5Test2.m in Sources */ = {isa = PBXBuildFile; fileRef = 91C197BE23832931002B2463 /* KPlayTest5Test2.m */; };
+		B274E9D458E68C8EA671D88C /* libPods-KPlayTest5.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 63D61B3D625C59FEAF78B39D /* libPods-KPlayTest5.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,6 +47,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		63D61B3D625C59FEAF78B39D /* libPods-KPlayTest5.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-KPlayTest5.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		91208971238E6B7900594FB8 /* KAudioPlayFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KAudioPlayFilter.h; sourceTree = "<group>"; };
 		91208972238E6B7900594FB8 /* KAudioPlayFilter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KAudioPlayFilter.m; sourceTree = "<group>"; };
 		912CEF342385E0C100EA9213 /* KQueueFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KQueueFilter.m; sourceTree = "<group>"; };
@@ -85,6 +87,8 @@
 		91C197BC23832931002B2463 /* KPlayTest5Test2.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KPlayTest5Test2.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		91C197BE23832931002B2463 /* KPlayTest5Test2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KPlayTest5Test2.m; sourceTree = "<group>"; };
 		91C197C023832931002B2463 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B61A9840E77DEACA368B1C27 /* Pods-KPlayTest5.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KPlayTest5.debug.xcconfig"; path = "Target Support Files/Pods-KPlayTest5/Pods-KPlayTest5.debug.xcconfig"; sourceTree = "<group>"; };
+		DA881D05CDA542BCF58B7302 /* Pods-KPlayTest5.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KPlayTest5.release.xcconfig"; path = "Target Support Files/Pods-KPlayTest5/Pods-KPlayTest5.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +96,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B274E9D458E68C8EA671D88C /* libPods-KPlayTest5.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6BFC8B0014F4230B05BFB3DE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				63D61B3D625C59FEAF78B39D /* libPods-KPlayTest5.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		89A7ABAEC2E65E9830334D43 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				B61A9840E77DEACA368B1C27 /* Pods-KPlayTest5.debug.xcconfig */,
+				DA881D05CDA542BCF58B7302 /* Pods-KPlayTest5.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		912CEF322385E01600EA9213 /* Base */ = {
 			isa = PBXGroup;
 			children = (
@@ -147,6 +170,8 @@
 				91C197AF238328BB002B2463 /* KPlayTest5Test1 */,
 				91C197BD23832931002B2463 /* KPlayTest5Test2 */,
 				91C197762382FD86002B2463 /* Products */,
+				89A7ABAEC2E65E9830334D43 /* Pods */,
+				6BFC8B0014F4230B05BFB3DE /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -228,6 +253,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 91C1978C2382FD87002B2463 /* Build configuration list for PBXNativeTarget "KPlayTest5" */;
 			buildPhases = (
+				C31224A0CDA9B43BB963E92A /* [CP] Check Pods Manifest.lock */,
 				91C197712382FD86002B2463 /* Sources */,
 				91C197722382FD86002B2463 /* Frameworks */,
 				91C197732382FD86002B2463 /* Resources */,
@@ -347,6 +373,31 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		C31224A0CDA9B43BB963E92A /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-KPlayTest5-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		91C197712382FD86002B2463 /* Sources */ = {
@@ -537,6 +588,7 @@
 		};
 		91C1978D2382FD87002B2463 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B61A9840E77DEACA368B1C27 /* Pods-KPlayTest5.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -558,6 +610,7 @@
 		};
 		91C1978E2382FD87002B2463 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DA881D05CDA542BCF58B7302 /* Pods-KPlayTest5.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;

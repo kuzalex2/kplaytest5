@@ -191,11 +191,8 @@ class ViewController: UIViewController, KPlayerEvents {
         switch state {
         case KGraphState_NONE:
             return "none";
-           
         case KGraphState_STOPPED:
             return "stopped";
-            
-
         case KGraphState_BUILDING:
             return "building...";
         case KGraphState_STOPPING:
@@ -203,8 +200,6 @@ class ViewController: UIViewController, KPlayerEvents {
         case KGraphState_PAUSING:
             return "pausing...";
         case KGraphState_PAUSED:
-           
-            
             return "paused";
         case KGraphState_STARTED:
             return "started";
