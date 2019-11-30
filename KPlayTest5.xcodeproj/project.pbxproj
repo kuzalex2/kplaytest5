@@ -10,6 +10,7 @@
 		91208973238E6B7900594FB8 /* KAudioPlayFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 91208972238E6B7900594FB8 /* KAudioPlayFilter.m */; };
 		912CEF362385E0C100EA9213 /* KQueueFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 912CEF342385E0C100EA9213 /* KQueueFilter.m */; };
 		915F30A42392FB8A00B98323 /* WavReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 915F30A32392FB8A00B98323 /* WavReader.m */; };
+		915F30A823932A6E00B98323 /* KAudioSourceWavReaderFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 915F30A723932A6E00B98323 /* KAudioSourceWavReaderFilter.m */; };
 		918654EA238D1D1B00655EE3 /* KTestAudio.m in Sources */ = {isa = PBXBuildFile; fileRef = 918654E9238D1D1B00655EE3 /* KTestAudio.m */; };
 		91C197792382FD86002B2463 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C197782382FD86002B2463 /* AppDelegate.swift */; };
 		91C1977B2382FD86002B2463 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C1977A2382FD86002B2463 /* SceneDelegate.swift */; };
@@ -55,6 +56,8 @@
 		912CEF352385E0C100EA9213 /* KQueueFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KQueueFilter.h; sourceTree = "<group>"; };
 		915F30A22392FB8A00B98323 /* WavReader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WavReader.h; sourceTree = "<group>"; };
 		915F30A32392FB8A00B98323 /* WavReader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WavReader.m; sourceTree = "<group>"; };
+		915F30A623932A6E00B98323 /* KAudioSourceWavReaderFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KAudioSourceWavReaderFilter.h; sourceTree = "<group>"; };
+		915F30A723932A6E00B98323 /* KAudioSourceWavReaderFilter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KAudioSourceWavReaderFilter.m; sourceTree = "<group>"; };
 		918654E8238D1D1B00655EE3 /* KTestAudio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KTestAudio.h; sourceTree = "<group>"; };
 		918654E9238D1D1B00655EE3 /* KTestAudio.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KTestAudio.m; sourceTree = "<group>"; };
 		91C197752382FD86002B2463 /* KPlayTest5.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KPlayTest5.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -173,6 +176,16 @@
 			path = Wav;
 			sourceTree = "<group>";
 		};
+		915F30A523932A5B00B98323 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				915F30A12392FB6500B98323 /* Wav */,
+				915F30A623932A6E00B98323 /* KAudioSourceWavReaderFilter.h */,
+				915F30A723932A6E00B98323 /* KAudioSourceWavReaderFilter.m */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
 		91C1976C2382FD86002B2463 = {
 			isa = PBXGroup;
 			children = (
@@ -217,6 +230,7 @@
 		91C197912383022D002B2463 /* KPlay */ = {
 			isa = PBXGroup;
 			children = (
+				915F30A523932A5B00B98323 /* Audio */,
 				912CEF332385E0C100EA9213 /* KQueue */,
 				912CEF322385E01600EA9213 /* Base */,
 				91C197932383022D002B2463 /* Test */,
@@ -227,7 +241,6 @@
 		91C197932383022D002B2463 /* Test */ = {
 			isa = PBXGroup;
 			children = (
-				915F30A12392FB6500B98323 /* Wav */,
 				91C197972383022D002B2463 /* KTestGraph1.h */,
 				91C197952383022D002B2463 /* KTestGraph1.m */,
 				91C197942383022D002B2463 /* KTestFilters.m */,
@@ -429,6 +442,7 @@
 				91C197A82383022E002B2463 /* KPin.m in Sources */,
 				91C197A72383022E002B2463 /* KClock.m in Sources */,
 				91C197792382FD86002B2463 /* AppDelegate.swift in Sources */,
+				915F30A823932A6E00B98323 /* KAudioSourceWavReaderFilter.m in Sources */,
 				91C197A52383022E002B2463 /* KMediaSample.m in Sources */,
 				91C1977B2382FD86002B2463 /* SceneDelegate.swift in Sources */,
 			);
