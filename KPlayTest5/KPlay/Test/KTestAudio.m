@@ -683,7 +683,7 @@ struct HEADER {
                 self->reader->_format.mSampleRate *
                 //512 * //FIXME: почему не работапет???
                 self->reader->_format.mBytesPerFrame *
-                self->reader->_format.mFramesPerPacket / 8;
+            self->reader->_format.mFramesPerPacket / 2;
             
             int64_t chunk_size = bytesPerSec;//FIXME!!!
             ///FIXME!!!! and check < header.data_size

@@ -256,7 +256,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
 
 
 
-#define MAX_SAMPLES 10
+#define MAX_SAMPLES 100
 
 
 
@@ -349,6 +349,31 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
             }
         }
         return sample;
+    }
+
+
+    - (int64_t)endBufferedPosition {
+        @synchronized (self->_samples) {
+            if (_samples.count > 0){
+                KMediaSample *sample = [_samples lastObject];
+                return sample.ts; ///FIXME + duration
+            }
+        }
+        return 0;
+        
+    }
+
+
+    - (int64_t)startBufferedPosition {
+       
+        @synchronized (self->_samples) {
+            if (_samples.count > 0){
+                KMediaSample *sample = [_samples firstObject];
+                return sample.ts;
+               
+            }
+        }
+        return 0;
     }
 
    
@@ -502,6 +527,27 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
    
     return 0;
 }
+
+
+///
+///  KPlayBufferPositionInfo
+///
+
+- (int64_t)endBufferedPosition {
+    if (_queue!=nil)
+         return [_queue endBufferedPosition];
+    
+     return 0;
+}
+
+
+- (int64_t)startBufferedPosition {
+    if (_queue!=nil)
+         return [_queue startBufferedPosition];
+    
+     return 0;
+}
+
 
 - (BOOL)isRunning {
     if (_queue!=nil)

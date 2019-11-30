@@ -195,6 +195,11 @@
                     self.positionInfo = (id<KPlayPositionInfo> ) _chain[i];
                 }
             }
+            if (self.bufferPositionInfo == nil) {
+                if ([_chain[i] conformsToProtocol:@protocol(KPlayBufferPositionInfo) ]) {
+                    self.bufferPositionInfo = (id<KPlayBufferPositionInfo> ) _chain[i];
+                }
+            }
         }
         
         

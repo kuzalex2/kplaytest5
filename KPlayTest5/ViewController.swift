@@ -13,6 +13,7 @@
 
 
 import UIKit
+import BufferSlider
 
 class KTestGraph1 : KPlayGraphChainBuilder {
     
@@ -66,7 +67,7 @@ class ViewController: UIViewController, KPlayerEvents {
     @IBOutlet weak var stopBtn: UIButton!
     @IBOutlet weak var textLabel: UILabel!
     @IBOutlet weak var timeLabel: UILabel!
-    @IBOutlet weak var progressSlider: UISlider!
+    @IBOutlet weak var progressSlider: BufferSlider!
     @IBOutlet weak var durationLabel: UILabel!
     @IBOutlet weak var spinner: UIActivityIndicatorView!
     
@@ -179,6 +180,15 @@ class ViewController: UIViewController, KPlayerEvents {
                         self.progressSlider.value = timeSec/Float(durationSec)
                         //NSLog("State=%@ pos=%@", state2String(state:player.state), self.timeLabel.text ?? "");
                     }
+                    
+                    if let bufInfo = player.bufferPositionInfo {
+                        let startBufSec = Float(bufInfo.startBufferedPosition()) / Float(bufInfo.timeScale());
+                        let endBufSec = Float(bufInfo.endBufferedPosition()) / Float(bufInfo.timeScale());
+                        
+                        self.progressSlider.bufferStartValue=Double(startBufSec/Float(durationSec));
+                        self.progressSlider.bufferEndValue=Double(endBufSec/Float(durationSec));
+                    
+                    }
                 }
             }
             
@@ -229,12 +239,16 @@ class ViewController: UIViewController, KPlayerEvents {
                 self.positionTimer?.invalidate();
                 stateString = "none";
                 self.spinner.isHidden = true
+                self.progressSlider.bufferStartValue=0;
+                self.progressSlider.bufferEndValue=0;
                
             case KGraphState_STOPPED:
                 stateString = "stopped";
                 self.showPlayerPosition(valid: false);
                 self.positionTimer?.invalidate();
                 self.spinner.isHidden = true
+                self.progressSlider.bufferStartValue=0;
+                self.progressSlider.bufferEndValue=0;
                
 
             case KGraphState_BUILDING:
@@ -286,8 +300,8 @@ class ViewController: UIViewController, KPlayerEvents {
     @IBAction func onPlayClick(_ sender: Any?) {
         NSLog("onPlay");
         
-        _ = player.play("http://p.kuzalex.com/wav/gr.wav", autoStart: true)
-        //_ = player.play("http://p.kuzalex.com/wav/dom17.wav", autoStart: true)
+        //_ = player.play("http://p.kuzalex.com/wav/gr.wav", autoStart: true)
+        _ = player.play("http://p.kuzalex.com/wav/dom17.wav", autoStart: true)
 //        _ = player.play("http://p.kuzalex.com/wav/pipe0.wav", autoStart: true)
 //        _ = player.play("http://p.kuzalex.com/wav/pipe.wav", autoStart: true)
 //        _ = player.play("http://p.kuzalex.com/wav/2.wav", autoStart: true)
