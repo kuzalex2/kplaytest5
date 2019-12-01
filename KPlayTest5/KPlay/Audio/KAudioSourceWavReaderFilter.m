@@ -61,11 +61,13 @@
 {
     switch (_state) {
         case KFilterState_STOPPED:
-        case KFilterState_STOPPING:
-            if (_download_task) {
-                [_download_task cancel];
-            }
             self->_position=self->_start_data_position;
+            break;
+        case KFilterState_STOPPING:
+//            if (_download_task) {
+//                [_download_task cancel];
+//            }
+//            self->_position=self->_start_data_position;
             //self->_start_data_position=0;
             //self->_format_is_valid = FALSE;
             break;

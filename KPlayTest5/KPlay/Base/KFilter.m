@@ -187,12 +187,24 @@ NSString *KFilterState2String(KFilterState state)
 @implementation KThreadFilter {
     dispatch_semaphore_t _stopping_sem;
     dispatch_semaphore_t _pausing_sem;
+    KResult _thread_error;
+}
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self->_thread_error = KResult_OK;
+    }
+    return self;
 }
 
 -(KResult) onThreadTick:(NSError *__strong*)ppError
 {
     return KResult_OK;
 }
+
+
 
 
 
@@ -257,6 +269,7 @@ NSString *KFilterState2String(KFilterState state)
 
 -(void)StartThread
 {
+    _thread_error = KResult_OK;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self threadProc];
     });
@@ -272,7 +285,7 @@ NSString *KFilterState2String(KFilterState state)
             switch (_state) {
                 case KFilterState_PAUSED:
                     if (!first)
-                        return KResult_OK;
+                        return _thread_error;
                     
                     [self setStateAndNotify:KFilterState_PAUSING];
                     _pausing_sem = dispatch_semaphore_create(0);
@@ -300,7 +313,7 @@ NSString *KFilterState2String(KFilterState state)
         }
         
         if (!waitUntilPaused)
-            return KResult_OK;
+            return _thread_error;
         
         first=FALSE;
         //dispatch_time(DISPATCH_TIME_NOW, 500 * NSEC_PER_MSEC)
@@ -314,7 +327,7 @@ NSString *KFilterState2String(KFilterState state)
 
 -(void)threadProc {
     
-    BOOL error = FALSE;
+   // BOOL error = FALSE;
     NSError *pError=nil;
     
     while(1)
@@ -337,7 +350,7 @@ NSString *KFilterState2String(KFilterState state)
         }
             
             
-        if (error || !doThreadTick) {
+        if (_thread_error!=KResult_OK || !doThreadTick) {
            // DLog(@"Here...");
             usleep(100000);
             
@@ -347,14 +360,14 @@ NSString *KFilterState2String(KFilterState state)
                 if ([self.events respondsToSelector:@selector(onError:result:error:)]) {
                     [self.events onError:self result:res error:pError];
                 }
-                error = TRUE;
+                _thread_error = res;
             }
         }
             
         @synchronized(_state_mutex) {
             switch (_state) {
                 case KFilterState_PAUSING:
-                    if (doThreadTick || error){
+                    if (doThreadTick || _thread_error!=KResult_OK){
                         [self setStateAndNotify:KFilterState_PAUSED];
                         // NSLog(@"Here 3");
                         dispatch_semaphore_signal(_pausing_sem);

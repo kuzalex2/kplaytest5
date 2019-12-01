@@ -125,6 +125,7 @@
         
         f.events = self;
         
+        DLog(@"<%@> pausing", [f name]);
         if ((res = [f pause:true]) != KResult_OK ) {
             return res;
         }
@@ -168,6 +169,7 @@
        
         
         for (KFilter* filter in forward ? _chain : [_chain reverseObjectEnumerator]) {
+            DLog(@"<%@> pausing", [filter name]);
             res = [filter pause:true];
             if (res!=KResult_OK) {
                 DLog(@"<%@> pause failed", [filter name]);
@@ -195,6 +197,7 @@
         
         for (KFilter* filter in _chain)
         {
+            DLog(@"<%@> pausing", [filter name]);
             res = [filter pause:true];
             if (res!=KResult_OK) {
                 DLog(@"<%@> pause failed", [filter name]);
@@ -358,6 +361,7 @@
             {
                 KResult res;
                 for (KFilter* filter in forward ? self->_chain : [self->_chain reverseObjectEnumerator]) {
+                    DLog(@"<%@> pausing", [filter name]);
                     res = [filter pause:true];
                     if (res!=KResult_OK) {
                         DLog(@"<%@> pause failed", [filter name]);
@@ -448,7 +452,7 @@
                 // STOP BUILDING
                 for (size_t i = 0; i< _chain.count; i++)
                 {
-                    DLog(@"KTestGraphChainBuilder Stop %@", [_chain[i] name]);
+                    DLog(@"KTestGraphChainBuilder Stoping %@", [_chain[i] name]);
                     [_chain[i] stop:true];
                 }
                 
