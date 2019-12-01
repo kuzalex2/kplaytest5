@@ -186,8 +186,15 @@ class ViewController: UIViewController, KPlayerEvents {
                         let startBufSec = Float(bufInfo.startBufferedPosition()) / Float(bufInfo.timeScale());
                         let endBufSec = Float(bufInfo.endBufferedPosition()) / Float(bufInfo.timeScale());
                         
-                        self.progressSlider.bufferStartValue=Double(startBufSec/Float(durationSec));
-                        self.progressSlider.bufferEndValue=Double(endBufSec/Float(durationSec));
+                        if startBufSec > 0 && endBufSec > 0 && durationSec != 0 {
+                            self.progressSlider.bufferEndValue=Double(endBufSec/Float(durationSec));
+                            self.progressSlider.bufferStartValue=Double(startBufSec/Float(durationSec));
+                            
+                            self.progressSlider.bufferEndValue=Double(endBufSec/Float(durationSec));
+                            self.progressSlider.bufferStartValue=Double(startBufSec/Float(durationSec));
+                        
+                           // NSLog("BuffInfo: \(startBufSec) \(endBufSec) \(self.progressSlider.bufferStartValue) \(self.progressSlider.bufferEndValue) \(durationSec)");
+                        }
                     
                     }
                 }
