@@ -5,6 +5,7 @@
 
 #import "KPlay/Test/KTestFilters.h"
 #import "KPlay/Test/KTestAudio.h"
+#import "KPlay/KQueue/KQueueFilter.h"
 #import "KPlay/Audio/KAudioSourceWavReaderFilter.h"
-#import "KPlay/Test/KAudioPlayFilter.h"
+#import "KPlay/Audio/KAudioPlayFilter.h"
 #import "KPlay/Base/KPlayGraph.h"

@@ -48,10 +48,11 @@ class KTestAudioGraph : KPlayGraphChainBuilder {
             defer { objc_sync_exit(super.state_mutex)}
             if (super.state == KGraphState_NONE){
                 super.chain?.removeAllObjects();
-            super.chain?.add(KAudioSourceWavReaderFilter(url: url));
-
+                super.chain?.add(KAudioSourceWavReaderFilter(url: url));
+                super.chain?.add(KQueueFilter());
+                //super.chain?.add(KTestTransformFilter());
                 super.chain?.add(KAudioPlayFilter());
-                //super.chain?.add(KTestSinkFilter());
+                
             }
         }
         

@@ -182,6 +182,8 @@
 				915F30A12392FB6500B98323 /* Wav */,
 				915F30A623932A6E00B98323 /* KAudioSourceWavReaderFilter.h */,
 				915F30A723932A6E00B98323 /* KAudioSourceWavReaderFilter.m */,
+				91208971238E6B7900594FB8 /* KAudioPlayFilter.h */,
+				91208972238E6B7900594FB8 /* KAudioPlayFilter.m */,
 			);
 			path = Audio;
 			sourceTree = "<group>";
@@ -247,8 +249,6 @@
 				91C197962383022D002B2463 /* KTestFilters.h */,
 				918654E8238D1D1B00655EE3 /* KTestAudio.h */,
 				918654E9238D1D1B00655EE3 /* KTestAudio.m */,
-				91208971238E6B7900594FB8 /* KAudioPlayFilter.h */,
-				91208972238E6B7900594FB8 /* KAudioPlayFilter.m */,
 			);
 			path = Test;
 			sourceTree = "<group>";

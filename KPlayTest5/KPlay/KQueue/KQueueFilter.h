@@ -25,7 +25,7 @@
 //    -(KMediaType *)getOutputMediaType;
 //
 //    -(KClock *)clock;
-    @property size_t min_samples_queue;
+    //@property size_t min_samples_queue;
     @property size_t max_samples_queue;
     @property BOOL sorted;
 @end

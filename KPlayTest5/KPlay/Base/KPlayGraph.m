@@ -50,13 +50,13 @@
         DLog(@"<%@> onStateChanged %@ ", [filter name], KFilterState2String(state) );
         
         
-        if (_chain.count > 0 && filter == [_chain lastObject]){
-            if (state == KFilterState_PAUSED && [self state]!=KGraphState_SEEKING){
-                [self setStateAndNotify:KGraphState_PAUSED];
-                ///FIXME:!!!!!!!! all others
-                ///FIXME: mutex
-            }
-        }
+//        if (_chain.count > 0 && filter == [_chain lastObject]){
+//            if (state == KFilterState_PAUSED && [self state]!=KGraphState_SEEKING){
+//                [self setStateAndNotify:KGraphState_PAUSED];
+//                ///FIXME:!!!!!!!! all others
+//                ///FIXME: mutex
+//            }
+//        }
     }
 
 
@@ -94,18 +94,63 @@
         return self;
     }
 
+    +(BOOL)connectFilters:(KFilter *)src :(size_t)src_pin_index :(KFilter *)dst :(size_t)dst_pin_index
+    {
+        KPin *pout = [src getOutputPinAt:src_pin_index];
+        KPin *pin  = [dst getInputPinAt:dst_pin_index];
+        
+        if (pout==nil){
+            DErr(@"No outpin %ld at %@",src_pin_index,src);
+            return FALSE;
+        }
+        
+        if (pin==nil){
+            DErr(@"No inpin %ld at %@",dst_pin_index,dst);
+            return FALSE;
+        }
+        
+        if (! [pout connectTo:pin] ) {
+            DErr(@"failed to connect (%@)%ld->(%@)%ld", [src name], src_pin_index, [dst name], dst_pin_index);
+            return FALSE;
+        }
+        
+        return TRUE;
+    }
+
+    -(KResult)prepareFilter:(KFilter *)f
+    {
+        KMediaSample *sample;//FIXME: autorelease?
+        NSError *error;
+        KResult res;
+        
+        f.events = self;
+        
+        if ((res = [f pause:true]) != KResult_OK ) {
+            return res;
+        }
+        
+        //FIXME:
+        if ([f.outputPins count] > 0 ) {
+            if ((res = [f pullSample:&sample probe:YES error:&error]) != KResult_OK) {
+                return res;
+            }
+        }
+        
+        return KResult_OK;
+    }
+
+
+
 
     - (void)seekSync:(float)sec prevState:(KGraphState)prevState
     {
-        [self setStateAndNotify:KGraphState_SEEKING];
-            
         KResult res;
             
-        for (size_t i = 0; i< _chain.count; i++)
+        for (size_t i = _chain.count; i>0; i--)
         {
-            res = [_chain[i] pause:true];
+            res = [_chain[i-1] pause:true];
             if (res!=KResult_OK) {
-                DLog(@"<%@> pause failed", [_chain[i] name]);
+                DLog(@"<%@> pause failed", [_chain[i-1] name]);
                            
                 [self notifyError: KResult2Error(res)];
                 [self setStateAndNotify:KGraphState_NONE];
@@ -157,8 +202,6 @@
 
     - (void)buildGraphSync:(NSString * _Nonnull)url autoStart:(BOOL)autoStart
     {
-        [self setStateAndNotify:KGraphState_BUILDING];
-        
         KResult res;
         
         for (size_t i = 0; i< _chain.count; i++)
@@ -211,17 +254,8 @@
         }
     }
 
-    - (KResult)stopBuilding
-    {
-        for (size_t i = 0; i< _chain.count; i++)
-        {
-            DLog(@"KTestGraphChainBuilder Stop %@", [_chain[i] name]);
-             [_chain[i] stop:true];
-        }
 
-        [self setStateAndNotify:KGraphState_NONE];
-        return KResult_OK;
-    }
+    
 
     - (KResult)startPlaying
     {
@@ -241,11 +275,11 @@
         return KResult_OK;
     }
 
-    - (KResult)startPlayingWithPause
+    - (KResult)startPlayingWithPauseSync
     {
         KResult res;
         
-        [self setStateAndNotify:KGraphState_PAUSING];
+       
         
         for (size_t i = 0; i< _chain.count; i++)
         {
@@ -263,57 +297,11 @@
 
     
 
-    - (KResult)stopPlaying
-    {
-        KResult res;
-        
-        for (size_t i = 0; i< _chain.count; i++)
-        {
-            DLog(@"KTestGraphChainBuilder stopPlaying %@", [_chain[i] name]);
-            if ((res = [_chain[i] stop:true]) != KResult_OK){
-                [self notifyError: KResult2Error(res)];
-                //return res;
-            }
-        }
-        
-        [self setStateAndNotify:KGraphState_STOPPED];
-        
-        return KResult_OK;
-    }
+    
     
 
-    - (KResult)play:(NSString * _Nonnull)url autoStart:(BOOL)autoStart;
-    {
-        _suppress_error = false;
-        
-        
-            switch ([self state]) {
-                case KGraphState_PAUSED:
-                    return [self startPlaying];
-                case KGraphState_STOPPED:{
-                    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                        [self startPlayingWithPause];
-                    });
-                    return KResult_OK;
-                    
-                }
-                    
-                    
-                case KGraphState_NONE:
-                
-                    break;
-                    
-                default:
-                    return KResult_InvalidState;
-            }
-        
-        
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [self buildGraphSync:url autoStart:autoStart];
-           });
-        
-        return KResult_OK;
-    }
+    
+
     - (KResult)pause
     {
         _suppress_error = false;
@@ -329,16 +317,18 @@
         
         KResult res;
         
-        for (size_t i = 0; i< _chain.count; i++)
+        [self setStateAndNotify:KGraphState_PAUSING];
+        
+        for (size_t i = _chain.count; i>0; i--)
         {
-            DLog(@"KTestGraphChainBuilder pausing %@", [_chain[i] name]);
-            if ((res = [_chain[i] pause:false]) != KResult_OK){
+            DLog(@"KTestGraphChainBuilder pausing %@", [_chain[i-1] name]);
+            if ((res = [_chain[i-1] pause:true]) != KResult_OK){
                 [self notifyError: KResult2Error(res)];
                 return res;
             }
         }
 
-        [self setStateAndNotify:KGraphState_PAUSING];
+        [self setStateAndNotify:KGraphState_PAUSED];
         
         return KResult_OK;
     }
@@ -347,16 +337,38 @@
     {
         _suppress_error = true;
         
-            switch ([self state]) {
-                case KGraphState_NONE:
-                    return KResult_OK;
-                case KGraphState_BUILDING:
-                    // STOP BUILDING
-                    return [self stopBuilding];
-                default:
-                    return [self stopPlaying];
+        switch ([self state]) {
+            case KGraphState_NONE:
+                return KResult_OK;
+            case KGraphState_BUILDING: {
+                // STOP BUILDING
+                for (size_t i = 0; i< _chain.count; i++)
+                {
+                    DLog(@"KTestGraphChainBuilder Stop %@", [_chain[i] name]);
+                    [_chain[i] stop:true];
                 }
-        
+                
+                [self setStateAndNotify:KGraphState_NONE];
+                return KResult_OK;
+            }
+            default: {
+                // STOP PLAYING
+                KResult res;
+                
+                for (size_t i = 0; i< _chain.count; i++)
+                {
+                    DLog(@"KTestGraphChainBuilder stopPlaying %@", [_chain[i] name]);
+                    if ((res = [_chain[i] stop:true]) != KResult_OK){
+                        [self notifyError: KResult2Error(res)];
+                        //return res;
+                    }
+                }
+                
+                [self setStateAndNotify:KGraphState_STOPPED];
+                
+                return KResult_OK;
+            }
+        }
     }
 
     
@@ -377,6 +389,7 @@
                 }
         }
         
+        [self setStateAndNotify:KGraphState_SEEKING];
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [self seekSync:sec prevState:prevState];
            });
@@ -384,56 +397,39 @@
         return KResult_OK;
     }
 
-
-
-    +(BOOL)connectFilters:(KFilter *)src :(size_t)src_pin_index :(KFilter *)dst :(size_t)dst_pin_index
+    - (KResult)play:(NSString * _Nonnull)url autoStart:(BOOL)autoStart;
     {
-        KPin *pout = [src getOutputPinAt:src_pin_index];
-        KPin *pin  = [dst getInputPinAt:dst_pin_index];
+        _suppress_error = false;
         
-        if (pout==nil){
-            DErr(@"No outpin %ld at %@",src_pin_index,src);
-            return FALSE;
-        }
         
-        if (pin==nil){
-            DErr(@"No inpin %ld at %@",dst_pin_index,dst);
-            return FALSE;
-        }
-        
-        if (! [pout connectTo:pin] ) {
-            DErr(@"failed to connect (%@)%ld->(%@)%ld", [src name], src_pin_index, [dst name], dst_pin_index);
-            return FALSE;
-        }
-        
-        return TRUE;
-    }
-   
-    
-
-    -(KResult)prepareFilter:(KFilter *)f
-    {
-        KMediaSample *sample;//FIXME: autorelease?
-        NSError *error;
-        KResult res;
-
-        f.events = self;
-        
-        if ((res = [f pause:true]) != KResult_OK ) {
-            return res;
-        }
-        
-        //FIXME:
-        if ([f.outputPins count] > 0 ) {
-            if ((res = [f pullSample:&sample probe:YES error:&error]) != KResult_OK) {
-                return res;
+        switch ([self state]) {
+            case KGraphState_PAUSED:
+                return [self startPlaying];
+            case KGraphState_STOPPED:{
+                [self setStateAndNotify:KGraphState_PAUSING];
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    [self startPlayingWithPauseSync];
+                });
+                return KResult_OK;
+                
             }
+                
+                
+            case KGraphState_NONE:{
+                [self setStateAndNotify:KGraphState_BUILDING];
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    [self buildGraphSync:url autoStart:autoStart];
+                });
+                
+                return KResult_OK;
+            }
+                
+            default:
+                return KResult_InvalidState;
         }
-              
-        
-        
-        return KResult_OK;
     }
+
+    
 
 
 

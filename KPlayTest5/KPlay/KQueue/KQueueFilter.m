@@ -12,7 +12,7 @@
 //#import "../../Base/KClock.h"
 
 #define MAX_SAMPLES_QUEUE 250
-#define MIN_SAMPLES_QUEUE 25
+//#define MIN_SAMPLES_QUEUE 25
 
 
 @implementation KQueueFilter{
@@ -42,7 +42,7 @@
         //FIXME: _min_samples_queue NOT WORKS!
         //FIXME: _min_samples_queue NOT WORKS!
         //FIXME: _min_samples_queue NOT WORKS!
-        _min_samples_queue = MIN_SAMPLES_QUEUE;
+        //_min_samples_queue = MIN_SAMPLES_QUEUE;
         _max_samples_queue = MAX_SAMPLES_QUEUE;
         
     }
@@ -78,6 +78,33 @@
 //
 //}
 
+- (void)onStateChanged:(KFilter *)filter state:(KFilterState)state
+{
+    switch (_state) {
+        case KFilterState_STOPPED:
+            @synchronized (self) {
+                [samples removeAllObjects];
+                _error=nil;
+            }
+            break;
+        case KFilterState_STOPPING:
+            break;
+        case KFilterState_PAUSING:
+            break;
+        case KFilterState_STARTED:
+            break;
+        case KFilterState_PAUSED:
+            break;
+    }
+}
+
+-(KResult)seek:(float)sec
+{
+    @synchronized (self) {
+        [samples removeAllObjects];
+    }
+    return KResult_OK;
+}
 
 
 
@@ -176,14 +203,15 @@
         if (!queue_is_full)
         {
             KMediaSample *sample;
+            NSError *err;
            
-            KResult res = [pin pullSample:&sample probe:NO error:ppError];
+            KResult res = [pin pullSample:&sample probe:NO error:&err];
 
 
             if (res!=KResult_OK) {
-//                @synchronized (self) {
-//                    _error = error;
-//                }
+                 @synchronized (self) {
+                    _error = err;
+                }
                 dispatch_semaphore_signal(_sem);
                 //[myclock start];
                 return res;
