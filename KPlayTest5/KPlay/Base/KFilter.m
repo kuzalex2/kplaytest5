@@ -352,7 +352,7 @@ NSString *KFilterState2String(KFilterState state)
             
         if (_thread_error!=KResult_OK || !doThreadTick) {
            // DLog(@"Here...");
-            usleep(100000);
+            usleep(10000);
             
         } else {
             KResult res = [self onThreadTick:&pError];

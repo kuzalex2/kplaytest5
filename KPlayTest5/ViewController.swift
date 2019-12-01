@@ -50,6 +50,9 @@ class KTestAudioGraph : KPlayGraphChainBuilder {
                 super.chain?.removeAllObjects();
                 super.chain?.add(KAudioSourceWavReaderFilter(url: url));
                 super.chain?.add(KQueueFilter());
+//                 super.chain?.add(KQueueFilter());
+//                 super.chain?.add(KQueueFilter());
+//                 super.chain?.add(KQueueFilter());
                 //super.chain?.add(KTestTransformFilter());
                 super.chain?.add(KAudioPlayFilter());
                 
@@ -257,6 +260,7 @@ class ViewController: UIViewController, KPlayerEvents {
                 self.spinner.isHidden = true
                 self.progressSlider.bufferStartValue=0;
                 self.progressSlider.bufferEndValue=0;
+                self.inSeek=false;
                
 
             case KGraphState_BUILDING:

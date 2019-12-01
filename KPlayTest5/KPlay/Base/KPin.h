@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef enum
 {
-    KResult_OK,
+    KResult_OK=0,
    // KResult_INTERRUPTED,
     KResult_InvalidState,
     KResult_ERROR,

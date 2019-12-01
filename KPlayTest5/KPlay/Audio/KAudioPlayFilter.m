@@ -471,7 +471,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         {
             if ([_queue state] == AudioQueueRunning_ )
             {
-                usleep(100000);
+                usleep(10000);
                 return KResult_OK;
             }
         }

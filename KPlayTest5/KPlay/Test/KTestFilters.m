@@ -356,7 +356,7 @@
         DLog(@"%@ <%@> got sample type=%@ %ld bytes, ts=%lld/%d", self, [self name], sample.type.name, [sample.data length], sample.ts, sample.timescale);
         
         _consumed_samples++;
-        usleep(100000);
+        usleep(10000);
 
         return KResult_OK;
     }
