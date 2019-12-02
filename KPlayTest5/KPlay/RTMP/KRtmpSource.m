@@ -145,13 +145,49 @@ void RTMP_Interrupt(RTMP *r)
                 if (!packet.m_nBodySize)
                     continue;
                 
-                DLog(@"Got pkt type=%d ts=%d", (int)packet.m_packetType, (int)packet.m_nTimeStamp);
+                DLog(@"Got pkt type=%d ts=%d len=%d", (int)packet.m_packetType, (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
                 
                 if ( packet.m_packetType == RTMP_PACKET_TYPE_AUDIO ){
                     
-                    ///FIXME
+                    ///FIXME!!!
+                    ///FIXME!!!
+                    ///FIXME!!!
+                    ///FIXME!!!
+                    ///FIXME!!!
                     if ( self->_type == nil) {
-                        self->_type = [[KMediaType alloc] initWithName:@"rtmpaudiodata/xxx"];
+                        ///fixme
+                        AudioStreamBasicDescription format;
+                        format.mSampleRate = 44100;
+                        format.mFormatID = kAudioFormatLinearPCM;
+                        format.mChannelsPerFrame = 2;
+                        format.mFormatFlags      = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
+                        format.mBitsPerChannel   = (UInt32)(8 * 2 );
+                        format.mBytesPerFrame    = (UInt32)(2 * format.mChannelsPerFrame);
+                        format.mFramesPerPacket  = 1;
+                        format.mBytesPerPacket   = format.mBytesPerFrame * format.mFramesPerPacket;
+                        format.mReserved         = 0;
+                        
+                        
+                                           
+                        CMFormatDescriptionRef      cmformat;
+                        if (CMAudioFormatDescriptionCreate(kCFAllocatorDefault,
+                                                           &format,
+                                                           0,
+                                                           NULL,
+                                                           0,
+                                                           NULL,
+                                                           NULL,
+                                                           &cmformat)!=noErr)
+                        {
+                            DErr(@"Could not create format from AudioStreamBasicDescription");
+                            
+                            return KResult_ERROR;
+                        }
+                        
+                        self->_type = [[KMediaType alloc] initWithName:@"audio/pcm"];
+                        [self->_type setFormat:cmformat];
+                        
+                       // self->_type = [[KMediaType alloc] initWithName:@"rtmpaudiodata/xxx"];
                     }
                     
                     
@@ -160,12 +196,17 @@ void RTMP_Interrupt(RTMP *r)
                     outSample.timescale = 1000;
                     outSample.type = _type;
                     
-                    outSample.data = [[NSData alloc] initWithBytes:packet.m_body length:packet.m_nBodySize];
+                    outSample.data = [[NSData alloc] initWithBytes:packet.m_body+1 length:packet.m_nBodySize-1];
                     
                     RTMPPacket_Free(&packet);
                     
                     *sample = outSample;
                     return KResult_OK;
+                    
+                    
+                   
+                    
+                    
                     
                 } else if (packet.m_packetType == RTMP_PACKET_TYPE_VIDEO){
                     
