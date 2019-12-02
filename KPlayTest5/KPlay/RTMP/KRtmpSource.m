@@ -100,7 +100,8 @@ void RTMP_Interrupt(RTMP *r)
             RTMP_LogSetLevel(loglvl);
             #endif
             
-            RTMP_SetBufferMS(_rtmp, 5 * 3600 * 1000);
+           // RTMP_SetBufferMS(_rtmp, 5 * 3600 * 1000);
+            RTMP_SetBufferMS(_rtmp, 1  * 1000);
             
             
             
@@ -205,6 +206,41 @@ void RTMP_Interrupt(RTMP *r)
         {
             return KResult_ERROR;
         }
+        
+        RTMPPacket packet = { 0 };
+        
+        while (1)
+        {
+            if (!RTMP_IsConnected(_rtmp))
+                return KResult_RTMP_Disconnected;
+            
+            int res = RTMP_ReadPacket(_rtmp, &packet);
+            if (!res)
+                return KResult_RTMP_ReadFailed;
+            
+            if (RTMPPacket_IsReady(&packet))
+            {
+                if (!packet.m_nBodySize)
+                    continue;
+                
+                //DLog(@"Got pkt type=%d ts=%d", (int)packet.m_packetType, (int)packet.m_nTimeStamp);
+                
+                if (packet.m_packetType == RTMP_PACKET_TYPE_INVOKE) {
+                    
+                    RTMP_ClientPacket(_rtmp, &packet);
+                    RTMPPacket_Free(&packet);
+                    
+                    ///FIXME -> check  HandleInvoke, onStatus: NetStream.Seek.Notify
+                    return KResult_OK;
+                    
+                } else {
+                    RTMP_ClientPacket(_rtmp, &packet);
+                    RTMPPacket_Free(&packet);
+                }
+            }
+        }
+        
+        
     }
     return KResult_OK;
 }
