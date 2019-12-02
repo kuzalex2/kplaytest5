@@ -30,6 +30,16 @@ NSError *KResult2Error(KResult res)
         case KResult_UnsupportedFormat:
             errorCode = [NSString stringWithFormat:@"Unsupported format"];
             break;
+        case KResult_RTMP_ConnectFailed:
+            errorCode = [NSString stringWithFormat:@"RTMP Connection Failed"];
+            break;
+        case KResult_RTMP_ReadFailed:
+            errorCode = [NSString stringWithFormat:@"RTMP Read Failed"];
+            break;
+        case KResult_RTMP_Disconnected:
+            errorCode = [NSString stringWithFormat:@"RTMP Disconnected"];
+            break;
+        
     }
     return [NSError errorWithDomain:@"KPlay"
                         code:res

@@ -15,7 +15,7 @@
 import UIKit
 import BufferSlider
 
-class KTestGraph1 : KPlayGraphChainBuilder {
+class KTestGraph : KPlayGraphChainBuilder {
     
     override func play(_ url: String, autoStart: Bool) -> KResult {
        
@@ -27,6 +27,28 @@ class KTestGraph1 : KPlayGraphChainBuilder {
                 super.chain?.removeAllObjects();
                 super.chain?.add(KTestUrlSourceFilter(url: url));
                 super.chain?.add(KTestTransformFilter());
+                //super.chain?.add(KQueueFilter());
+                super.chain?.add(KTestSinkFilter());
+            }
+        }
+        
+        
+       
+        return super.play(url, autoStart: autoStart)
+    }
+}
+
+class KTestRtmpGraph : KPlayGraphChainBuilder {
+    
+    override func play(_ url: String, autoStart: Bool) -> KResult {
+       
+        
+        do {
+            objc_sync_enter(super.state_mutex)
+            defer { objc_sync_exit(super.state_mutex)}
+            if (super.state == KGraphState_NONE){
+                super.chain?.removeAllObjects();
+                super.chain?.add(KRtmpSource(url: url));
                 //super.chain?.add(KQueueFilter());
                 super.chain?.add(KTestSinkFilter());
             }
@@ -311,17 +333,22 @@ class ViewController: UIViewController, KPlayerEvents {
         NSLog("onPlay");
         
         if player == nil {
-            //player = KTestGraph1();
-            player = KTestAudioGraph();
+            //player = KTestGraph();
+            //player = KTestAudioGraph();
+            player = KTestRtmpGraph();
             player?.events = self
         }
-        
-        _ = player?.play("http://p.kuzalex.com/wav/gr.wav", autoStart: false)
-   //     _ = player?.play("http://p.kuzalex.com/wav/dom17.wav", autoStart: true)
-   //     _ = player?.play("http://p.kuzalex.com/wav/pipe0.wav", autoStart: true)
-       // _ = player?.play("http://p.kuzalex.com/wav/pipe.wav", autoStart: true)
- //       _ = player?.play("http://p.kuzalex.com/wav/2.wav", autoStart: true)
-//
+
+        player?.play("rtmp://176.9.99.77:1935/vod/testa2.flv", autoStart: false);
+//        player?.play("rtmp://176.9.99.77:1935/vod/test.mp4", autoStart: false);
+//        player?.play("rtmp://176.9.99.77:1936/vod/test.mp4", autoStart: false);
+
+//        _ = player?.play("http://p.kuzalex.com/wav/gr.wav", autoStart: false)
+//        _ = player?.play("http://p.kuzalex.com/wav/dom17.wav", autoStart: true)
+//        _ = player?.play("http://p.kuzalex.com/wav/pipe0.wav", autoStart: true)
+//        _ = player?.play("http://p.kuzalex.com/wav/pipe.wav", autoStart: true)
+//        _ = player?.play("http://p.kuzalex.com/wav/2.wav", autoStart: true)
+
     }
     
     

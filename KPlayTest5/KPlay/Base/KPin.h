@@ -17,6 +17,9 @@ typedef enum
    // KResult_INTERRUPTED,
     KResult_InvalidState,
     KResult_ERROR,
+    KResult_RTMP_ConnectFailed,
+    KResult_RTMP_Disconnected,
+    KResult_RTMP_ReadFailed,
   //  KResult_NOSAMPLE
     KResult_ParseError,
     KResult_UnsupportedFormat
