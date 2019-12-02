@@ -316,13 +316,18 @@
  */
 
 
-@implementation KTestSinkFilter
+@implementation KTestSinkFilter{
+    int64_t _last_sample_ts;
+    int64_t _last_sample_timescale;
+}
 
 - (instancetype)init
 {
     self = [super init];
     if (self) {
         [self.inputPins addObject:[[KInputPin alloc] initWithFilter:self]];
+        self->_last_sample_ts=0;
+        self->_last_sample_timescale=1000;
     }
     return self;
 }
@@ -355,6 +360,8 @@
         
         DLog(@"%@ <%@> got sample type=%@ %ld bytes, ts=%lld/%d", self, [self name], sample.type.name, [sample.data length], sample.ts, sample.timescale);
         
+        _last_sample_ts = sample.ts;
+        _last_sample_timescale = sample.timescale;
         _consumed_samples++;
         usleep(10000);
 
@@ -362,6 +369,25 @@
     }
 }
 
+///
+///  KPlayPositionInfo
+///
+
+-(int64_t)position
+{
+   
+    return _last_sample_ts;
+}
+
+-(int64_t)timeScale
+{
+  
+    return _last_sample_timescale;
+}
+
+- (BOOL)isRunning {
+    return TRUE;
+}
 
 @end
 

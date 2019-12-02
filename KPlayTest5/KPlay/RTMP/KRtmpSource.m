@@ -207,7 +207,7 @@ void RTMP_Interrupt(RTMP *r)
 -(int64_t)duration
 {
     //assert("NOT IMPLEMENTED"==nil);
-    return 1000;
+    return 44650;
 }
 
 -(int64_t)timeScale

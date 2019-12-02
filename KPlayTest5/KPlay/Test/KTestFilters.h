@@ -8,6 +8,7 @@
 
 #import "KFilter.h"
 #import "KFilter.h"
+#import "KPlayGraph.h"
 
 
 NS_ASSUME_NONNULL_BEGIN
@@ -21,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
     -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error;
 @end
 
-@interface KTestSinkFilter : KThreadFilter {
+@interface KTestSinkFilter : KThreadFilter<KPlayPositionInfo> {
     @public int _consumed_samples;
 }
     -(KResult)onThreadTick:(NSError *__strong*)ppError;
