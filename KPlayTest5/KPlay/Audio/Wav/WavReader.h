@@ -21,7 +21,8 @@ typedef enum WavReaderState {
 
 @interface WavReader : NSObject
     @property WavReaderState state;
-    @property (nonatomic) int64_t nextBytesToRead;
+    -(int64_t)getNextBytesToRead:(int64_t)position;
+    //@property (nonatomic) int64_t nextBytesToRead;
     @property (nonatomic) int64_t dataSize;
     @property (nonatomic) int64_t duration;
     @property AudioStreamBasicDescription format;

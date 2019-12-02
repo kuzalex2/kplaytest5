@@ -9,7 +9,7 @@
 #import "KAudioSourceWavReaderFilter.h"
 
 #define MYDEBUG
-//#define MYWARN
+#define MYWARN
 #import "myDebug.h"
 #import "Wav/WavReader.h"
 
@@ -109,19 +109,28 @@
     _download_task = [self downloadUrl:_url withRange:range completionHandler:^(NSURL *location, NSURLResponse *response, NSError *error)
                           {
             if (error==nil){
-                DLog(@"<%@> Downloaded %@", [self name], self->_url.host);
-                self->_download_task=nil;
+                NSInteger statusCode = [((NSHTTPURLResponse *) response) statusCode];
+                if (   statusCode>=200 && statusCode <300)
+                {
+                    DLog(@"<%@> Downloaded %@", [self name], self->_url.host);
+                    self->_download_task=nil;
                 
-                successCallback([NSData dataWithContentsOfURL:location]);
+                    successCallback([NSData dataWithContentsOfURL:location]);
+                    return ;
+                } else {
+                    error=[NSError errorWithDomain:@"com.kuzalex" code:200 userInfo:@{@"Error reason": @"Bad response"}];
+
+                }
+            }
                 
-            } else {
+           
                 DLog(@"<%@> Error: %@", [self name], error);
                 self->_outSample = nil;
                 self->_error = error;
                 self->_download_task=nil;
                 errorCallback(error);
                 dispatch_semaphore_signal(self->_sem1);
-            }
+            
            
         }];
         // 4
@@ -133,9 +142,19 @@
 {
  
 
-    int64_t chunk_size = [reader nextBytesToRead];
-    ///FIXME!!!! and check < header.data_size
+    int64_t chunk_size = [reader getNextBytesToRead:_position];
     
+    if (chunk_size == 0){
+        //EOS
+        self->_outSample = [[KMediaSample alloc] init];
+        self->_outSample.type = self->_type;
+        self->_outSample.data =  [NSData dataWithBytes:NULL length:0];
+        self->_outSample.ts = (self->_position)/self->reader.format.mBytesPerFrame;
+        self->_outSample.timescale = self->reader.format.mSampleRate;
+        
+        dispatch_semaphore_signal(self->_sem1);
+        return ;
+    }
     
     [self downloadNext:chunk_size withSuccess:^(NSData *data){
         

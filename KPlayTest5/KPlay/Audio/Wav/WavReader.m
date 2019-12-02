@@ -9,8 +9,8 @@
 #import "WavReader.h"
 #import "KPin.h"
 
-#define MYDEBUG
-#define MYWARN
+//#define MYDEBUG
+//#define MYWARN
 #import "myDebug.h"
 
 struct HEADER {
@@ -64,11 +64,12 @@ BOOL read32Size(unsigned char **ptr, unsigned char *stop, unsigned int *res)
     return TRUE;
 }
 
-@synthesize nextBytesToRead = _nextBytesToRead;
+//@synthesize nextBytesToRead = _nextBytesToRead;
 @synthesize dataSize = _dataSize;
 @synthesize duration = _duration;
 
--(int64_t)nextBytesToRead{
+ -(int64_t)getNextBytesToRead:(int64_t)position
+{
     switch (_state) {
         case WavReaderStateNone:
             return 12 + 8;
@@ -87,6 +88,8 @@ BOOL read32Size(unsigned char **ptr, unsigned char *stop, unsigned int *res)
                 _format.mFramesPerPacket / 2;
             
             int64_t chunk_size = bytesPerSec;//FIXME!!!
+            if (chunk_size+position > header.overall_size+8)
+                chunk_size = header.overall_size+8-position;
             return chunk_size;
         }
             
@@ -159,7 +162,7 @@ BOOL read32Size(unsigned char **ptr, unsigned char *stop, unsigned int *res)
 -(KResult)parseData:(NSData *)data
 {
     
-    if (data.length<[self nextBytesToRead]){
+    if (data.length<[self getNextBytesToRead:0]){
         DErr(@"Error 1");
         return KResult_ParseError;
     }
@@ -169,7 +172,7 @@ BOOL read32Size(unsigned char **ptr, unsigned char *stop, unsigned int *res)
 
 
     unsigned char *ptr = (unsigned char *)[data bytes];
-    unsigned char *stop = ptr + [self nextBytesToRead];
+    unsigned char *stop = ptr + [self getNextBytesToRead:0];
     
     switch (_state) {
         case WavReaderStateNone: {

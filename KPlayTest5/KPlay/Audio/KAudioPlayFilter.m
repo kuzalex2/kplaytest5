@@ -8,8 +8,8 @@
 
 #import "KAudioPlayFilter.h"
 #import "KPlayGraph.h"
-#define MYDEBUG
-#define MYWARN
+//#define MYDEBUG
+//#define MYWARN
 #import "myDebug.h"
 
 #include <AudioToolbox/AudioToolbox.h>
@@ -186,6 +186,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         return nil;
     }
 
+#define MYMIN(a,b) ( (a)<(b) ? (a) : (b) )
     -(void) audioQueueCallback:(AudioQueueRef)queue buffer:(AudioQueueBufferRef) buffer
     {
  
@@ -193,13 +194,19 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         
        
         if (sample!=nil){
-            assert( buffer->mAudioDataByteSize == sample.data.length);
+            buffer->mAudioDataByteSize = MYMIN((uint32_t)sample.data.length, self->_buffer_size);
             
-            memcpy(buffer->mAudioData, sample.data.bytes, sample.data.length);
+            if (buffer->mAudioDataByteSize == 0 && [self state] == AudioQueueRunning_) {
+                //EOS!!
+                //[self stop_];
+            }
+           
+            
+            memcpy(buffer->mAudioData, sample.data.bytes, buffer->mAudioDataByteSize);
             
             @synchronized (_lock) {
 
-                DErr(@"audioQueueCallback enqueue");
+                DLog(@"audioQueueCallback enqueue");
                 if ( AudioQueueEnqueueBuffer(_avqueue, buffer, 0, NULL) != noErr ){
                     DErr(@"AudioQueueEnqueueBuffer failed");
                 }
@@ -313,7 +320,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         
         if (sample.data.length != self->_buffer_size) {
             DErr(@"sample.data.length != _buffer_size %lu %d",(unsigned long)sample.data.length,_buffer_size);
-            return KResult_ERROR;
+           // return KResult_ERROR;
         }
                 
         NSUInteger nSamples = 0;

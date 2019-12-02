@@ -49,7 +49,7 @@ class KTestAudioGraph : KPlayGraphChainBuilder {
             if (super.state == KGraphState_NONE){
                 super.chain?.removeAllObjects();
                 super.chain?.add(KAudioSourceWavReaderFilter(url: url));
-                super.chain?.add(KQueueFilter());
+                //super.chain?.add(KQueueFilter());
 //                 super.chain?.add(KQueueFilter());
 //                 super.chain?.add(KQueueFilter());
 //                 super.chain?.add(KQueueFilter());
@@ -312,10 +312,10 @@ class ViewController: UIViewController, KPlayerEvents {
     @IBAction func onPlayClick(_ sender: Any?) {
         NSLog("onPlay");
         
-        _ = player.play("http://p.kuzalex.com/wav/gr.wav", autoStart: true)
- //       _ = player.play("http://p.kuzalex.com/wav/dom17.wav", autoStart: true)
-  //      _ = player.play("http://p.kuzalex.com/wav/pipe0.wav", autoStart: true)
-  //      _ = player.play("http://p.kuzalex.com/wav/pipe.wav", autoStart: true)
+  //      _ = player.play("http://p.kuzalex.com/wav/gr.wav", autoStart: true)
+   //     _ = player.play("http://p.kuzalex.com/wav/dom17.wav", autoStart: true)
+   //     _ = player.play("http://p.kuzalex.com/wav/pipe0.wav", autoStart: true)
+        _ = player.play("http://p.kuzalex.com/wav/pipe.wav", autoStart: true)
  //       _ = player.play("http://p.kuzalex.com/wav/2.wav", autoStart: true)
 //
     }
