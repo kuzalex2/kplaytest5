@@ -94,15 +94,13 @@ class ViewController: UIViewController, KPlayerEvents {
     }
     
     
-    
-    // var player:KTestGraph1 = KTestGraph1()
-    var player = KTestAudioGraph()
+    var player:KPlayGraphChainBuilder? = nil;
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         textLabel.text = ""
-        player.events = self
+        
         onPlayClick(nil)
         spinner.startAnimating()
         spinner.isHidden = true
@@ -131,7 +129,7 @@ class ViewController: UIViewController, KPlayerEvents {
             return;
         }
            
-        if let mi = self.player.mediaInfo {
+        if let mi = self.player?.mediaInfo {
             let durationSec = Float(mi.duration() / mi.timeScale());
             let timeSec = Float(self.progressSlider.value) * durationSec / 1;
             self.timeLabel.text = String(format: "%.02f", timeSec);
@@ -142,11 +140,11 @@ class ViewController: UIViewController, KPlayerEvents {
         NSLog("touchUpI");
         inSeek=false;
         
-        if let mi = self.player.mediaInfo {
+        if let mi = self.player?.mediaInfo {
             let durationSec = Float(mi.duration() / mi.timeScale());
             let timeSec = Float(self.progressSlider.value) * durationSec / 1;
             
-            player.seek(timeSec);
+            player?.seek(timeSec);
            
         }
     }
@@ -162,18 +160,18 @@ class ViewController: UIViewController, KPlayerEvents {
             self.progressSlider.isEnabled = false;
             return;
         }
-        if let mi = self.player.mediaInfo {
+        if let mi = self.player?.mediaInfo {
             let durationSec = mi.duration() / mi.timeScale();
             self.durationLabel.text = "\(durationSec)";
             
-            if let pi = self.player.positionInfo {
+            if let pi = self.player?.positionInfo {
                 
                 
-                if player.state == KGraphState_STARTED {
+                if player?.state == KGraphState_STARTED {
                     self.spinner.isHidden = pi.isRunning()
                 }
                 
-                if (!inSeek && player.state != KGraphState_SEEKING){
+                if (!inSeek && player?.state != KGraphState_SEEKING){
             
                     let timeSec = Float(pi.position()) / Float(pi.timeScale());
                     self.timeLabel.text = String(format: "%.02f", timeSec)
@@ -185,7 +183,7 @@ class ViewController: UIViewController, KPlayerEvents {
                         //NSLog("State=%@ pos=%@", state2String(state:player.state), self.timeLabel.text ?? "");
                     }
                     
-                    if let bufInfo = player.bufferPositionInfo {
+                    if let bufInfo = player?.bufferPositionInfo {
                         let startBufSec = Float(bufInfo.startBufferedPosition()) / Float(bufInfo.timeScale());
                         let endBufSec = Float(bufInfo.endBufferedPosition()) / Float(bufInfo.timeScale());
                         
@@ -283,7 +281,7 @@ class ViewController: UIViewController, KPlayerEvents {
             case KGraphState_STARTED:
                 stateString = "started";
                 
-                self.spinner.isHidden = self.player.positionInfo?.isRunning() ?? false;
+                self.spinner.isHidden = self.player?.positionInfo?.isRunning() ?? false;
 //                NSLog("hidd %d", self.spinner.isHidden);
             case KGraphState_SEEKING:
                 stateString = "seeking";
@@ -303,20 +301,26 @@ class ViewController: UIViewController, KPlayerEvents {
   
     @IBAction func onStopClick(_ sender: Any) {
         NSLog("onStopClick");
-        player.stop()
+        player?.stop()
     }
     @IBAction func onPauseClick(_ sender: Any) {
         NSLog("onPauseClick");
-        player.pause()
+        player?.pause()
     }
     @IBAction func onPlayClick(_ sender: Any?) {
         NSLog("onPlay");
         
-  //      _ = player.play("http://p.kuzalex.com/wav/gr.wav", autoStart: true)
-   //     _ = player.play("http://p.kuzalex.com/wav/dom17.wav", autoStart: true)
-   //     _ = player.play("http://p.kuzalex.com/wav/pipe0.wav", autoStart: true)
-        _ = player.play("http://p.kuzalex.com/wav/pipe.wav", autoStart: true)
- //       _ = player.play("http://p.kuzalex.com/wav/2.wav", autoStart: true)
+        if player == nil {
+            //player = KTestGraph1();
+            player = KTestAudioGraph();
+            player?.events = self
+        }
+        
+        _ = player?.play("http://p.kuzalex.com/wav/gr.wav", autoStart: false)
+   //     _ = player?.play("http://p.kuzalex.com/wav/dom17.wav", autoStart: true)
+   //     _ = player?.play("http://p.kuzalex.com/wav/pipe0.wav", autoStart: true)
+       // _ = player?.play("http://p.kuzalex.com/wav/pipe.wav", autoStart: true)
+ //       _ = player?.play("http://p.kuzalex.com/wav/2.wav", autoStart: true)
 //
     }
     

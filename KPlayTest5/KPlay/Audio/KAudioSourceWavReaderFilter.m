@@ -73,7 +73,9 @@
             break;
         case KFilterState_PAUSING:
         case KFilterState_STARTED:
+            break;
         case KFilterState_PAUSED:
+           // sleep(100);
             
             break;
     }
