@@ -144,7 +144,7 @@ void RTMP_Interrupt(RTMP *r)
                 if (!packet.m_nBodySize)
                     continue;
                 
-                DLog(@"Got pkt type=%d", (int)packet.m_packetType);
+                DLog(@"Got pkt type=%d ts=%d", (int)packet.m_packetType, (int)packet.m_nTimeStamp);
                 
                 if ( packet.m_packetType == RTMP_PACKET_TYPE_AUDIO ){
                     
@@ -196,8 +196,17 @@ void RTMP_Interrupt(RTMP *r)
 
 -(KResult)seek:(float)sec
 {
-    assert("NOT IMPLEMENTED"==nil);
-    return KResult_ERROR;
+    @synchronized (RtmpLockProcess) {
+//        if (!RTMP_ConnectStream(_rtmp, sec*1000)) {
+//            RTMP_Log(RTMP_LOGERROR, "ConnectStream Err\n");
+//            return KResult_RTMP_ConnectFailed;
+//        }
+        if (!RTMP_SendSeek(_rtmp, sec*1000))
+        {
+            return KResult_ERROR;
+        }
+    }
+    return KResult_OK;
 }
 
 ///

@@ -339,8 +339,8 @@ class ViewController: UIViewController, KPlayerEvents {
             player?.events = self
         }
 
-        player?.play("rtmp://176.9.99.77:1935/vod/testa2.flv", autoStart: false);
-//        player?.play("rtmp://176.9.99.77:1935/vod/test.mp4", autoStart: false);
+ //       player?.play("rtmp://176.9.99.77:1935/vod/testa2.flv", autoStart: true);
+        player?.play("rtmp://176.9.99.77:1935/vod/test.mp4", autoStart: false);
 //        player?.play("rtmp://176.9.99.77:1936/vod/test.mp4", autoStart: false);
 
 //        _ = player?.play("http://p.kuzalex.com/wav/gr.wav", autoStart: false)
