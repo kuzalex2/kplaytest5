@@ -133,9 +133,8 @@
             return res;
         }
         
-        //FIXME:
-        if ([f.outputPins count] > 0 ) {
-            if ((res = [f pullSample:&sample probe:YES error:&error]) != KResult_OK) {
+        for (KOutputPin* p in f.outputPins) {
+            if ((res = [f pullSample:&sample probe:YES error:&error fromPin:p]) != KResult_OK) {
                 return res;
             }
         }

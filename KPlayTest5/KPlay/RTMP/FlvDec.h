@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
     @property KMediaType *type;
     @property KMediaSample *sample;
 
-    -(int64_t)duration;
+   // -(int64_t)duration;
 
     -(KResult) parseRtmp:(RTMPPacket *)p;
 

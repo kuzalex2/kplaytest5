@@ -149,7 +149,7 @@
 //    return self;
 //}
 
--(KMediaType *)getOutputMediaType
+-(KMediaType *)getOutputMediaTypeFromPin:(KOutputPin*)pin
 {
     return type;
 }
@@ -178,7 +178,7 @@
 //// on stopped/paused -> dispatch_semaphore_signal(_sem);
 //
 //
--(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error;
+-(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(nonnull KOutputPin *)pin;
 {
     KMediaSample *mySample= [[KMediaSample alloc]init];
     mySample.type = type;
@@ -231,7 +231,7 @@
 
 
 
--(KMediaType *)getOutputMediaType
+-(KMediaType *)getOutputMediaTypeFromPin:(KOutputPin*)pin
 {
     return _type;
 }
@@ -246,7 +246,7 @@
 }
 
 
--(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error;
+-(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(nonnull KOutputPin *)pin;
 {
     if (_outSample==nil)
     {
@@ -415,7 +415,7 @@
     return TRUE;
 }
 
--(KMediaType *)getOutputMediaType
+-(KMediaType *)getOutputMediaTypeFromPin:(KOutputPin*)pin
 {
     return mytype;
 }

@@ -269,6 +269,9 @@ extern "C"
     double m_fEncoding;		/* AMF0 or AMF3 */
 
     double m_fDuration;		/* duration of stream in seconds */
+    double m_fAudioSamplerate;
+    double M_FWidth;
+    double M_FHeight;
 
     int m_msgCounter;		/* RTMPT stuff */
     int m_polling;
@@ -375,6 +378,9 @@ extern "C"
   void RTMP_DropRequest(RTMP *r, int i, int freeit);
   int RTMP_Read(RTMP *r, char *buf, int size);
   int RTMP_Write(RTMP *r, const char *buf, int size);
+int
+HandleMetadata(RTMP *r, char *body, unsigned int len);
+
 
 /* hashswf.c */
   int RTMP_HashSWF(const char *url, unsigned int *size, unsigned char *hash,

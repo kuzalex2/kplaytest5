@@ -9,6 +9,7 @@
 #import "KFilter.h"
 #import "KClock.h"
 
+NS_ASSUME_NONNULL_BEGIN
 
 //@protocol KBufferInfo
 //    -(float) minTsSec;
@@ -18,7 +19,7 @@
 @interface KQueueFilter : KThreadFilter // <KBufferInfo>
 //    - (instancetype)init;
     -(KResult)onThreadTick:(NSError *__strong*)ppError;
-    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong _Nonnull*_Nullable)error;
+    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(nonnull KOutputPin *)pin;
 
 //    -(void)onStateChanged:(KFilterState)state;
 //    -(BOOL)isInputMediaTypeSupported:(KMediaType *)type;
@@ -30,3 +31,4 @@
     @property BOOL sorted;
 @end
 
+NS_ASSUME_NONNULL_END

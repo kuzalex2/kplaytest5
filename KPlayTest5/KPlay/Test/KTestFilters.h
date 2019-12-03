@@ -14,12 +14,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface KTestSourceFilter : KFilter
-    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error;
+    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(nonnull KOutputPin *)pin;
 @end
 
 @interface KTestUrlSourceFilter : KFilter
     -(instancetype)initWithUrl:(NSString *)url;
-    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error;
+    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(nonnull KOutputPin *)pin;
 @end
 
 @interface KTestSinkFilter : KThreadFilter<KPlayPositionInfo> {
@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface KTestTransformFilter : KTransformFilter
     -(KResult)onTransformSample:(KMediaSample *__strong _Nonnull*_Nullable)sample;
     -(BOOL)isInputMediaTypeSupported:(KMediaType *)type;
-    -(KMediaType *)getOutputMediaType;
+    -(KMediaType *)getOutputMediaTypeFromPin:(KOutputPin*)pin;
 @end
 
 

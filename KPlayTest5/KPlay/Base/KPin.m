@@ -160,7 +160,7 @@ NSError *KResult2Error(KResult res)
     if (_filter==nil)
         return KResult_ERROR;
     
-    if (![sink isMediaTypeSupported:[_filter getOutputMediaType]])
+    if (![sink isMediaTypeSupported:[_filter getOutputMediaTypeFromPin:self]])
         return FALSE;
     
     return [super connectTo:sink];
@@ -174,7 +174,7 @@ NSError *KResult2Error(KResult res)
     if (_filter==nil)
         return KResult_ERROR;
     
-    return [_filter pullSample:sample probe:probe error:error];
+    return [_filter pullSample:sample probe:probe error:error fromPin:self];
 }
 
 @end

@@ -342,10 +342,11 @@ class ViewController: UIViewController, KPlayerEvents {
 
         player?.play("rtmp://176.9.99.77:1935/vod/testa2.flv", autoStart: true);
  //       player?.play("rtmp://176.9.99.77:1935/vod/testa.mp4", autoStart: true);
+    //    player?.play("rtmp://176.9.99.77:1935/vod/test.mp4", autoStart: true);
 //        player?.play("rtmp://176.9.99.77:1936/vod/test.mp4", autoStart: true);
 
-//        _ = player?.play("http://p.kuzalex.com/wav/gr.wav", autoStart: false)
-//        _ = player?.play("http://p.kuzalex.com/wav/testa2.wav", autoStart: false)
+//        _ = player?.play("http://p.kuzalex.com/wav/gr.wav", autoStart: true)
+//        _ = player?.play("http://p.kuzalex.com/wav/testa2.wav", autoStart: true)
 //        _ = player?.play("http://p.kuzalex.com/wav/dom17.wav", autoStart: true)
 //        _ = player?.play("http://p.kuzalex.com/wav/pipe0.wav", autoStart: true)
 //        _ = player?.play("http://p.kuzalex.com/wav/pipe.wav", autoStart: true)
