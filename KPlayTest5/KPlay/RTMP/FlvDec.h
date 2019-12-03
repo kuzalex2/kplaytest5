@@ -25,14 +25,5 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-//typedef struct FlvStream {
-//    
-//    CMFormatDescriptionRef format;
-//    uint8_t *data;
-//    uint32_t data_size;
-//    
-//} FlvPacket;
-//
-//KResult parsePacket(RTMPPacket *p, FlvPacket *f);
 
 NS_ASSUME_NONNULL_END
