@@ -251,7 +251,7 @@ class ViewController: UIViewController, KPlayerEvents {
             assert(false);
         }
        
-        
+        return "";
     }
     
     func onStateChanged(_ state: KGraphState) {

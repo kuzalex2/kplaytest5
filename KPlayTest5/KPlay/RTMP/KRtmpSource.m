@@ -14,15 +14,16 @@
 
 #import "librtmp/rtmp_sys.h"
 #import "librtmp/log.h"
+#import "FlvDec.h"
 
 @implementation KRtmpSource{
     NSString *_url;
-    KMediaType *_type;
+    FlvStream *_stream_audio;
+    FlvStream *_stream_video;
     
     NSObject *RtmpLockInit;
     NSObject *RtmpLockProcess;
     RTMP *_rtmp;
-//    KMediaSample *_outSample;
 //    NSError *_error;
 }
 
@@ -30,7 +31,8 @@
 {
     self = [super init];
     if (self) {
-        self->_type = nil;
+        self->_stream_audio = nil;
+        self->_stream_video = nil;
         
 //        self->_outSample=nil;
        // self->_error = nil;
@@ -52,7 +54,9 @@
 
 -(KMediaType *)getOutputMediaType
 {
-    return _type;
+    if (_stream_audio==nil)
+        return nil;
+    return _stream_audio.type;
 }
 
 void RTMP_Interrupt(RTMP *r)
@@ -83,6 +87,13 @@ void RTMP_Interrupt(RTMP *r)
             break;
     }
 }
+
+
+    
+
+
+
+
 
 -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error;
 {
@@ -148,69 +159,46 @@ void RTMP_Interrupt(RTMP *r)
                 DLog(@"Got pkt type=%d ts=%d len=%d", (int)packet.m_packetType, (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
                 
                 if ( packet.m_packetType == RTMP_PACKET_TYPE_AUDIO ){
-                    
-                    ///FIXME!!!
-                    ///FIXME!!!
-                    ///FIXME!!!
-                    ///FIXME!!!
-                    ///FIXME!!!
-                    if ( self->_type == nil) {
-                        ///fixme
-                        AudioStreamBasicDescription format;
-                        format.mSampleRate = 44100;
-                        format.mFormatID = kAudioFormatLinearPCM;
-                        format.mChannelsPerFrame = 2;
-                        format.mFormatFlags      = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
-                        format.mBitsPerChannel   = (UInt32)(8 * 2 );
-                        format.mBytesPerFrame    = (UInt32)(2 * format.mChannelsPerFrame);
-                        format.mFramesPerPacket  = 1;
-                        format.mBytesPerPacket   = format.mBytesPerFrame * format.mFramesPerPacket;
-                        format.mReserved         = 0;
-                        
-                        
-                                           
-                        CMFormatDescriptionRef      cmformat;
-                        if (CMAudioFormatDescriptionCreate(kCFAllocatorDefault,
-                                                           &format,
-                                                           0,
-                                                           NULL,
-                                                           0,
-                                                           NULL,
-                                                           NULL,
-                                                           &cmformat)!=noErr)
-                        {
-                            DErr(@"Could not create format from AudioStreamBasicDescription");
-                            
-                            return KResult_ERROR;
-                        }
-                        
-                        self->_type = [[KMediaType alloc] initWithName:@"audio/pcm"];
-                        [self->_type setFormat:cmformat];
-                        
-                       // self->_type = [[KMediaType alloc] initWithName:@"rtmpaudiodata/xxx"];
+
+                    if ( _stream_audio == nil){
+                        _stream_audio = [[FlvStream alloc] init];
+                    }
+                    KResult res;
+                    if ( (res = [_stream_audio parseRtmp:&packet])!=KResult_OK){
+                        DErr(@"Audio parse failed");
+                        return res;
                     }
                     
-                    
-                    KMediaSample *outSample = [[KMediaSample alloc] init];
-                    outSample.ts = packet.m_nTimeStamp;
-                    outSample.timescale = 1000;
-                    outSample.type = _type;
-                    
-                    outSample.data = [[NSData alloc] initWithBytes:packet.m_body+1 length:packet.m_nBodySize-1];
-                    
+                    if (_stream_audio.sample != nil ) {
+                        
+                        
+                        *sample = _stream_audio.sample;
+                        RTMPPacket_Free(&packet);
+                        return KResult_OK;
+                    }
+
                     RTMPPacket_Free(&packet);
-                    
-                    *sample = outSample;
-                    return KResult_OK;
-                    
-                    
-                   
-                    
-                    
                     
                 } else if (packet.m_packetType == RTMP_PACKET_TYPE_VIDEO){
                     
                     
+                    if ( _stream_video == nil){
+                        _stream_video = [[FlvStream alloc] init];
+                    }
+                    KResult res;
+                    if ( (res = [_stream_video parseRtmp:&packet])!=KResult_OK){
+                        DErr(@"Audio parse failed");
+                        return res;
+                    }
+                    
+                    if (_stream_video.sample != nil ) {
+                        
+                        
+                        *sample = _stream_video.sample;
+                        RTMPPacket_Free(&packet);
+                        return KResult_OK;
+                    }
+
                     RTMPPacket_Free(&packet);
                     
                 } else if (packet.m_packetType == RTMP_PACKET_TYPE_INFO) {
@@ -229,9 +217,7 @@ void RTMP_Interrupt(RTMP *r)
             }
         }
     }
-    
-    
-//    KResult res;
+        
     return KResult_ERROR;
 
 }
@@ -292,8 +278,12 @@ void RTMP_Interrupt(RTMP *r)
 
 -(int64_t)duration
 {
-    //assert("NOT IMPLEMENTED"==nil);
-    return 44650;
+    if (_stream_audio!=nil)
+        return [_stream_audio duration];
+    if (_stream_video!=nil)
+        return [_stream_video duration];
+    
+    return 0;
 }
 
 -(int64_t)timeScale
