@@ -189,9 +189,9 @@ void RTMP_Interrupt(RTMP *r)
                     
                     if (HandleMetadata(_rtmp, packet.m_body, packet.m_nBodySize))
                     {
-                        if (_rtmp->m_fDuration)
+                        if (_rtmp->m_fAudioCodecid>0)
                             has_audio=TRUE;
-                        if (_rtmp->M_FWidth>0 || _rtmp->M_FHeight>0)
+                        if (_rtmp->m_fVideoCodecid>0)
                             has_video=TRUE;
                         
                         if (self.outputPins.count < has_audio + has_video ){
@@ -279,7 +279,7 @@ void RTMP_Interrupt(RTMP *r)
                     }
                     KResult res;
                     if ( (res = [_stream_video parseRtmp:&packet])!=KResult_OK){
-                        DErr(@"Audio parse failed");
+                        DErr(@"Video parse failed");
                         return res;
                     }
                     

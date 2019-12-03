@@ -6,7 +6,7 @@
 //  Copyright © 2019 kuzalex. All rights reserved.
 //
 
-//#define MYDEBUG
+#define MYDEBUG
 #include "myDebug.h"
 
 #import "KTestFilters.h"

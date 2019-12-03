@@ -61,9 +61,25 @@ enum {
     FLV_CODECID_SPEEX                = 11<< FLV_AUDIO_CODECID_OFFSET,
 };
 
+enum {
+    FLV_CODECID_H263    = 2,
+    FLV_CODECID_SCREEN  = 3,
+    FLV_CODECID_VP6     = 4,
+    FLV_CODECID_VP6A    = 5,
+    FLV_CODECID_SCREEN2 = 6,
+    FLV_CODECID_H264    = 7,
+    FLV_CODECID_REALH263= 8,
+    FLV_CODECID_MPEG4   = 9,
+};
+
+
+//#define MKTAG(a,b,c,d) ((a) | ((b) << 8) | ((c) << 16) | ((unsigned)(d) << 24))
+#define MKBETAG(a,b,c,d) ((d) | ((c) << 8) | ((b) << 16) | ((unsigned)(a) << 24))
+
 
 #define GET_BYTE(v,ptr,sz,error) { if ((sz)>=1) {(v)=*ptr++; (sz)--;} else return error;}
 #define SKIP_N_BYTES(nb,ptr,sz,error) { if ((sz)>=(nb)) {ptr+=(nb); (sz)-=(nb);} else return error;}
+
 
 
 -(KResult)processAudioPacket:(RTMPPacket *)p
@@ -111,37 +127,55 @@ enum {
 //                ? AV_CODEC_ID_PCM_U8
 //                : AV_CODEC_ID_PCM_S16LE;
                 break;
-//            case FLV_CODECID_AAC:
+            case FLV_CODECID_AAC:
+                DErr(@"Unsupported audio codec FLV_CODECID_AAC");
+                return KResult_ParseError;
 //                apar->codec_id = AV_CODEC_ID_AAC;
 //                break;
-//            case FLV_CODECID_ADPCM:
+            case FLV_CODECID_ADPCM:
+                DErr(@"Unsupported audio codec FLV_CODECID_ADPCM");
+                return KResult_ParseError;
 //                apar->codec_id = AV_CODEC_ID_ADPCM_SWF;
 //                break;
-//            case FLV_CODECID_SPEEX:
+            case FLV_CODECID_SPEEX:
+                DErr(@"Unsupported audio codec FLV_CODECID_SPEEX");
+                return KResult_ParseError;
 //                apar->codec_id    = AV_CODEC_ID_SPEEX;
 //                apar->sample_rate = 16000;
 //                break;
-//            case FLV_CODECID_MP3:
+            case FLV_CODECID_MP3:
+                DErr(@"Unsupported audio codec FLV_CODECID_MP3");
+                return KResult_ParseError;
 //                apar->codec_id      = AV_CODEC_ID_MP3;
 //                astream->need_parsing = AVSTREAM_PARSE_FULL;
 //                break;
-//            case FLV_CODECID_NELLYMOSER_8KHZ_MONO:
+            case FLV_CODECID_NELLYMOSER_8KHZ_MONO:
+                DErr(@"Unsupported audio codec FLV_CODECID_NELLYMOSER_8KHZ_MONO");
+                return KResult_ParseError;
 //                // in case metadata does not otherwise declare samplerate
 //                apar->sample_rate = 8000;
 //                apar->codec_id    = AV_CODEC_ID_NELLYMOSER;
 //                break;
-//            case FLV_CODECID_NELLYMOSER_16KHZ_MONO:
+            case FLV_CODECID_NELLYMOSER_16KHZ_MONO:
+                DErr(@"Unsupported audio codec FLV_CODECID_NELLYMOSER_16KHZ_MONO");
+                return KResult_ParseError;
 //                apar->sample_rate = 16000;
 //                apar->codec_id    = AV_CODEC_ID_NELLYMOSER;
 //                break;
-//            case FLV_CODECID_NELLYMOSER:
+            case FLV_CODECID_NELLYMOSER:
+                DErr(@"Unsupported audio codec FLV_CODECID_NELLYMOSER");
+                return KResult_ParseError;
 //                apar->codec_id = AV_CODEC_ID_NELLYMOSER;
 //                break;
-//            case FLV_CODECID_PCM_MULAW:
+            case FLV_CODECID_PCM_MULAW:
+                DErr(@"Unsupported audio codec FLV_CODECID_PCM_MULAW");
+                return KResult_ParseError;
 //                apar->sample_rate = 8000;
 //                apar->codec_id    = AV_CODEC_ID_PCM_MULAW;
 //                break;
-//            case FLV_CODECID_PCM_ALAW:
+            case FLV_CODECID_PCM_ALAW:
+                DErr(@"Unsupported audio codec FLV_CODECID_PCM_ALAW");
+                return KResult_ParseError;
 //                apar->sample_rate = 8000;
 //                apar->codec_id    = AV_CODEC_ID_PCM_ALAW;
 //                break;
@@ -150,7 +184,7 @@ enum {
 //                                      flv_codecid >> FLV_AUDIO_CODECID_OFFSET);
 //                apar->codec_tag = flv_codecid >> FLV_AUDIO_CODECID_OFFSET;
                 default:
-                    DErr(@"Unsupported audio format");
+                    DErr(@"Unsupported audio codec (%x)", flags & FLV_AUDIO_CODECID_MASK);
                     return KResult_ParseError;
         }
         
@@ -193,6 +227,130 @@ enum {
     
 }
 
+-(KResult)processVideoPacket:(RTMPPacket *)p
+{
+    //KResult res;
+    
+    uint8_t *ptr = (uint8_t*)p->m_body;
+    int restSz = p->m_nBodySize;
+    
+    uint8_t flags;
+    
+    GET_BYTE(flags,ptr,restSz,KResult_ParseError);
+    
+    switch (flags & FLV_VIDEO_CODECID_MASK) {
+        case FLV_CODECID_H263:
+            DErr(@"Unsupported video codec FLV_CODECID_H263");
+            return KResult_ParseError;
+        case FLV_CODECID_SCREEN:
+            DErr(@"Unsupported video codec FLV_CODECID_SCREEN");
+            return KResult_ParseError;
+        case FLV_CODECID_SCREEN2:
+            DErr(@"Unsupported video codec FLV_CODECID_SCREEN2");
+            return KResult_ParseError;
+        case FLV_CODECID_VP6:
+            DErr(@"Unsupported video codec FLV_CODECID_VP6");
+            return KResult_ParseError;
+        case FLV_CODECID_VP6A:
+            DErr(@"Unsupported video codec FLV_CODECID_VP6A");
+            return KResult_ParseError;
+        case FLV_CODECID_H264: {
+            
+            uint8_t AVCPacketType;
+            uint8_t CompositionTime[3];
+            uint8_t byte;
+            uint8_t nalusizeminusOne;
+            
+            GET_BYTE(AVCPacketType,ptr,restSz,KResult_ParseError);
+            GET_BYTE(CompositionTime[0],ptr,restSz,KResult_ParseError);
+            GET_BYTE(CompositionTime[1],ptr,restSz,KResult_ParseError);
+            GET_BYTE(CompositionTime[2],ptr,restSz,KResult_ParseError);
+            
+            if (_type == nil){
+                if ((flags&0xf0)!=0x10 || AVCPacketType!=0x0){
+                    // not a format packet
+                    return KResult_OK;
+                }
+                
+                uint8_t  *sps_data = NULL;
+                uint16_t sps_size = 0;
+                uint8_t  *pps_data = NULL;
+                uint16_t pps_size = 0;
+                
+                GET_BYTE(byte,ptr,restSz,KResult_ParseError);
+                GET_BYTE(byte,ptr,restSz,KResult_ParseError);
+                GET_BYTE(byte,ptr,restSz,KResult_ParseError);
+                GET_BYTE(byte,ptr,restSz,KResult_ParseError);
+                
+                GET_BYTE(nalusizeminusOne,ptr,restSz,KResult_ParseError);
+                
+                //FIXME: > 1 sps?
+                uint8_t spsNum;
+                GET_BYTE(spsNum,ptr,restSz,KResult_ParseError);
+                GET_BYTE(byte,ptr,restSz,KResult_ParseError);
+                sps_size = byte;
+                GET_BYTE(byte,ptr,restSz,KResult_ParseError);
+                sps_size<<=8;
+                sps_size|=byte;
+                sps_data=ptr;
+                SKIP_N_BYTES(sps_size,ptr,restSz,KResult_ParseError);
+                
+                uint8_t ppsNum;
+                GET_BYTE(ppsNum,ptr,restSz,KResult_ParseError);
+                GET_BYTE(byte,ptr,restSz,KResult_ParseError);
+                pps_size = byte;
+                GET_BYTE(byte,ptr,restSz,KResult_ParseError);
+                pps_size<<=8;
+                pps_size|=byte;
+                pps_data=ptr;
+                SKIP_N_BYTES(pps_size,ptr,restSz,KResult_ParseError);
+                
+                const uint8_t* const parameterSetPointers[2] = { sps_data, pps_data };
+                const size_t parameterSetSizes[2] = { sps_size, pps_size };
+                CMFormatDescriptionRef vfd;
+                OSStatus status = CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault,
+                                                                                      2,
+                                                                                      parameterSetPointers,
+                                                                                      parameterSetSizes,
+                                                                                      4,
+                                                                                      &vfd);
+                if (status != noErr)
+                    return KResult_ParseError;
+                
+                CMVideoDimensions dim = CMVideoFormatDescriptionGetDimensions(vfd);
+                DLog(@"Found %dx%d CMVideoFormatDescription", dim.width, dim.height);
+                UInt32 fourcc = CMVideoFormatDescriptionGetCodecType(vfd);
+                
+                DLog(@"Found %d %d", fourcc, MKBETAG('a','v','c','1'));
+                assert(MKBETAG('a','v','c','1')==fourcc);
+                
+                self->_type = [[KMediaType alloc] initWithName:@"video"];
+                [self->_type setFormat:vfd];
+            }
+            break;
+        }
+            
+        default:
+            DErr(@"Unsupported video codec (%x)", flags & FLV_VIDEO_CODECID_MASK);
+            return KResult_ParseError;
+    }
+    
+
+    if (restSz>0)
+    {
+        _sample = [[KMediaSample alloc] init];
+        _sample.ts = p->m_nTimeStamp;
+        _sample.timescale = 1000;
+        _sample.type = _type;
+        
+        _sample.data = [[NSData alloc] initWithBytes:ptr length:restSz];
+    }
+
+    return KResult_OK;
+
+}
+
+
 - (instancetype)init
 {
     self = [super init];
@@ -212,11 +370,8 @@ enum {
         return [self processAudioPacket:p];
     
     
-    if ( p->m_packetType == RTMP_PACKET_TYPE_VIDEO ){
-        DErr(@"Unsupported media type");
-        // NOT IMPLEMENTED
-        return KResult_OK;
-    }
+    if ( p->m_packetType == RTMP_PACKET_TYPE_VIDEO )
+        return [self processVideoPacket:p];
        
     DErr(@"Unsupported media type");
     

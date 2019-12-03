@@ -49,9 +49,30 @@ class KTestRtmpGraph : KPlayGraphChainBuilder {
             if (super.state == KGraphState_NONE){
                 super.chain?.removeAllObjects();
                 super.chain?.add(KRtmpSource(url: url));
-                //super.chain?.add(KQueueFilter());
-                //super.chain?.add(KTestSinkFilter());
                 super.chain?.add(KAudioPlayFilter());
+            }
+        }
+        
+        
+       
+        return super.play(url, autoStart: autoStart)
+    }
+}
+
+class KTestRtmpAVGraph : KPlayGraphChainBuilder {
+    
+    override func play(_ url: String, autoStart: Bool) -> KResult {
+       
+        
+        do {
+            objc_sync_enter(super.state_mutex)
+            defer { objc_sync_exit(super.state_mutex)}
+            if (super.state == KGraphState_NONE){
+                super.chain?.removeAllObjects();
+                super.chain?.add(KRtmpSource(url: url));
+                //super.chain?.add(KQueueFilter());
+                super.chain?.add(KTestSinkFilter());
+                //super.chain?.add(KAudioPlayFilter());
             }
         }
         
@@ -336,13 +357,15 @@ class ViewController: UIViewController, KPlayerEvents {
         if player == nil {
 //            player = KTestGraph();
 //            player = KTestAudioGraph();
-            player = KTestRtmpGraph();
+//            player = KTestRtmpGraph();
+            player = KTestRtmpAVGraph();
             player?.events = self
         }
 
-        player?.play("rtmp://176.9.99.77:1935/vod/testa2.flv", autoStart: true);
- //       player?.play("rtmp://176.9.99.77:1935/vod/testa.mp4", autoStart: true);
-    //    player?.play("rtmp://176.9.99.77:1935/vod/test.mp4", autoStart: true);
+  //      player?.play("rtmp://176.9.99.77:1935/vod/testa2.flv", autoStart: true);
+        player?.play("rtmp://176.9.99.77:1935/vod/testa.mp4", autoStart: true);
+//        player?.play("rtmp://176.9.99.77:1935/vod/test.mp4", autoStart: true);
+//        player?.play("rtmp://176.9.99.77:1935/vod/testv.mp4", autoStart: true);
 //        player?.play("rtmp://176.9.99.77:1936/vod/test.mp4", autoStart: true);
 
 //        _ = player?.play("http://p.kuzalex.com/wav/gr.wav", autoStart: true)

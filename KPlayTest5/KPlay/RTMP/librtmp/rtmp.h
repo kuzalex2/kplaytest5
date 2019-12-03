@@ -270,8 +270,10 @@ extern "C"
 
     double m_fDuration;		/* duration of stream in seconds */
     double m_fAudioSamplerate;
-    double M_FWidth;
-    double M_FHeight;
+    double M_fWidth;
+    double M_fHeight;
+      double m_fAudioCodecid;
+      double m_fVideoCodecid;
 
     int m_msgCounter;		/* RTMPT stuff */
     int m_polling;

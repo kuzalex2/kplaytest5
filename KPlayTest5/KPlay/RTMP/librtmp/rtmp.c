@@ -3529,6 +3529,10 @@ SAVC(audio);
 SAVC(audiosamplerate);
 SAVC(width);
 SAVC(height);
+SAVC(audiocodecid);
+SAVC(videocodecid);
+    
+    
 
  int
 HandleMetadata(RTMP *r, char *body, unsigned int len)
@@ -3568,12 +3572,22 @@ HandleMetadata(RTMP *r, char *body, unsigned int len)
         }
         if (RTMP_FindFirstMatchingProperty(&obj, &av_width, &prop))
         {
-            r->M_FWidth = prop.p_vu.p_number;
+            r->M_fWidth = prop.p_vu.p_number;
             /*RTMP_Log(RTMP_LOGDEBUG, "Set duration: %.2f", m_fDuration); */
         }
         if (RTMP_FindFirstMatchingProperty(&obj, &av_height, &prop))
         {
-            r->M_FHeight = prop.p_vu.p_number;
+            r->M_fHeight = prop.p_vu.p_number;
+            /*RTMP_Log(RTMP_LOGDEBUG, "Set duration: %.2f", m_fDuration); */
+        }
+        if (RTMP_FindFirstMatchingProperty(&obj, &av_audiocodecid, &prop))
+        {
+            r->m_fAudioCodecid = prop.p_vu.p_number;
+            /*RTMP_Log(RTMP_LOGDEBUG, "Set duration: %.2f", m_fDuration); */
+        }
+        if (RTMP_FindFirstMatchingProperty(&obj, &av_videocodecid, &prop))
+        {
+            r->m_fVideoCodecid = prop.p_vu.p_number;
             /*RTMP_Log(RTMP_LOGDEBUG, "Set duration: %.2f", m_fDuration); */
         }
         
