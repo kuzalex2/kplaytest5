@@ -104,11 +104,13 @@ enum {
                 //                : AV_CODEC_ID_PCM_S16LE;
                 //#endif
                 break;
-//            case FLV_CODECID_PCM_LE:
+            case FLV_CODECID_PCM_LE:
+                format.mFormatID = kAudioFormatLinearPCM;
+                format.mFormatFlags      = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
 //                apar->codec_id = apar->bits_per_coded_sample == 8
 //                ? AV_CODEC_ID_PCM_U8
 //                : AV_CODEC_ID_PCM_S16LE;
-//                break;
+                break;
 //            case FLV_CODECID_AAC:
 //                apar->codec_id = AV_CODEC_ID_AAC;
 //                break;
@@ -185,7 +187,7 @@ enum {
     _sample.timescale = 1000;
     _sample.type = _type;
     
-    _sample.data = [[NSData alloc] initWithBytes:p->m_body+1 length:p->m_nBodySize-1];
+    _sample.data = [[NSData alloc] initWithBytes:ptr length:restSz];
 
     return KResult_OK;
     
