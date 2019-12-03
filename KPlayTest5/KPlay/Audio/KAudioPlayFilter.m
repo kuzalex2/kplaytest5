@@ -387,19 +387,15 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
 
     +(BOOL)isInputMediaTypeSupported:(KMediaType *)type
     {
-        if ([type.name isEqualToString:@"audio/pcm"]){
+        if ([type.name compare:@"audio"]>=0){
             // CMAudioFormatDescriptionRef format = type.format;
             
             const AudioStreamBasicDescription  * _Nullable pformat  = CMAudioFormatDescriptionGetStreamBasicDescription(type.format);
             if (pformat==nil)
                 return FALSE;
+            return pformat->mFormatID == kAudioFormatLinearPCM;
             //_format = AudioStream
           //  _format = *pformat;
-           
-            
-            
-            
-            return TRUE;
         }
         return FALSE;
     }

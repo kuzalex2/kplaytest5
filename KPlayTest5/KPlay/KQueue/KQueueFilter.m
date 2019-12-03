@@ -172,7 +172,7 @@
     self->type=type;
     return TRUE;
 }
--(KMediaType *)getOutputMediaType
+-(KMediaType *)getOutputMediaTypeFromPin:(KOutputPin*)pin
 {
     return self->type;
 }
@@ -249,7 +249,7 @@
 }
 
 
--(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong _Nonnull*_Nullable)error;
+-(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(nonnull KOutputPin *)pin;
 {
     while(1)
     {

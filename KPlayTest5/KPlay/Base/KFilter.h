@@ -29,7 +29,15 @@ NSString *KFilterState2String(KFilterState state);
 - (void)onStateChanged:(KFilter *)filter state:(KFilterState)state;
 @end
 
-@interface KFilter : NSObject<KPlayEvents>
+@protocol KPullFilter <NSObject>
+
+    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong _Nonnull*_Nullable)error fromPin:(KOutputPin*)pin;
+    -(KMediaType *)getOutputMediaTypeFromPin:(KOutputPin*)pin;
+
+
+@end
+
+@interface KFilter : NSObject<KPlayEvents, KPullFilter>
 {
     @protected KFilterState _state;
     @protected NSObject *_state_mutex;
@@ -54,12 +62,13 @@ NSString *KFilterState2String(KFilterState state);
     - (void)onStateChanged:(KFilter *)filter state:(KFilterState)state;
    
 
-    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong _Nonnull*_Nullable)error;
+    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong _Nonnull*_Nullable)error fromPin:(KOutputPin*)pin;
+    -(KMediaType *)getOutputMediaTypeFromPin:(KOutputPin*)pin;
 
 
    // -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError **)error;
     -(BOOL)isInputMediaTypeSupported:(KMediaType *)type;
-    -(KMediaType *)getOutputMediaType;
+    
     -(NSString *)name;
 @end
 
@@ -86,7 +95,7 @@ NSString *KFilterState2String(KFilterState state);
 
     -(KResult)onTransformSample:(KMediaSample *_Nonnull*_Nullable)sample error:(NSError *__strong*)error;
     -(BOOL)isInputMediaTypeSupported:(KMediaType *)type;
-    -(KMediaType *)getOutputMediaType;
+-(KMediaType *)getOutputMediaTypeFromPin:(KOutputPin*)pin;
 @end
 
 NS_ASSUME_NONNULL_END

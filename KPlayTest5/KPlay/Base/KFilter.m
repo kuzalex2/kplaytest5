@@ -95,7 +95,7 @@ NSString *KFilterState2String(KFilterState state)
     }
 }
 
--(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error
+-(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(KOutputPin*)pin
 {
     DErr(@"pullSample at %@ not implemented", [self name]);
     return KResult_ERROR;
@@ -107,7 +107,7 @@ NSString *KFilterState2String(KFilterState state)
     return FALSE;
 }
 
--(KMediaType *)getOutputMediaType
+-(KMediaType *)getOutputMediaTypeFromPin:(KOutputPin*)pin
 {
     DErr(@"getOutputMediaType at %@ not implemented", [self name]);
     return nil;
@@ -421,7 +421,7 @@ stopping:
     return self;
 }
 
--(KResult)pullSample:(KMediaSample **)sample probe:(BOOL)probe error:(NSError *__strong*)error
+-(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(nonnull KOutputPin *)pin;
 {
 
     if ([self.inputPins count] < 1 )
@@ -445,7 +445,7 @@ stopping:
     return FALSE;
 }
 
--(KMediaType *)getOutputMediaType
+-(KMediaType *)getOutputMediaTypeFromPin:(KOutputPin*)pin
 {
     return nil;
 }

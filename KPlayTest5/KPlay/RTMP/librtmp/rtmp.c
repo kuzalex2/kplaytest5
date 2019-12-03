@@ -145,7 +145,7 @@ static int SendBGHasStream(RTMP *r, double dId, AVal *playpath);
 #endif
 
 static int HandleInvoke(RTMP *r, const char *body, unsigned int nBodySize);
-static int HandleMetadata(RTMP *r, char *body, unsigned int len);
+//static int HandleMetadata(RTMP *r, char *body, unsigned int len);
 static void HandleChangeChunkSize(RTMP *r, const RTMPPacket *packet);
 static void HandleAudio(RTMP *r, const RTMPPacket *packet);
 static void HandleVideo(RTMP *r, const RTMPPacket *packet);
@@ -3526,8 +3526,11 @@ SAVC(onMetaData);
 SAVC(duration);
 SAVC(video);
 SAVC(audio);
+SAVC(audiosamplerate);
+SAVC(width);
+SAVC(height);
 
-static int
+ int
 HandleMetadata(RTMP *r, char *body, unsigned int len)
 {
   /* allright we get some info here, so parse it and print it */
@@ -3558,6 +3561,22 @@ HandleMetadata(RTMP *r, char *body, unsigned int len)
 	  r->m_fDuration = prop.p_vu.p_number;
 	  /*RTMP_Log(RTMP_LOGDEBUG, "Set duration: %.2f", m_fDuration); */
 	}
+        if (RTMP_FindFirstMatchingProperty(&obj, &av_audiosamplerate, &prop))
+        {
+            r->m_fAudioSamplerate = prop.p_vu.p_number;
+            /*RTMP_Log(RTMP_LOGDEBUG, "Set duration: %.2f", m_fDuration); */
+        }
+        if (RTMP_FindFirstMatchingProperty(&obj, &av_width, &prop))
+        {
+            r->M_FWidth = prop.p_vu.p_number;
+            /*RTMP_Log(RTMP_LOGDEBUG, "Set duration: %.2f", m_fDuration); */
+        }
+        if (RTMP_FindFirstMatchingProperty(&obj, &av_height, &prop))
+        {
+            r->M_FHeight = prop.p_vu.p_number;
+            /*RTMP_Log(RTMP_LOGDEBUG, "Set duration: %.2f", m_fDuration); */
+        }
+        
       /* Search for audio or video tags */
       if (RTMP_FindPrefixProperty(&obj, &av_video, &prop))
         r->m_read.dataType |= 1;

@@ -14,15 +14,21 @@
 
 #import "librtmp/rtmp_sys.h"
 #import "librtmp/log.h"
+#import "FlvDec.h"
 
 @implementation KRtmpSource{
     NSString *_url;
-    KMediaType *_type;
+    FlvStream *_stream_audio;
+    FlvStream *_stream_video;
+    __weak KOutputPin *_audio_pin;
+    __weak KOutputPin *_video_pin;
+    BOOL has_audio;
+    BOOL has_video;
+    
     
     NSObject *RtmpLockInit;
     NSObject *RtmpLockProcess;
     RTMP *_rtmp;
-//    KMediaSample *_outSample;
 //    NSError *_error;
 }
 
@@ -30,7 +36,12 @@
 {
     self = [super init];
     if (self) {
-        self->_type = nil;
+        self->_stream_audio = nil;
+        self->_stream_video = nil;
+        self->_audio_pin=nil;
+        self->_video_pin=nil;
+        self->has_audio=FALSE;
+        self->has_video=FALSE;
         
 //        self->_outSample=nil;
        // self->_error = nil;
@@ -50,9 +61,21 @@
     return self;
 }
 
--(KMediaType *)getOutputMediaType
+-(KMediaType *)getOutputMediaTypeFromPin:(KOutputPin*)pin
 {
-    return _type;
+    if (pin!=nil && pin == _audio_pin){
+        if (_stream_audio==nil)
+            return nil;
+        return _stream_audio.type;
+    }
+    
+    if (pin!=nil && pin == _video_pin){
+        if (_stream_video==nil)
+            return nil;
+        return _stream_video.type;
+    }
+    
+    return nil;
 }
 
 void RTMP_Interrupt(RTMP *r)
@@ -84,7 +107,15 @@ void RTMP_Interrupt(RTMP *r)
     }
 }
 
--(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error;
+
+    
+
+
+
+// сначала pull на аудио, в процессе этого должны создать видео out, если в стриме есть видео
+// weak audio_pin video_pin getmediatype pullsample
+
+-(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(nonnull KOutputPin *)pin
 {
     BOOL needToConnect = false;
     @synchronized (RtmpLockInit) {
@@ -102,12 +133,10 @@ void RTMP_Interrupt(RTMP *r)
             
            // RTMP_SetBufferMS(_rtmp, 5 * 3600 * 1000);
             RTMP_SetBufferMS(_rtmp, 1  * 1000);
-            
-            
-            
-           
         }
     }
+    
+   
     
     @synchronized (RtmpLockProcess) {
     
@@ -129,7 +158,76 @@ void RTMP_Interrupt(RTMP *r)
             }
         }
         
+       
+        
         RTMPPacket packet = { 0 };
+        
+        //
+        // wait for metadata
+        
+//        has_audio=1;
+//        _audio_pin = self.outputPins[0];
+      
+           
+        while (!has_audio && !has_video)
+        {
+            if (!RTMP_IsConnected(_rtmp))
+                return KResult_RTMP_Disconnected;
+            
+            int res = RTMP_ReadPacket(_rtmp, &packet);
+            if (!res)
+                return KResult_RTMP_ReadFailed;
+            
+            if (RTMPPacket_IsReady(&packet))
+            {
+                if (!packet.m_nBodySize)
+                    continue;
+                
+                DLog(@"Got pkt type=%d ts=%d len=%d", (int)packet.m_packetType, (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
+                
+                if (packet.m_packetType == RTMP_PACKET_TYPE_INFO) {
+                    
+                    if (HandleMetadata(_rtmp, packet.m_body, packet.m_nBodySize))
+                    {
+                        if (_rtmp->m_fDuration)
+                            has_audio=TRUE;
+                        if (_rtmp->M_FWidth>0 || _rtmp->M_FHeight>0)
+                            has_video=TRUE;
+                        
+                        if (self.outputPins.count < has_audio + has_video ){
+                            [self.outputPins addObject:[[KOutputPin alloc] initWithFilter:self ]];
+                        }
+                        
+                        if (has_audio && has_video){
+                            _audio_pin = self.outputPins[0];
+                            _video_pin = self.outputPins[1];
+                        } else if (has_audio){
+                            _audio_pin = self.outputPins[0];
+                        } else if (has_video){
+                            _video_pin = self.outputPins[0];
+                        }
+                    }
+                }
+                RTMP_ClientPacket(_rtmp, &packet);
+                RTMPPacket_Free(&packet);
+                
+            }
+                    
+                    
+                  
+
+        }
+        
+       
+        
+      
+           
+        
+        
+        
+        
+        
+      //  RTMPPacket packet = { 0 };
         
         while (1)
         {
@@ -147,73 +245,61 @@ void RTMP_Interrupt(RTMP *r)
                 
                 DLog(@"Got pkt type=%d ts=%d len=%d", (int)packet.m_packetType, (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
                 
-                if ( packet.m_packetType == RTMP_PACKET_TYPE_AUDIO ){
-                    
-                    ///FIXME!!!
-                    ///FIXME!!!
-                    ///FIXME!!!
-                    ///FIXME!!!
-                    ///FIXME!!!
-                    if ( self->_type == nil) {
-                        ///fixme
-                        AudioStreamBasicDescription format;
-                        format.mSampleRate = 44100;
-                        format.mFormatID = kAudioFormatLinearPCM;
-                        format.mChannelsPerFrame = 2;
-                        format.mFormatFlags      = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
-                        format.mBitsPerChannel   = (UInt32)(8 * 2 );
-                        format.mBytesPerFrame    = (UInt32)(2 * format.mChannelsPerFrame);
-                        format.mFramesPerPacket  = 1;
-                        format.mBytesPerPacket   = format.mBytesPerFrame * format.mFramesPerPacket;
-                        format.mReserved         = 0;
-                        
-                        
-                                           
-                        CMFormatDescriptionRef      cmformat;
-                        if (CMAudioFormatDescriptionCreate(kCFAllocatorDefault,
-                                                           &format,
-                                                           0,
-                                                           NULL,
-                                                           0,
-                                                           NULL,
-                                                           NULL,
-                                                           &cmformat)!=noErr)
-                        {
-                            DErr(@"Could not create format from AudioStreamBasicDescription");
-                            
-                            return KResult_ERROR;
-                        }
-                        
-                        self->_type = [[KMediaType alloc] initWithName:@"audio/pcm"];
-                        [self->_type setFormat:cmformat];
-                        
-                       // self->_type = [[KMediaType alloc] initWithName:@"rtmpaudiodata/xxx"];
+                if ( packet.m_packetType == RTMP_PACKET_TYPE_AUDIO && has_audio){
+
+                    if ( _stream_audio == nil){
+                        _stream_audio = [[FlvStream alloc] init];
+                    }
+                    KResult res;
+                    if ( (res = [_stream_audio parseRtmp:&packet])!=KResult_OK){
+                        DErr(@"Audio parse failed");
+                        return res;
                     }
                     
-                    
-                    KMediaSample *outSample = [[KMediaSample alloc] init];
-                    outSample.ts = packet.m_nTimeStamp;
-                    outSample.timescale = 1000;
-                    outSample.type = _type;
-                    
-                    outSample.data = [[NSData alloc] initWithBytes:packet.m_body+1 length:packet.m_nBodySize-1];
-                    
+            
+                    if (_stream_audio.sample != nil ) {
+                        
+                        if (pin == _audio_pin){
+                            *sample = _stream_audio.sample;
+                        
+                            RTMPPacket_Free(&packet);
+                            return KResult_OK;
+                        }
+                    }else {
+                        // enqueue ?
+                    }
+
                     RTMPPacket_Free(&packet);
                     
-                    *sample = outSample;
-                    return KResult_OK;
+                } else if (packet.m_packetType == RTMP_PACKET_TYPE_VIDEO && has_video){
                     
                     
-                   
+                    if ( _stream_video == nil){
+                        _stream_video = [[FlvStream alloc] init];
+                    }
+                    KResult res;
+                    if ( (res = [_stream_video parseRtmp:&packet])!=KResult_OK){
+                        DErr(@"Audio parse failed");
+                        return res;
+                    }
                     
-                    
-                    
-                } else if (packet.m_packetType == RTMP_PACKET_TYPE_VIDEO){
-                    
-                    
+                
+                    if (_stream_video.sample != nil ) {
+                        
+                        if (pin == _video_pin){
+                            *sample = _stream_video.sample;
+                            RTMPPacket_Free(&packet);
+                            return KResult_OK;
+                        } else {
+                            // enqueue ?
+                        }
+                    }
+
                     RTMPPacket_Free(&packet);
                     
                 } else if (packet.m_packetType == RTMP_PACKET_TYPE_INFO) {
+                    
+                    // ... do some stuf here
                     
                     RTMP_ClientPacket(_rtmp, &packet);
                     RTMPPacket_Free(&packet);
@@ -229,9 +315,7 @@ void RTMP_Interrupt(RTMP *r)
             }
         }
     }
-    
-    
-//    KResult res;
+        
     return KResult_ERROR;
 
 }
@@ -292,8 +376,13 @@ void RTMP_Interrupt(RTMP *r)
 
 -(int64_t)duration
 {
-    //assert("NOT IMPLEMENTED"==nil);
-    return 44650;
+    @synchronized (RtmpLockInit) {
+        if (_rtmp!=nil)
+            return _rtmp->m_fDuration*1000;
+    }
+  
+    
+    return 0;
 }
 
 -(int64_t)timeScale

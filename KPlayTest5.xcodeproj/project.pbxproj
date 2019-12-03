@@ -28,6 +28,7 @@
 		91C197A82383022E002B2463 /* KPin.m in Sources */ = {isa = PBXBuildFile; fileRef = 91C197A02383022D002B2463 /* KPin.m */; };
 		91C197B1238328BB002B2463 /* KPlayTest5Test1.m in Sources */ = {isa = PBXBuildFile; fileRef = 91C197B0238328BB002B2463 /* KPlayTest5Test1.m */; };
 		91C197BF23832931002B2463 /* KPlayTest5Test2.m in Sources */ = {isa = PBXBuildFile; fileRef = 91C197BE23832931002B2463 /* KPlayTest5Test2.m */; };
+		91E8CFAD239636740044D383 /* FlvDec.m in Sources */ = {isa = PBXBuildFile; fileRef = 91E8CFAC239636740044D383 /* FlvDec.m */; };
 		91EB10A92395635F00E80D2F /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = 91EB10982395635F00E80D2F /* log.c */; };
 		91EB10AA2395635F00E80D2F /* hashswf.c in Sources */ = {isa = PBXBuildFile; fileRef = 91EB109E2395635F00E80D2F /* hashswf.c */; settings = {COMPILER_FLAGS = "-w"; }; };
 		91EB10AB2395635F00E80D2F /* rtmp.c in Sources */ = {isa = PBXBuildFile; fileRef = 91EB109F2395635F00E80D2F /* rtmp.c */; settings = {COMPILER_FLAGS = "-w"; }; };
@@ -101,6 +102,8 @@
 		91C197BC23832931002B2463 /* KPlayTest5Test2.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KPlayTest5Test2.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		91C197BE23832931002B2463 /* KPlayTest5Test2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KPlayTest5Test2.m; sourceTree = "<group>"; };
 		91C197C023832931002B2463 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		91E8CFAB239636740044D383 /* FlvDec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FlvDec.h; sourceTree = "<group>"; };
+		91E8CFAC239636740044D383 /* FlvDec.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FlvDec.m; sourceTree = "<group>"; };
 		91EB10982395635F00E80D2F /* log.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = log.c; sourceTree = "<group>"; };
 		91EB10992395635F00E80D2F /* http.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http.h; sourceTree = "<group>"; };
 		91EB109A2395635F00E80D2F /* handshake.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = handshake.h; sourceTree = "<group>"; };
@@ -305,6 +308,8 @@
 				91EB10972395635F00E80D2F /* librtmp */,
 				91EB10B0239565E300E80D2F /* KRtmpSource.h */,
 				91EB10B1239565E300E80D2F /* KRtmpSource.m */,
+				91E8CFAB239636740044D383 /* FlvDec.h */,
+				91E8CFAC239636740044D383 /* FlvDec.m */,
 			);
 			path = RTMP;
 			sourceTree = "<group>";
@@ -499,6 +504,7 @@
 				912CEF362385E0C100EA9213 /* KQueueFilter.m in Sources */,
 				91C197A42383022E002B2463 /* KPlayGraph.m in Sources */,
 				91EB10B2239565E300E80D2F /* KRtmpSource.m in Sources */,
+				91E8CFAD239636740044D383 /* FlvDec.m in Sources */,
 				91C197832382FD86002B2463 /* KPlayTest5.xcdatamodeld in Sources */,
 				91208973238E6B7900594FB8 /* KAudioPlayFilter.m in Sources */,
 				915F30A42392FB8A00B98323 /* WavReader.m in Sources */,
