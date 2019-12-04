@@ -7,6 +7,6 @@
 #import "KPlay/Test/KTestAudio.h"
 #import "KPlay/KQueue/KQueueFilter.h"
 #import "KPlay/RTMP/KRtmpSource.h"
-#import "KPlay/Audio/KAudioSourceWavReaderFilter.h"
+#import "KPlay/Audio/KAudioWavSource.h"
 #import "KPlay/Audio/KAudioPlayFilter.h"
 #import "KPlay/Base/KPlayGraph.h"

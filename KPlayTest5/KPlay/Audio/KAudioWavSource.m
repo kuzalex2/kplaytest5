@@ -6,7 +6,7 @@
 //  Copyright © 2019 kuzalex. All rights reserved.
 //
 
-#import "KAudioSourceWavReaderFilter.h"
+#import "KAudioWavSource.h"
 
 #define MYDEBUG
 #define MYWARN
@@ -15,7 +15,7 @@
 
 #include <AudioToolbox/AudioToolbox.h>
 
-@implementation KAudioSourceWavReaderFilter{
+@implementation KAudioWavSource{
     NSURL *_url;
     KMediaType *_type;
     NSURLSessionDownloadTask *_download_task;
