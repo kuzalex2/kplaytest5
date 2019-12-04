@@ -237,7 +237,7 @@
             {
                 DLog(@"KTestGraphChainBuilder Prepare %@", [_chain[i] name]);
                 if ( (res=[self prepareFilter:_chain[i]]) != KResult_OK ) {
-                    DLog(@"<%@> Prepare faileKPlayMediaInfod", [_chain[i] name]);
+                    DLog(@"<%@> Prepare failed ", [_chain[i] name]);
                     
                     [self notifyError: KResult2Error(res)];
                     [self setStateAndNotify:KGraphState_NONE];

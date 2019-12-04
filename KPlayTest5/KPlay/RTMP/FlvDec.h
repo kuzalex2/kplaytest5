@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FlvStream : NSObject
     @property KMediaType *type;
-    @property KMediaSample *sample;
+    @property (nullable) KMediaSample *sample;
 
    // -(int64_t)duration;
 

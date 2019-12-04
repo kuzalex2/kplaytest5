@@ -4,6 +4,7 @@
 //
 //  Created by kuzalex on 12/2/19.
 //  Copyright © 2019 kuzalex. All rights reserved.
+// TODO: server pause on Pause:
 //
 
 #import "KRtmpSource.h"
@@ -222,8 +223,19 @@ void RTMP_Interrupt(RTMP *r)
         
       
            
+        if (pin == _audio_pin && _stream_audio!=nil && _stream_audio.sample!=nil){
+            *sample = _stream_audio.sample;
+            if (!probe)
+                _stream_audio.sample = nil;
+            return KResult_OK;
+        }
         
-        
+        if (pin == _video_pin && _stream_video!=nil && _stream_video.sample!=nil){
+            *sample = _stream_video.sample;
+            if (!probe)
+                _stream_video.sample = nil;
+            return KResult_OK;
+        }
         
         
         
@@ -263,6 +275,8 @@ void RTMP_Interrupt(RTMP *r)
                             *sample = _stream_audio.sample;
                         
                             RTMPPacket_Free(&packet);
+                            if (!probe)
+                                _stream_audio.sample = nil;
                             return KResult_OK;
                         }
                     }else {
@@ -289,6 +303,8 @@ void RTMP_Interrupt(RTMP *r)
                         if (pin == _video_pin){
                             *sample = _stream_video.sample;
                             RTMPPacket_Free(&packet);
+                            if (!probe)
+                                _stream_video.sample = nil;
                             return KResult_OK;
                         } else {
                             // enqueue ?

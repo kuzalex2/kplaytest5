@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface KTestTransformFilter : KTransformFilter
-    -(KResult)onTransformSample:(KMediaSample *__strong _Nonnull*_Nullable)sample;
+    -(KResult)onTransformSample:(KMediaSample *_Nonnull*_Nullable)sample error:(NSError *__strong*)error;
     -(BOOL)isInputMediaTypeSupported:(KMediaType *)type;
     -(KMediaType *)getOutputMediaTypeFromPin:(KOutputPin*)pin;
 @end

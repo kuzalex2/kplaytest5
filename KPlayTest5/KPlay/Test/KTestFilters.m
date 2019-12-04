@@ -420,7 +420,7 @@
     return mytype;
 }
 
--(KResult)onTransformSample:(KMediaSample *__strong*)sample
+-(KResult)onTransformSample:(KMediaSample *_Nonnull*_Nullable)sample error:(NSError *__strong*)error
 {
     return KResult_OK;
 }
