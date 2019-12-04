@@ -89,6 +89,11 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Hvp-cT-Nb4">
+                                <rect key="frame" x="91" y="124" width="240" height="128"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
@@ -115,6 +120,7 @@
                         <outlet property="stopBtn" destination="rEA-Ys-C1v" id="PKH-UF-28L"/>
                         <outlet property="textLabel" destination="toJ-UB-wk0" id="L5p-o0-OML"/>
                         <outlet property="timeLabel" destination="Xlg-7w-UYM" id="jSb-I9-XRU"/>
+                        <outlet property="videoView" destination="Hvp-cT-Nb4" id="BAY-fW-1Vl"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

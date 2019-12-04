@@ -61,6 +61,8 @@ class KTestRtmpAPlayGraph : KPlayGraphChainBuilder {
 
 class KTestRtmpVPlayGraph : KPlayGraphChainBuilder {
     
+    var _view:UIView;
+    
     override func play(_ url: String, autoStart: Bool) -> KResult {
        
         
@@ -72,8 +74,8 @@ class KTestRtmpVPlayGraph : KPlayGraphChainBuilder {
                 super.chain?.add(KRtmpSource(url: url));
                 super.chain?.add(KVideoDecoder());
                 //super.chain?.add(KQueueFilter());
-                super.chain?.add(KTestSinkFilter());
-                //super.chain?.add(KAudioPlayFilter());
+                //super.chain?.add(KTestSinkFilter());
+                super.chain?.add(KVideoPlay(uiView: _view));
             }
         }
         
@@ -81,6 +83,13 @@ class KTestRtmpVPlayGraph : KPlayGraphChainBuilder {
        
         return super.play(url, autoStart: autoStart)
     }
+    
+    init(_ view:UIView) {
+        self._view = view;
+        super.init()
+    }
+    
+   
 }
 
 class KTestAudioGraph : KPlayGraphChainBuilder {
@@ -119,6 +128,7 @@ class ViewController: UIViewController, KPlayerEvents {
     @IBOutlet weak var progressSlider: BufferSlider!
     @IBOutlet weak var durationLabel: UILabel!
     @IBOutlet weak var spinner: UIActivityIndicatorView!
+    @IBOutlet weak var videoView: UIView!
     
     var positionTimer: Timer?
     var inSeek:Bool = false
@@ -355,11 +365,15 @@ class ViewController: UIViewController, KPlayerEvents {
     @IBAction func onPlayClick(_ sender: Any?) {
         NSLog("onPlay");
         
+//        UIApplication.shared.delegate?.window
+        
+//        UIView *window = ((AppDelegate *)  ( [UIApplication sharedApplication].delegate)).window;
+        
         if player == nil {
 //            player = KTestGraph();
 //            player = KTestAudioGraph();
 //            player = KTestRtmpAPlayGraph();
-            player = KTestRtmpVPlayGraph();
+            player = KTestRtmpVPlayGraph(self.videoView);
             player?.events = self
         }
 

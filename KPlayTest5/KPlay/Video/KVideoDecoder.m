@@ -23,15 +23,17 @@
 
 @implementation KVideoDecoder
 {
-    KMediaTypeImageBuffer *out_type;
-    
     VTDec *dec;
     KMediaSample * out_sample;//fixme - array of ones
 }
 
+
+
 -(KMediaType *)getOutputMediaTypeFromPin:(KOutputPin*)pin
 {
-    return out_type;
+    if (dec==nil)
+        return nil;
+    return dec.out_type;
 }
 
 - (void) flush

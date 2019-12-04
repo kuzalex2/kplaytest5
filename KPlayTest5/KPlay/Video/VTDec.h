@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef void(^OnMediaSampleCallback)(KMediaSample *sample);
 
 @interface VTDec : NSObject
+    @property KMediaTypeImageBuffer *out_type;
     -(KResult)decodeSample:(KMediaSample *)s andCallback:(OnMediaSampleCallback)onSuccess;
     -(void) flush;
     -(BOOL)isInputMediaTypeSupported:(KMediaType *)type;

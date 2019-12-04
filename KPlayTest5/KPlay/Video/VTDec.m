@@ -23,7 +23,7 @@ typedef void(^OnMediaSampleCallback)(KMediaSample *sample);
 
 @implementation VTDec
 {
-    KMediaTypeImageBuffer *out_type;
+    
     KMediaType *last_type;
     
     VTDecompressionSessionRef session;
@@ -66,8 +66,8 @@ typedef void(^OnMediaSampleCallback)(KMediaSample *sample);
         DLog(@"Found %d ", fourcc);
         
         if (MKBETAG('a','v','c','1')==fourcc) {
-            out_type = [[KMediaTypeImageBuffer alloc]initWithName:@"image/CVImageBufferRef"];
-            out_type.dimension = CMVideoFormatDescriptionGetDimensions(format);
+            _out_type = [[KMediaTypeImageBuffer alloc]initWithName:@"image/CVImageBufferRef"];
+            _out_type.dimension = CMVideoFormatDescriptionGetDimensions(format);
             return TRUE;
         }
         
@@ -110,7 +110,7 @@ void didDecompress( void *decompressionOutputRefCon,
 - (void) onImageData:(CVImageBufferRef)imageBuffer withPTS:(CMTime) presentationTimeStamp andDuration:(CMTime) presentationDuration
 {
     KMediaSampleImageBuffer *out_sample = [[KMediaSampleImageBuffer alloc]init];
-    out_sample.type = out_type;
+    out_sample.type = _out_type;
 
     out_sample.image = imageBuffer;
 
