@@ -11,7 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface KAudioPlayFilter : KThreadFilter<KPlayPositionInfo, KPlayBufferPositionInfo> {
+@interface KAudioPlay : KThreadFilter<KPlayPositionInfo, KPlayBufferPositionInfo> {
     
 }
     -(KResult)onThreadTick:(NSError *__strong*)ppError;

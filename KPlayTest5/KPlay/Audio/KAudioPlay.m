@@ -6,7 +6,7 @@
 //  Copyright © 2019 kuzalex. All rights reserved.
 //
 
-#import "KAudioPlayFilter.h"
+#import "KAudioPlay.h"
 #import "KPlayGraph.h"
 //#define MYDEBUG
 //#define MYWARN
@@ -408,7 +408,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
 
 
 
-@implementation KAudioPlayFilter {
+@implementation KAudioPlay {
    // const AudioStreamBasicDescription * _Nullable _format ;
     AudioQueue *_queue;
 }

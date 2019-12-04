@@ -49,7 +49,7 @@ class KTestRtmpAPlayGraph : KPlayGraphChainBuilder {
             if (super.state == KGraphState_NONE){
                 super.chain?.removeAllObjects();
                 super.chain?.add(KRtmpSource(url: url));
-                super.chain?.add(KAudioPlayFilter());
+                super.chain?.add(KAudioPlay());
             }
         }
         
@@ -98,7 +98,7 @@ class KTestAudioGraph : KPlayGraphChainBuilder {
 //                 super.chain?.add(KQueueFilter());
 //                 super.chain?.add(KQueueFilter());
                 //super.chain?.add(KTestTransformFilter());
-                super.chain?.add(KAudioPlayFilter());
+                super.chain?.add(KAudioPlay());
                 
             }
         }

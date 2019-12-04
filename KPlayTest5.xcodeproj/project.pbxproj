@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		91208973238E6B7900594FB8 /* KAudioPlayFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 91208972238E6B7900594FB8 /* KAudioPlayFilter.m */; };
+		91208973238E6B7900594FB8 /* KAudioPlay.m in Sources */ = {isa = PBXBuildFile; fileRef = 91208972238E6B7900594FB8 /* KAudioPlay.m */; };
 		912CEF362385E0C100EA9213 /* KQueueFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 912CEF342385E0C100EA9213 /* KQueueFilter.m */; };
 		915F30A42392FB8A00B98323 /* WavReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 915F30A32392FB8A00B98323 /* WavReader.m */; };
 		915F30A823932A6E00B98323 /* KAudioWavSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 915F30A723932A6E00B98323 /* KAudioWavSource.m */; };
@@ -59,8 +59,8 @@
 
 /* Begin PBXFileReference section */
 		63D61B3D625C59FEAF78B39D /* libPods-KPlayTest5.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-KPlayTest5.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		91208971238E6B7900594FB8 /* KAudioPlayFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KAudioPlayFilter.h; sourceTree = "<group>"; };
-		91208972238E6B7900594FB8 /* KAudioPlayFilter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KAudioPlayFilter.m; sourceTree = "<group>"; };
+		91208971238E6B7900594FB8 /* KAudioPlay.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KAudioPlay.h; sourceTree = "<group>"; };
+		91208972238E6B7900594FB8 /* KAudioPlay.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KAudioPlay.m; sourceTree = "<group>"; };
 		912CEF342385E0C100EA9213 /* KQueueFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KQueueFilter.m; sourceTree = "<group>"; };
 		912CEF352385E0C100EA9213 /* KQueueFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KQueueFilter.h; sourceTree = "<group>"; };
 		915F30A22392FB8A00B98323 /* WavReader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WavReader.h; sourceTree = "<group>"; };
@@ -212,8 +212,8 @@
 				915F30A12392FB6500B98323 /* Wav */,
 				915F30A623932A6E00B98323 /* KAudioWavSource.h */,
 				915F30A723932A6E00B98323 /* KAudioWavSource.m */,
-				91208971238E6B7900594FB8 /* KAudioPlayFilter.h */,
-				91208972238E6B7900594FB8 /* KAudioPlayFilter.m */,
+				91208971238E6B7900594FB8 /* KAudioPlay.h */,
+				91208972238E6B7900594FB8 /* KAudioPlay.m */,
 			);
 			path = Audio;
 			sourceTree = "<group>";
@@ -506,7 +506,7 @@
 				91EB10B2239565E300E80D2F /* KRtmpSource.m in Sources */,
 				91E8CFAD239636740044D383 /* FlvDec.m in Sources */,
 				91C197832382FD86002B2463 /* KPlayTest5.xcdatamodeld in Sources */,
-				91208973238E6B7900594FB8 /* KAudioPlayFilter.m in Sources */,
+				91208973238E6B7900594FB8 /* KAudioPlay.m in Sources */,
 				915F30A42392FB8A00B98323 /* WavReader.m in Sources */,
 				91EB10AA2395635F00E80D2F /* hashswf.c in Sources */,
 				918654EA238D1D1B00655EE3 /* KTestAudio.m in Sources */,
