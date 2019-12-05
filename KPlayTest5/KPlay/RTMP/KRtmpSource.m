@@ -119,6 +119,7 @@ void RTMP_Interrupt(RTMP *r)
 -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(nonnull KOutputPin *)pin
 {
     BOOL needToConnect = false;
+    @synchronized (RtmpLockProcess) {
     @synchronized (RtmpLockInit) {
         if (_rtmp == nil){
             needToConnect=TRUE;
@@ -135,6 +136,7 @@ void RTMP_Interrupt(RTMP *r)
            // RTMP_SetBufferMS(_rtmp, 5 * 3600 * 1000);
             RTMP_SetBufferMS(_rtmp, 1  * 1000);
         }
+    }
     }
     
    

@@ -5,6 +5,7 @@
 ////  Created by test name on 26.04.2019.
 //  Copyright © 2019 kuzalex. All rights reserved.
 ////
+// FIXME: stopfail on other sync_mutex states!
 
 #import <Foundation/Foundation.h>
 
@@ -175,8 +176,9 @@
                     DLog(@"<%@> pause failed", [filter name]);
                     
                     [self notifyError: KResult2Error(res)];
-                    [self setStateAndNotify:KGraphState_NONE];
+                    [self stop];
                     return;
+                    
                 }
             }
             
@@ -190,7 +192,7 @@
                     DLog(@"<%@> seek failed", [filter name]);
                     
                     [self notifyError: KResult2Error(res)];
-                    [self setStateAndNotify:KGraphState_NONE];
+                    [self stop];
                     return;
                 }
             }
@@ -203,7 +205,7 @@
                     DLog(@"<%@> pause failed", [filter name]);
                     
                     [self notifyError: KResult2Error(res)];
-                    [self setStateAndNotify:KGraphState_NONE];
+                    [self stop];
                     return;
                 }
             }
@@ -225,6 +227,8 @@
             }
             
         }
+        return;
+
     }
      
 
@@ -296,6 +300,7 @@
             DLog(@"KTestGraphChainBuilder startPlaying %@", [_chain[i] name]);
             if ((res = [_chain[i] start]) != KResult_OK){
                 [self notifyError: KResult2Error(res)];
+                [self stop];
                 return res;
             }
         }
@@ -317,6 +322,7 @@
                 DLog(@"KTestGraphChainBuilder pausing %@", [_chain[i] name]);
                 if ((res = [_chain[i] pause:true]) != KResult_OK){
                     [self notifyError: KResult2Error(res)];
+                    [self stop];
                     return res;
                 }
             }
@@ -374,9 +380,9 @@
                             DLog(@"<%@> pause failed", [filter name]);
                             
                             [self notifyError: KResult2Error(res)];
+                            [self stop];
                             
-                            //return res;
-                            break;//???
+                            return ;
                         }
                     }
                     DErr(@"Here paused");
