@@ -47,13 +47,13 @@
         AudioStreamBasicDescription inFormat;
         memset(&inFormat, 0, sizeof(inFormat));
         inFormat = *inputASBD;
-//        inFormat.mSampleRate        = 44100;
+     //   inFormat.mSampleRate        = 22050;
 //        inFormat.mFormatID          = kAudioFormatMPEG4AAC;
 //        inFormat.mFormatFlags       = kMPEG4Object_AAC_LC;
         inFormat.mBytesPerPacket    = 0;
         inFormat.mFramesPerPacket   = 1024;
         inFormat.mBytesPerFrame     = 0;
-   //         inFormat.mChannelsPerFrame  = 1;
+      //      inFormat.mChannelsPerFrame  = 1;
         inFormat.mBitsPerChannel    = 0;
         inFormat.mReserved          = 0;
         
@@ -170,6 +170,16 @@
         }
 
         struct PassthroughUserData userData = { 1, (UInt32)sample.data.length, [sample.data bytes]};
+//        {
+//            int sz = (int)sample.data.length;
+//            printf("Sample len=%d [ ",sz);
+//            char *ptr = (char *)[sample.data bytes];
+//            for (int i=0;i<sz;i++){
+//                printf("%x ",*ptr++ & 0xff);
+//            }
+//            printf("]\n");
+//        }
+        
         NSMutableData *decodedData = [NSMutableData new];
 
         const uint32_t MAX_AUDIO_FRAMES = 128;

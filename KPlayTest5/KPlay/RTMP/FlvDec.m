@@ -73,7 +73,14 @@ enum {
 };
 
 
-
+const int avpriv_mpeg4audio_sample_rates[16] = {
+    96000, 88200, 64000, 48000, 44100, 32000,
+    24000, 22050, 16000, 12000, 11025, 8000, 7350
+};
+    
+const uint8_t ff_mpeg4audio_channels[8] = {
+    0, 1, 2, 3, 4, 5, 6, 8
+};
 
 
 #define GET_BYTE(v,ptr,sz,error) { if ((sz)>=1) {(v)=*ptr++; (sz)--;} else return error;}
@@ -130,6 +137,34 @@ enum {
             format.mFormatFlags       = kMPEG4Object_AAC_LC;
             uint8_t type;
             GET_BYTE(type, ptr,    restSz, KResult_ParseError);
+            
+            //TODO: implement a real AAC AudioSpecificConfig parser
+            if (type==0){
+               
+                if (restSz<2){
+                    DErr(@"Unsupported AAC format (2)");
+                    return KResult_ParseError;
+                }
+                uint16_t bytes2 = 0;
+                bytes2 = ptr[0];
+                bytes2 = bytes2<<8 | ptr[1];
+                uint8_t object_type = (bytes2 & 0xf800) >> 11;
+                if (object_type == 0x1f){//AOT_ESCAPE
+                    DErr(@"Unsupported AAC format (3)");
+                    return KResult_ParseError;
+                }
+                uint8_t sample_rate = (bytes2 & 0x780) >> 7;
+                if (sample_rate == 0x0f){
+                    DErr(@"Unsupported AAC format (4)");
+                    return KResult_ParseError;
+                }
+                format.mSampleRate = avpriv_mpeg4audio_sample_rates[sample_rate];
+                
+                uint8_t channel_config = (bytes2 & 0x78) >> 3;
+                if (channel_config<=7) {
+                    format.mChannelsPerFrame = ff_mpeg4audio_channels[channel_config];
+                }
+            }
             break;
         }
             //                DErr(@"Unsupported audio codec FLV_CODECID_AAC");
