@@ -33,7 +33,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     AudioQueueState _state;
     AudioQueueRef _avqueue;
     NSObject *_lock;
-    int64_t _sample_rate;
+    @protected int64_t _sample_rate;
     AudioQueueBufferRef _buffers[NUM_BUFFERS];
     @protected uint32_t _buffer_size;
     int64_t _firstTs;
@@ -331,6 +331,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
             if (!_firstTsValid){
                 _firstTsValid=true;
                 _firstTs=sample.ts;
+                _firstTs = _firstTs*_sample_rate/sample.timescale ;
             }
         }
         
