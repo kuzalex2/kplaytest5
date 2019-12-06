@@ -93,15 +93,39 @@
             _state_mutex = [NSObject new];
             _async_mutex = [NSObject new];
             _state = KGraphState_NONE;
-            _chain = [[NSMutableArray alloc]init];
+            _flowchain = [[NSMutableArray alloc]init];
+            _connectchain= [[NSMutableArray alloc]init];
         }
         return self;
     }
+
+    +(BOOL)connectFilters:(KFilter *)src :(KFilter *)dst :(size_t)dst_pin_index
+    {
+        KPin *pin  = [dst getInputPinAt:dst_pin_index];
+        if (pin==nil){
+            DErr(@"No inpin %ld at %@",dst_pin_index,dst);
+            return FALSE;
+        }
+        
+        for (KPin *pout in src.outputPins)
+        {
+            if ([pout connectTo:pin] )
+                return TRUE;
+            
+              
+        }
+        
+        DErr(@"failed to connect (%@)->(%@)%ld", [src name], [dst name], dst_pin_index);
+        return FALSE;
+    }
+   
+   
 
     +(BOOL)connectFilters:(KFilter *)src :(size_t)src_pin_index :(KFilter *)dst :(size_t)dst_pin_index
     {
         KPin *pout = [src getOutputPinAt:src_pin_index];
         KPin *pin  = [dst getInputPinAt:dst_pin_index];
+        
         
         if (pout==nil){
             DErr(@"No outpin %ld at %@",src_pin_index,src);
@@ -169,7 +193,7 @@
             
             
             
-            for (KFilter* filter in forward ? _chain : [_chain reverseObjectEnumerator]) {
+            for (KFilter* filter in forward ? _flowchain : [_flowchain reverseObjectEnumerator]) {
                 DLog(@"<%@> pausing", [filter name]);
                 res = [filter pause:true];
                 if (res!=KResult_OK) {
@@ -185,7 +209,7 @@
             
             
             
-            for (KFilter* filter in _chain) {
+            for (KFilter* filter in _flowchain) {
                 
                 KResult res = [filter seek:sec];
                 if (res!=KResult_OK) {
@@ -197,7 +221,7 @@
                 }
             }
             
-            for (KFilter* filter in _chain)
+            for (KFilter* filter in _flowchain)
             {
                 DLog(@"<%@> pausing", [filter name]);
                 res = [filter pause:true];
@@ -237,43 +261,46 @@
         @synchronized (_async_mutex) {
             KResult res;
             
-            for (size_t i = 0; i< _chain.count; i++)
-            {
-                DLog(@"KTestGraphChainBuilder Prepare %@", [_chain[i] name]);
-                if ( (res=[self prepareFilter:_chain[i]]) != KResult_OK ) {
-                    DLog(@"<%@> Prepare failed ", [_chain[i] name]);
-                    
-                    [self notifyError: KResult2Error(res)];
-                    [self setStateAndNotify:KGraphState_NONE];
-                    return;
-                }
-                
-                if ( i+1 < _chain.count ) {
-                    DLog(@"KPlayGraphChainBuilder Connecting %@ -> %@", [_chain[i] name], [_chain[i+1] name]);
-                    if (![KPlayGraphChainBuilder connectFilters:_chain[i] :0 :_chain[i+1] :0] ) {
-                        DLog(@"Connect failed");
+            for (NSMutableArray<KFilter*> *chain in _connectchain){
+
+                for (size_t i = 0; i< chain.count; i++)
+                {
+                    DLog(@"KTestGraphChainBuilder Prepare %@", [chain[i] name]);
+                    if ( (res=[self prepareFilter:chain[i]]) != KResult_OK ) {
+                        DLog(@"<%@> Prepare failed ", [chain[i] name]);
+                        
                         [self notifyError: KResult2Error(res)];
                         [self setStateAndNotify:KGraphState_NONE];
                         return;
+                    }
+                    
+                    if ( i+1 < chain.count ) {
+                        DLog(@"KPlayGraphChainBuilder Connecting %@ -> %@", [chain[i] name], [chain[i+1] name]);
+                        if (![KPlayGraphChainBuilder connectFilters:chain[i] :chain[i+1] :0] ) {
+                            DLog(@"Connect failed");
+                            [self notifyError: KResult2Error(res)];
+                            [self setStateAndNotify:KGraphState_NONE];
+                            return;
+                        }
                     }
                 }
             }
             
             
-            for (size_t i = 0; i< _chain.count; i++) {
+            for (size_t i = 0; i< _flowchain.count; i++) {
                 if (self.mediaInfo == nil) {
-                    if ([_chain[i] conformsToProtocol:@protocol(KPlayMediaInfo) ]) {
-                        self.mediaInfo = (id<KPlayMediaInfo> ) _chain[i];
+                    if ([_flowchain[i] conformsToProtocol:@protocol(KPlayMediaInfo) ]) {
+                        self.mediaInfo = (id<KPlayMediaInfo> ) _flowchain[i];
                     }
                 }
                 if (self.positionInfo == nil) {
-                    if ([_chain[i] conformsToProtocol:@protocol(KPlayPositionInfo) ]) {
-                        self.positionInfo = (id<KPlayPositionInfo> ) _chain[i];
+                    if ([_flowchain[i] conformsToProtocol:@protocol(KPlayPositionInfo) ]) {
+                        self.positionInfo = (id<KPlayPositionInfo> ) _flowchain[i];
                     }
                 }
                 if (self.bufferPositionInfo == nil) {
-                    if ([_chain[i] conformsToProtocol:@protocol(KPlayBufferPositionInfo) ]) {
-                        self.bufferPositionInfo = (id<KPlayBufferPositionInfo> ) _chain[i];
+                    if ([_flowchain[i] conformsToProtocol:@protocol(KPlayBufferPositionInfo) ]) {
+                        self.bufferPositionInfo = (id<KPlayBufferPositionInfo> ) _flowchain[i];
                     }
                 }
             }
@@ -295,10 +322,10 @@
     {
         KResult res;
         
-        for (size_t i = 0; i< _chain.count; i++)
+        for (size_t i = 0; i< _flowchain.count; i++)
         {
-            DLog(@"KTestGraphChainBuilder startPlaying %@", [_chain[i] name]);
-            if ((res = [_chain[i] start]) != KResult_OK){
+            DLog(@"KTestGraphChainBuilder startPlaying %@", [_flowchain[i] name]);
+            if ((res = [_flowchain[i] start]) != KResult_OK){
                 [self notifyError: KResult2Error(res)];
                 [self stop];
                 return res;
@@ -317,10 +344,10 @@
             
             
             
-            for (size_t i = 0; i< _chain.count; i++)
+            for (size_t i = 0; i< _flowchain.count; i++)
             {
-                DLog(@"KTestGraphChainBuilder pausing %@", [_chain[i] name]);
-                if ((res = [_chain[i] pause:true]) != KResult_OK){
+                DLog(@"KTestGraphChainBuilder pausing %@", [_flowchain[i] name]);
+                if ((res = [_flowchain[i] pause:true]) != KResult_OK){
                     [self notifyError: KResult2Error(res)];
                     [self stop];
                     return res;
@@ -373,7 +400,7 @@
             {
                 @synchronized (self->_async_mutex) {
                     KResult res;
-                    for (KFilter* filter in forward ? self->_chain : [self->_chain reverseObjectEnumerator]) {
+                    for (KFilter* filter in forward ? self->_flowchain : [self->_flowchain reverseObjectEnumerator]) {
                         DLog(@"<%@> pausing", [filter name]);
                         res = [filter pause:true];
                         if (res!=KResult_OK) {
@@ -386,7 +413,7 @@
                         }
                     }
                     DErr(@"Here paused");
-                    for (KFilter* filter in self->_chain) {
+                    for (KFilter* filter in self->_flowchain) {
                         DLog(@"<%@> state is %@", [filter name], KFilterState2String([filter state]));
                     }
                     
@@ -482,7 +509,7 @@
         // STOPPING
         KResult res;
         
-        for (KFilter* filter in _chain ) {
+        for (KFilter* filter in _flowchain ) {
             DLog(@"KTestGraphChainBuilder interrupting %@", [filter name]);
             if ((res = [filter stop:true]) != KResult_OK){
                 DLog(@"<%@> stop failed", [filter name]);
@@ -493,7 +520,7 @@
         
         
         @synchronized (_async_mutex) {
-            for (KFilter* filter in _chain ) {
+            for (KFilter* filter in _flowchain ) {
                 DLog(@"KTestGraphChainBuilder stopping %@", [filter name]);
                 if ((res = [filter stop:true]) != KResult_OK){
                     DLog(@"<%@> stop failed", [filter name]);
@@ -503,7 +530,7 @@
             }
             [self setStateAndNotify: prevState == KGraphState_BUILDING ? KGraphState_NONE :KGraphState_STOPPED];
             DErr(@"Here stopped");
-            for (KFilter* filter in self->_chain) {
+            for (KFilter* filter in self->_flowchain) {
                 DLog(@"STOP <%@> state is %@", [filter name], KFilterState2String([filter state]));
             }
             return KResult_OK;

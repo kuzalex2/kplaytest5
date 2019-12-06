@@ -225,17 +225,18 @@ void RTMP_Interrupt(RTMP *r)
         
       
            
-        if (pin == _audio_pin && _stream_audio!=nil && _stream_audio.sample!=nil){
-            *sample = _stream_audio.sample;
+        if (pin == _audio_pin && _stream_audio!=nil && _stream_audio.samples0.count>0){
+            *sample = _stream_audio.samples0.firstObject;
+            
             if (!probe)
-                _stream_audio.sample = nil;
+                [_stream_audio.samples0 removeObjectAtIndex:0];//FIXME: implement fast FIFO
             return KResult_OK;
         }
         
-        if (pin == _video_pin && _stream_video!=nil && _stream_video.sample!=nil){
-            *sample = _stream_video.sample;
+        if (pin == _video_pin && _stream_video!=nil && _stream_video.samples0.count>0){
+            *sample = _stream_video.samples0.firstObject;
             if (!probe)
-                _stream_video.sample = nil;
+                [_stream_video.samples0 removeObjectAtIndex:0];
             return KResult_OK;
         }
         
@@ -271,14 +272,14 @@ void RTMP_Interrupt(RTMP *r)
                     }
                     
             
-                    if (_stream_audio.sample != nil ) {
+                    if (_stream_audio.samples0.count > 0 ) {
                         
                         if (pin == _audio_pin){
-                            *sample = _stream_audio.sample;
+                            *sample = _stream_audio.samples0.firstObject;
                         
                             RTMPPacket_Free(&packet);
                             if (!probe)
-                                _stream_audio.sample = nil;
+                                [_stream_audio.samples0 removeObjectAtIndex:0];
                             return KResult_OK;
                         }
                     }else {
@@ -300,13 +301,13 @@ void RTMP_Interrupt(RTMP *r)
                     }
                     
                 
-                    if (_stream_video.sample != nil ) {
+                    if (_stream_video.samples0.count > 0 ) {
                         
                         if (pin == _video_pin){
-                            *sample = _stream_video.sample;
+                            *sample = _stream_video.samples0.firstObject;
                             RTMPPacket_Free(&packet);
                             if (!probe)
-                                _stream_video.sample = nil;
+                                [_stream_video.samples0 removeObjectAtIndex:0];
                             return KResult_OK;
                         } else {
                             // enqueue ?

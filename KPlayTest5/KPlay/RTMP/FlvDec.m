@@ -254,14 +254,15 @@ const uint8_t ff_mpeg4audio_channels[8] = {
         return KResult_OK;
     }
         
+    KMediaSample *sample = [[KMediaSample alloc] init];
+    sample.ts = p->m_nTimeStamp;
+    sample.timescale = 1000;
+    sample.type = _type;
     
-    _sample = [[KMediaSample alloc] init];
-    _sample.ts = p->m_nTimeStamp;
-    _sample.timescale = 1000;
-    _sample.type = _type;
-
+    sample.data = [[NSData alloc] initWithBytes:ptr length:restSz];
+    [_samples0 addObject:sample];
     
-    _sample.data = [[NSData alloc] initWithBytes:ptr length:restSz];
+   
 
     return KResult_OK;
     
@@ -378,12 +379,13 @@ const uint8_t ff_mpeg4audio_channels[8] = {
 
     if (restSz>0)
     {
-        _sample = [[KMediaSample alloc] init];
-        _sample.ts = p->m_nTimeStamp;
-        _sample.timescale = 1000;
-        _sample.type = _type;
+        KMediaSample *sample = [[KMediaSample alloc] init];
+        sample.ts = p->m_nTimeStamp;
+        sample.timescale = 1000;
+        sample.type = _type;
         
-        _sample.data = [[NSData alloc] initWithBytes:ptr length:restSz];
+        sample.data = [[NSData alloc] initWithBytes:ptr length:restSz];
+        [_samples0 addObject:sample];
     }
 
     return KResult_OK;
@@ -396,14 +398,14 @@ const uint8_t ff_mpeg4audio_channels[8] = {
     self = [super init];
     if (self) {
         self->_type = nil;
-        self->_sample = nil;
+        self->_samples0 = [[NSMutableArray alloc]init];
     }
     return self;
 }
 
 -(KResult) parseRtmp:(RTMPPacket *)p
 {
-    _sample=nil;
+    //_sample=nil;
     
     
     if ( p->m_packetType == RTMP_PACKET_TYPE_AUDIO )

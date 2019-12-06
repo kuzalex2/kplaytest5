@@ -9,6 +9,8 @@
 #import "KPin.h"
 #import "KFilter.h"
 
+#import "myDebug.h"
+
 
 NSError *KResult2Error(KResult res)
 {
@@ -157,8 +159,16 @@ NSError *KResult2Error(KResult res)
 
 -(BOOL)connectTo:(KPin *)sink
 {
-    if (_filter==nil)
-        return KResult_ERROR;
+    if (_filter==nil){
+        DLog(@"connect failed: filter is null")
+        return FALSE;
+    }
+    
+    if (_peer!=nil){
+        DLog(@"connect failed: already connected")
+        return FALSE;
+    }
+    
     
     if (![sink isMediaTypeSupported:[_filter getOutputMediaTypeFromPin:self]])
         return FALSE;

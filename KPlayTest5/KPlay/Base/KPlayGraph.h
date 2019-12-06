@@ -60,7 +60,8 @@ typedef enum
 
     @property KGraphState state;
     @property NSObject * _Nonnull state_mutex;
-    @property NSMutableArray<KFilter*> * _Nullable chain;
+    @property NSMutableArray<KFilter*> * _Nonnull flowchain;
+    @property NSMutableArray< NSMutableArray<KFilter*> * > * _Nonnull connectchain;
 @end
 
 

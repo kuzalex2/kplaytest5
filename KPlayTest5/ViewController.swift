@@ -27,11 +27,13 @@ class KTestGraph : KPlayGraphChainBuilder {
             objc_sync_enter(super.state_mutex)
             defer { objc_sync_exit(super.state_mutex)}
             if (super.state == KGraphState_NONE){
-                super.chain?.removeAllObjects();
-                super.chain?.add(KTestUrlSourceFilter(url: url));
-                super.chain?.add(KTestTransformFilter());
+                super.flowchain.removeAllObjects();
+                super.flowchain.add(KTestUrlSourceFilter(url: url));
+                super.flowchain.add(KTestTransformFilter());
                 //super.chain?.add(KQueueFilter());
-                super.chain?.add(KTestSinkFilter());
+                super.flowchain.add(KTestSinkFilter());
+                
+                super.connectchain.add(super.flowchain);
             }
         }
         
@@ -50,10 +52,12 @@ class KTestRtmpAPlayGraph : KPlayGraphChainBuilder {
             objc_sync_enter(super.state_mutex)
             defer { objc_sync_exit(super.state_mutex)}
             if (super.state == KGraphState_NONE){
-                super.chain?.removeAllObjects();
-                super.chain?.add(KRtmpSource(url: url));
+                super.flowchain.removeAllObjects();
+                super.flowchain.add(KRtmpSource(url: url));
                 
-                super.chain?.add(KAudioPlay());
+                super.flowchain.add(KAudioPlay());
+                
+                super.connectchain.add(super.flowchain);
             }
         }
         
@@ -72,10 +76,12 @@ class KTestRtmpAPlayAACGraph : KPlayGraphChainBuilder {
             objc_sync_enter(super.state_mutex)
             defer { objc_sync_exit(super.state_mutex)}
             if (super.state == KGraphState_NONE){
-                super.chain?.removeAllObjects();
-                super.chain?.add(KRtmpSource(url: url));
-                super.chain?.add(KAudioDecoder());
-                super.chain?.add(KAudioPlay());
+                super.flowchain.removeAllObjects();
+                super.flowchain.add(KRtmpSource(url: url));
+                super.flowchain.add(KAudioDecoder());
+                super.flowchain.add(KAudioPlay());
+                
+                super.connectchain.add(super.flowchain);
             }
         }
         
@@ -97,12 +103,53 @@ class KTestRtmpVPlayGraph : KPlayGraphChainBuilder {
             objc_sync_enter(super.state_mutex)
             defer { objc_sync_exit(super.state_mutex)}
             if (super.state == KGraphState_NONE){
-                super.chain?.removeAllObjects();
-                super.chain?.add(KRtmpSource(url: url));
-                super.chain?.add(KVideoDecoder());
+                super.flowchain.removeAllObjects();
+                super.flowchain.add(KRtmpSource(url: url));
+              
+                super.flowchain.add(KVideoDecoder());
+                super.flowchain.add(KVideoPlay(uiView: _view));
+                
                 //super.chain?.add(KQueueFilter());
                 //super.chain?.add(KTestSinkFilter());
-                super.chain?.add(KVideoPlay(uiView: _view));
+                
+                super.connectchain.add(super.flowchain);
+            }
+        }
+        
+        
+       
+        return super.play(url, autoStart: autoStart)
+    }
+    
+    init(_ view:UIView) {
+        self._view = view;
+        super.init()
+    }
+    
+   
+}
+
+class KTestRtmpAVPlayGraph : KPlayGraphChainBuilder {
+    
+    var _view:UIView;
+    
+    override func play(_ url: String, autoStart: Bool) -> KResult {
+       
+        
+        do {
+            objc_sync_enter(super.state_mutex)
+            defer { objc_sync_exit(super.state_mutex)}
+            if (super.state == KGraphState_NONE){
+                super.flowchain.removeAllObjects();
+                super.flowchain.add(KRtmpSource(url: url));
+                super.flowchain.add(KAudioDecoder());
+                super.flowchain.add(KAudioPlay());
+                              
+                super.flowchain.add(KVideoDecoder());
+                super.flowchain.add(KVideoPlay(uiView: _view));
+                
+                super.connectchain.add([super.flowchain[0], super.flowchain[1], super.flowchain[2]]);
+                super.connectchain.add([super.flowchain[0], super.flowchain[3], super.flowchain[4]]);
             }
         }
         
@@ -128,14 +175,16 @@ class KTestAudioGraph : KPlayGraphChainBuilder {
             objc_sync_enter(super.state_mutex)
             defer { objc_sync_exit(super.state_mutex)}
             if (super.state == KGraphState_NONE){
-                super.chain?.removeAllObjects();
-                super.chain?.add(KAudioWavSource(url: url));
+                super.flowchain.removeAllObjects();
+                super.flowchain.add(KAudioWavSource(url: url));
                 //super.chain?.add(KQueueFilter());
 //                 super.chain?.add(KQueueFilter());
 //                 super.chain?.add(KQueueFilter());
 //                 super.chain?.add(KQueueFilter());
                 //super.chain?.add(KTestTransformFilter());
-                super.chain?.add(KAudioPlay());
+                super.flowchain.add(KAudioPlay());
+                
+                 super.connectchain.add(super.flowchain);
                 
             }
         }
@@ -401,14 +450,15 @@ class ViewController: UIViewController, KPlayerEvents {
 //            player = KTestAudioGraph();
 //            player = KTestRtmpAPlayGraph();
 //            player = KTestRtmpVPlayGraph(self.videoView);
-            player = KTestRtmpAPlayAACGraph();
+//            player = KTestRtmpAPlayAACGraph();
+            player = KTestRtmpAVPlayGraph(self.videoView);
             player?.events = self
         }
 
 //        player?.play("rtmp://176.9.99.77:1935/vod/testa2.flv", autoStart: true);
 //        player?.play("rtmp://176.9.99.77:1935/vod/testa.mp4", autoStart: true);
 //        player?.play("rtmp://176.9.99.77:1935/vod/testa.flv", autoStart: true);
-        player?.play("rtmp://176.9.99.77:1935/vod/bb.mp4", autoStart: true);
+        player?.play("rtmp://176.9.99.77:1935/vod/bb.mp4", autoStart: false);
 //        player?.play("rtmp://176.9.99.77:1935/vod/bb.flv", autoStart: true);
 //        player?.play("rtmp://176.9.99.77:1935/vod/testamonoaac.flv", autoStart: true);
 //        player?.play("rtmp://176.9.99.77:1935/vod/test.mp4", autoStart: true);
