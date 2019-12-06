@@ -93,109 +93,113 @@ enum {
     
     GET_BYTE(flags, ptr,    restSz, KResult_ParseError);
     
-    if (_type == nil){
-        CMFormatDescriptionRef      afd;
-        
-        AudioStreamBasicDescription format;
-        
-
-        format.mChannelsPerFrame = (flags & FLV_AUDIO_CHANNEL_MASK) == FLV_STEREO ? 2 : 1;
-        format.mSampleRate = 44100 << ((flags & FLV_AUDIO_SAMPLERATE_MASK) >>
-                                       FLV_AUDIO_SAMPLERATE_OFFSET) >> 3;
-        format.mBitsPerChannel  = (flags & FLV_AUDIO_SAMPLESIZE_MASK) ? 16 : 8;
-
-           
-           
-        
-        switch (flags & FLV_AUDIO_CODECID_MASK){
-            case FLV_CODECID_PCM:
-                format.mFormatID = kAudioFormatLinearPCM;
-                format.mFormatFlags      = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
-                //                apar->codec_id = format.mBitsPerChannel == 8
-                //                ? AV_CODEC_ID_PCM_U8
-                //#if HAVE_BIGENDIAN
-                //                : AV_CODEC_ID_PCM_S16BE;
-                //#else
-                //                : AV_CODEC_ID_PCM_S16LE;
-                //#endif
-                break;
-            case FLV_CODECID_PCM_LE:
-                format.mFormatID = kAudioFormatLinearPCM;
-                format.mFormatFlags      = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
-//                apar->codec_id = apar->bits_per_coded_sample == 8
-//                ? AV_CODEC_ID_PCM_U8
-//                : AV_CODEC_ID_PCM_S16LE;
-                break;
-            case FLV_CODECID_AAC:
-                DErr(@"Unsupported audio codec FLV_CODECID_AAC");
-                return KResult_ParseError;
-//                apar->codec_id = AV_CODEC_ID_AAC;
-//                break;
-            case FLV_CODECID_ADPCM:
-                DErr(@"Unsupported audio codec FLV_CODECID_ADPCM");
-                return KResult_ParseError;
-//                apar->codec_id = AV_CODEC_ID_ADPCM_SWF;
-//                break;
-            case FLV_CODECID_SPEEX:
-                DErr(@"Unsupported audio codec FLV_CODECID_SPEEX");
-                return KResult_ParseError;
-//                apar->codec_id    = AV_CODEC_ID_SPEEX;
-//                apar->sample_rate = 16000;
-//                break;
-            case FLV_CODECID_MP3:
-                DErr(@"Unsupported audio codec FLV_CODECID_MP3");
-                return KResult_ParseError;
-//                apar->codec_id      = AV_CODEC_ID_MP3;
-//                astream->need_parsing = AVSTREAM_PARSE_FULL;
-//                break;
-            case FLV_CODECID_NELLYMOSER_8KHZ_MONO:
-                DErr(@"Unsupported audio codec FLV_CODECID_NELLYMOSER_8KHZ_MONO");
-                return KResult_ParseError;
-//                // in case metadata does not otherwise declare samplerate
-//                apar->sample_rate = 8000;
-//                apar->codec_id    = AV_CODEC_ID_NELLYMOSER;
-//                break;
-            case FLV_CODECID_NELLYMOSER_16KHZ_MONO:
-                DErr(@"Unsupported audio codec FLV_CODECID_NELLYMOSER_16KHZ_MONO");
-                return KResult_ParseError;
-//                apar->sample_rate = 16000;
-//                apar->codec_id    = AV_CODEC_ID_NELLYMOSER;
-//                break;
-            case FLV_CODECID_NELLYMOSER:
-                DErr(@"Unsupported audio codec FLV_CODECID_NELLYMOSER");
-                return KResult_ParseError;
-//                apar->codec_id = AV_CODEC_ID_NELLYMOSER;
-//                break;
-            case FLV_CODECID_PCM_MULAW:
-                DErr(@"Unsupported audio codec FLV_CODECID_PCM_MULAW");
-                return KResult_ParseError;
-//                apar->sample_rate = 8000;
-//                apar->codec_id    = AV_CODEC_ID_PCM_MULAW;
-//                break;
-            case FLV_CODECID_PCM_ALAW:
-                DErr(@"Unsupported audio codec FLV_CODECID_PCM_ALAW");
-                return KResult_ParseError;
-//                apar->sample_rate = 8000;
-//                apar->codec_id    = AV_CODEC_ID_PCM_ALAW;
-//                break;
-//            default:
-//                avpriv_request_sample(s, "Audio codec (%x)",
-//                                      flv_codecid >> FLV_AUDIO_CODECID_OFFSET);
-//                apar->codec_tag = flv_codecid >> FLV_AUDIO_CODECID_OFFSET;
-                default:
-                    DErr(@"Unsupported audio codec (%x)", flags & FLV_AUDIO_CODECID_MASK);
-                    return KResult_ParseError;
+    CMFormatDescriptionRef      afd;
+    
+    AudioStreamBasicDescription format;
+    
+    
+    format.mChannelsPerFrame = (flags & FLV_AUDIO_CHANNEL_MASK) == FLV_STEREO ? 2 : 1;
+    format.mSampleRate = 44100 << ((flags & FLV_AUDIO_SAMPLERATE_MASK) >>
+                                   FLV_AUDIO_SAMPLERATE_OFFSET) >> 3;
+    format.mBitsPerChannel  = (flags & FLV_AUDIO_SAMPLESIZE_MASK) ? 16 : 8;
+    
+    
+    
+    
+    switch (flags & FLV_AUDIO_CODECID_MASK){
+        case FLV_CODECID_PCM:
+            format.mFormatID = kAudioFormatLinearPCM;
+            format.mFormatFlags      = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
+            //                apar->codec_id = format.mBitsPerChannel == 8
+            //                ? AV_CODEC_ID_PCM_U8
+            //#if HAVE_BIGENDIAN
+            //                : AV_CODEC_ID_PCM_S16BE;
+            //#else
+            //                : AV_CODEC_ID_PCM_S16LE;
+            //#endif
+            break;
+        case FLV_CODECID_PCM_LE:
+            format.mFormatID = kAudioFormatLinearPCM;
+            format.mFormatFlags      = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
+            //                apar->codec_id = apar->bits_per_coded_sample == 8
+            //                ? AV_CODEC_ID_PCM_U8
+            //                : AV_CODEC_ID_PCM_S16LE;
+            break;
+        case FLV_CODECID_AAC:{
+            format.mFormatID          = kAudioFormatMPEG4AAC;
+            format.mFormatFlags       = kMPEG4Object_AAC_LC;
+            uint8_t type;
+            GET_BYTE(type, ptr,    restSz, KResult_ParseError);
+            break;
         }
+            //                DErr(@"Unsupported audio codec FLV_CODECID_AAC");
+            //                return KResult_ParseError;
+            
+        case FLV_CODECID_ADPCM:
+            DErr(@"Unsupported audio codec FLV_CODECID_ADPCM");
+            return KResult_ParseError;
+            //                apar->codec_id = AV_CODEC_ID_ADPCM_SWF;
+            //                break;
+        case FLV_CODECID_SPEEX:
+            DErr(@"Unsupported audio codec FLV_CODECID_SPEEX");
+            return KResult_ParseError;
+            //                apar->codec_id    = AV_CODEC_ID_SPEEX;
+            //                apar->sample_rate = 16000;
+            //                break;
+        case FLV_CODECID_MP3:
+            DErr(@"Unsupported audio codec FLV_CODECID_MP3");
+            return KResult_ParseError;
+            //                apar->codec_id      = AV_CODEC_ID_MP3;
+            //                astream->need_parsing = AVSTREAM_PARSE_FULL;
+            //                break;
+        case FLV_CODECID_NELLYMOSER_8KHZ_MONO:
+            DErr(@"Unsupported audio codec FLV_CODECID_NELLYMOSER_8KHZ_MONO");
+            return KResult_ParseError;
+            //                // in case metadata does not otherwise declare samplerate
+            //                apar->sample_rate = 8000;
+            //                apar->codec_id    = AV_CODEC_ID_NELLYMOSER;
+            //                break;
+        case FLV_CODECID_NELLYMOSER_16KHZ_MONO:
+            DErr(@"Unsupported audio codec FLV_CODECID_NELLYMOSER_16KHZ_MONO");
+            return KResult_ParseError;
+            //                apar->sample_rate = 16000;
+            //                apar->codec_id    = AV_CODEC_ID_NELLYMOSER;
+            //                break;
+        case FLV_CODECID_NELLYMOSER:
+            DErr(@"Unsupported audio codec FLV_CODECID_NELLYMOSER");
+            return KResult_ParseError;
+            //                apar->codec_id = AV_CODEC_ID_NELLYMOSER;
+            //                break;
+        case FLV_CODECID_PCM_MULAW:
+            DErr(@"Unsupported audio codec FLV_CODECID_PCM_MULAW");
+            return KResult_ParseError;
+            //                apar->sample_rate = 8000;
+            //                apar->codec_id    = AV_CODEC_ID_PCM_MULAW;
+            //                break;
+        case FLV_CODECID_PCM_ALAW:
+            DErr(@"Unsupported audio codec FLV_CODECID_PCM_ALAW");
+            return KResult_ParseError;
+            //                apar->sample_rate = 8000;
+            //                apar->codec_id    = AV_CODEC_ID_PCM_ALAW;
+            //                break;
+            //            default:
+            //                avpriv_request_sample(s, "Audio codec (%x)",
+            //                                      flv_codecid >> FLV_AUDIO_CODECID_OFFSET);
+            //                apar->codec_tag = flv_codecid >> FLV_AUDIO_CODECID_OFFSET;
+        default:
+            DErr(@"Unsupported audio codec (%x)", flags & FLV_AUDIO_CODECID_MASK);
+            return KResult_ParseError;
+    }
+    
+    
+    format.mBytesPerFrame    = (UInt32)(format.mBitsPerChannel / 8 * format.mChannelsPerFrame);
+    format.mFramesPerPacket  = 1;
+    format.mBytesPerPacket   = format.mBytesPerFrame * format.mFramesPerPacket;
+    format.mReserved         = 0;
+    
+    if (_type == nil){
         
         
-        format.mBytesPerFrame    = (UInt32)(format.mBitsPerChannel / 8 * format.mChannelsPerFrame);
-        format.mFramesPerPacket  = 1;
-        format.mBytesPerPacket   = format.mBytesPerFrame * format.mFramesPerPacket;
-        format.mReserved         = 0;
-        
-        
-       
-                           
         if (CMAudioFormatDescriptionCreate(kCFAllocatorDefault,
                                            &format,
                                            0,
@@ -212,13 +216,15 @@ enum {
         
         self->_type = [[KMediaType alloc] initWithName:@"audio"];
         [self->_type setFormat:afd];
-        
+        return KResult_OK;
     }
+        
     
     _sample = [[KMediaSample alloc] init];
     _sample.ts = p->m_nTimeStamp;
     _sample.timescale = 1000;
     _sample.type = _type;
+
     
     _sample.data = [[NSData alloc] initWithBytes:ptr length:restSz];
 

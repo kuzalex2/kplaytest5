@@ -8,6 +8,7 @@
 #import "KPlay/KQueue/KQueueFilter.h"
 #import "KPlay/Video/KVideoDecoder.h"
 #import "KPlay/Video/KVideoPlay.h"
+#import "KPlay/Audio/KAudioDecoder.h"
 
 #import "KPlay/RTMP/KRtmpSource.h"
 #import "KPlay/Audio/KAudioWavSource.h"
