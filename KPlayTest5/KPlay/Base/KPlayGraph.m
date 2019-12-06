@@ -491,50 +491,61 @@
     - (KResult)stop
     {
         _suppress_error = true;
-        
-        
         KGraphState prevState;
-        
         @synchronized (_state_mutex) {
             switch (_state) {
                 case KGraphState_NONE:
                 case KGraphState_STOPPED:
+                case KGraphState_STOPPING:
                     return KResult_OK;
                 default:
+                    [self setStateAndNotify:KGraphState_STOPPING];
                     prevState = _state;
                     break;
             }
         }
         
-        // STOPPING
-        KResult res;
-        
-        for (KFilter* filter in _flowchain ) {
-            DLog(@"KTestGraphChainBuilder interrupting %@", [filter name]);
-            if ((res = [filter stop:true]) != KResult_OK){
-                DLog(@"<%@> stop failed", [filter name]);
-                
-                [self notifyError: KResult2Error(res)];
-            }
-        }
         
         
-        @synchronized (_async_mutex) {
-            for (KFilter* filter in _flowchain ) {
-                DLog(@"KTestGraphChainBuilder stopping %@", [filter name]);
+       
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        {
+        
+            // STOPPING
+            KResult res;
+            
+            for (KFilter* filter in self->_flowchain ) {
+                DLog(@"KTestGraphChainBuilder interrupting %@", [filter name]);
                 if ((res = [filter stop:true]) != KResult_OK){
                     DLog(@"<%@> stop failed", [filter name]);
                     
                     [self notifyError: KResult2Error(res)];
                 }
             }
-            [self setStateAndNotify: prevState == KGraphState_BUILDING ? KGraphState_NONE :KGraphState_STOPPED];
-            DErr(@"Here stopped");
-            for (KFilter* filter in self->_flowchain) {
-                DLog(@"STOP <%@> state is %@", [filter name], KFilterState2String([filter state]));
+            
+            
+            @synchronized (self->_async_mutex) {
+                for (KFilter* filter in self->_flowchain ) {
+                    DLog(@"KTestGraphChainBuilder stopping %@", [filter name]);
+                    if ((res = [filter stop:true]) != KResult_OK){
+                        DLog(@"<%@> stop failed", [filter name]);
+                        
+                        [self notifyError: KResult2Error(res)];
+                    }
+                }
+                [self setStateAndNotify: prevState == KGraphState_BUILDING ? KGraphState_NONE :KGraphState_STOPPED];
+                DErr(@"Here stopped");
+                for (KFilter* filter in self->_flowchain) {
+                    DLog(@"STOP <%@> state is %@", [filter name], KFilterState2String([filter state]));
+                }
             }
-            return KResult_OK;
-        }
+            
+            [self setStateAndNotify:KGraphState_STOPPED];
+        
+        }});
+        
+        return KResult_OK;
     }
 
 

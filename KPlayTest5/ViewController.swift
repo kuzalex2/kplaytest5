@@ -235,6 +235,26 @@ class ViewController: UIViewController, KPlayerEvents {
         onPlayClick(nil)
         spinner.startAnimating()
         spinner.isHidden = true
+        
+        //timeToString(612.587952)
+    }
+    
+    func timeToString(_ timeSec_:Float) -> String {
+        var timeMicrosec:Int = Int(timeSec_ * 1000);
+        var minutes:Int=0
+        var seconds:Int=0
+        
+        if timeMicrosec>=60000 {
+            minutes = Int(timeMicrosec / 60000);
+            timeMicrosec-=(minutes*60000);
+        }
+        seconds = Int(timeMicrosec / 1000)
+        timeMicrosec-=(seconds*1000)
+        
+       // if timeSec
+        
+        
+        return String(format: "%.02d:%.02d.%.02d", minutes, seconds, timeMicrosec/10);
     }
     
     func onError(_ error: Error?) {
@@ -263,7 +283,7 @@ class ViewController: UIViewController, KPlayerEvents {
         if let mi = self.player?.mediaInfo {
             let durationSec = Float(mi.duration() / mi.timeScale());
             let timeSec = Float(self.progressSlider.value) * durationSec / 1;
-            self.timeLabel.text = String(format: "%.02f", timeSec);
+            self.timeLabel.text = timeToString(timeSec)
         }
     }
     
@@ -285,15 +305,15 @@ class ViewController: UIViewController, KPlayerEvents {
     func showPlayerPosition(valid:Bool)
     {
         if (!valid){
-            self.timeLabel.text = "-";
-            self.durationLabel.text = "-";
+            self.timeLabel.text =  timeToString(0)
+            self.durationLabel.text  = timeToString(0)
             self.progressSlider.value=0;
             self.progressSlider.isEnabled = false;
             return;
         }
         if let mi = self.player?.mediaInfo {
-            let durationSec = mi.duration() / mi.timeScale();
-            self.durationLabel.text = "\(durationSec)";
+            let durationSec = Float(mi.duration() / mi.timeScale());
+            self.durationLabel.text = timeToString(durationSec);
             
             if let pi = self.player?.positionInfo {
                 
@@ -305,7 +325,7 @@ class ViewController: UIViewController, KPlayerEvents {
                 if (!inSeek && player?.state != KGraphState_SEEKING){
             
                     let timeSec = Float(pi.position()) / Float(pi.timeScale());
-                    self.timeLabel.text = String(format: "%.02f", timeSec)
+                    self.timeLabel.text = timeToString(timeSec)
                     
                     self.progressSlider.isEnabled = true;
                     
@@ -370,7 +390,7 @@ class ViewController: UIViewController, KPlayerEvents {
             
             self.playBtn.isEnabled = (state == KGraphState_NONE || state == KGraphState_STOPPED || state == KGraphState_PAUSED);
             self.pauseBtn.isEnabled = (state == KGraphState_STARTED);
-            self.stopBtn.isEnabled = (state != KGraphState_STOPPED && state != KGraphState_NONE);
+            self.stopBtn.isEnabled = (state != KGraphState_STOPPED && state != KGraphState_STOPPING && state != KGraphState_NONE);
             
         
             switch state {
