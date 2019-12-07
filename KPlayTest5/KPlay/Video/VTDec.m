@@ -126,7 +126,7 @@ void didDecompress( void *decompressionOutputRefCon,
 {
     OSStatus status;
     
-    DLog(@"<VTDec> decodeSample ts=%lld", sample.ts);
+    DLog(@"<VTDec> decodeSample ts=%lld sz=%lu", sample.ts, (unsigned long)sample.data.length);
     
     self->onMediaSample = onSuccess;
 

@@ -102,6 +102,8 @@ void RTMP_Interrupt(RTMP *r)
                     _rtmp = nil;
                 }
             }
+            [_stream_video flush];
+            [_stream_audio flush];
         }
         default:
             break;
