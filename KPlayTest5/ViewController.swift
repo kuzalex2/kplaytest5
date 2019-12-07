@@ -141,12 +141,15 @@ class KTestRtmpAVPlayGraph : KPlayGraphChainBuilder {
             defer { objc_sync_exit(super.state_mutex)}
             if (super.state == KGraphState_NONE){
                 super.flowchain.removeAllObjects();
-                super.flowchain.add(KRtmpSource(url: url));
-                super.flowchain.add(KAudioDecoder());
-                super.flowchain.add(KAudioPlay());
+                super.flowchain.add(KRtmpSource(url: url)); //0
+                super.flowchain.add(KAudioDecoder());       //1
+              //  super.flowchain.add(KQueueFilter());        //2
+                super.flowchain.add(KAudioPlay());          //2
                               
-                super.flowchain.add(KVideoDecoder());
-                super.flowchain.add(KVideoPlay(uiView: _view));
+                super.flowchain.add(KVideoDecoder());       //3
+             //   super.flowchain.add(KQueueFilter());        //5
+
+                super.flowchain.add(KVideoPlay(uiView: _view));//4
                 
                 super.connectchain.add([super.flowchain[0], super.flowchain[1], super.flowchain[2]]);
                 super.connectchain.add([super.flowchain[0], super.flowchain[3], super.flowchain[4]]);
@@ -389,7 +392,7 @@ class ViewController: UIViewController, KPlayerEvents {
             var stateString: String = ""
             
             self.playBtn.isEnabled = (state == KGraphState_NONE || state == KGraphState_STOPPED || state == KGraphState_PAUSED);
-            self.pauseBtn.isEnabled = (state == KGraphState_STARTED);
+            self.pauseBtn.isEnabled = (state == KGraphState_STARTED || state == KGraphState_STOPPED);
             self.stopBtn.isEnabled = (state != KGraphState_STOPPED && state != KGraphState_STOPPING && state != KGraphState_NONE);
             
         

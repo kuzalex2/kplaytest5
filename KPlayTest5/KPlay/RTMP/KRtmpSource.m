@@ -109,7 +109,43 @@ void RTMP_Interrupt(RTMP *r)
 }
 
 
-    
+-(NSString *) rtmpPacketStringForType:(uint8_t)type
+{
+    switch (type) {
+        case RTMP_PACKET_TYPE_CHUNK_SIZE:
+            return @"[CHUNK_SIZE]";
+        case RTMP_PACKET_TYPE_BYTES_READ_REPORT:
+            return @"[READ_REPORT]";
+        case RTMP_PACKET_TYPE_CONTROL:
+            return @"[CONTROL]";
+        case RTMP_PACKET_TYPE_SERVER_BW:
+            return @"[SERVER_BW]";
+        case RTMP_PACKET_TYPE_CLIENT_BW:
+            return @"[CLIENT_BW]";
+        case RTMP_PACKET_TYPE_AUDIO:
+            return @"[AUDIO]";
+        case RTMP_PACKET_TYPE_VIDEO:
+            return @"[VIDEO]";
+        case RTMP_PACKET_TYPE_FLEX_STREAM_SEND:
+            return @"[FLEX_STREAM_SEND]";
+        case RTMP_PACKET_TYPE_FLEX_SHARED_OBJECT:
+            return @"[FLEX_SHARED_OBJECT]";
+        case RTMP_PACKET_TYPE_FLEX_MESSAGE:
+            return @"[FLEX_MESSAGE]";
+        case RTMP_PACKET_TYPE_INFO:
+            return @"[INFO]";
+        case RTMP_PACKET_TYPE_SHARED_OBJECT:
+            return @"[SHARED_OBJECT]";
+        case RTMP_PACKET_TYPE_INVOKE:
+            return @"[INVOKE]";
+        case RTMP_PACKET_TYPE_FLASH_VIDEO:
+            return @"[FLASH_VIDEO]";
+        
+        default:
+            return [NSString stringWithFormat:@"[UNKNOWD %d]", (int)type ];
+    }
+}
+
 
 
 
@@ -186,7 +222,7 @@ void RTMP_Interrupt(RTMP *r)
                 if (!packet.m_nBodySize)
                     continue;
                 
-                DLog(@"Got pkt type=%d ts=%d len=%d", (int)packet.m_packetType, (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
+                DLog(@"Got pkt type=%@ ts=%d len=%d", [self rtmpPacketStringForType:packet.m_packetType], (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
                 
                 if (packet.m_packetType == RTMP_PACKET_TYPE_INFO) {
                     
@@ -258,8 +294,7 @@ void RTMP_Interrupt(RTMP *r)
                 if (!packet.m_nBodySize)
                     continue;
                 
-                DLog(@"Got pkt type=%d ts=%d len=%d", (int)packet.m_packetType, (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
-                
+                DLog(@"Got pkt type=%@ ts=%d len=%d", [self rtmpPacketStringForType:packet.m_packetType], (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
                 if ( packet.m_packetType == RTMP_PACKET_TYPE_AUDIO && has_audio){
 
                     if ( _stream_audio == nil){
@@ -367,7 +402,7 @@ void RTMP_Interrupt(RTMP *r)
                 if (!packet.m_nBodySize)
                     continue;
                 
-                //DLog(@"Got pkt type=%d ts=%d", (int)packet.m_packetType, (int)packet.m_nTimeStamp);
+                DLog(@"Got pkt type=%@ ts=%d len=%d", [self rtmpPacketStringForType:packet.m_packetType], (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
                 
                 if (packet.m_packetType == RTMP_PACKET_TYPE_INVOKE) {
                     
