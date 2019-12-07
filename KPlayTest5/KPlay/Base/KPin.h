@@ -48,6 +48,8 @@ NSError *KResult2Error(KResult res);
 
 
 @interface KOutputPin : KPin
+    -(void)lockPull;
+    -(void)unlockPull;
     -(BOOL)connectTo:(KPin *)sink;
     -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error;
 @end

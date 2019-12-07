@@ -7,11 +7,14 @@
 //
 
 #import "FlvDec.h"
-#define MYDEBUG
-#define MYWARN
+//#define MYDEBUG
+//#define MYWARN
 #include "myDebug.h"
 
-@implementation FlvStream
+@implementation FlvStream {
+    NSObject   *_samples_lock;
+    NSMutableArray<KMediaSample *> *_samples0;
+}
 
 
 /* bitmasks to isolate specific values */
@@ -260,7 +263,8 @@ const uint8_t ff_mpeg4audio_channels[8] = {
     sample.type = _type;
     
     sample.data = [[NSData alloc] initWithBytes:ptr length:restSz];
-    [_samples0 addObject:sample];
+    [self pushSample:sample];
+   
     
    
 
@@ -385,7 +389,7 @@ const uint8_t ff_mpeg4audio_channels[8] = {
         sample.type = _type;
         
         sample.data = [[NSData alloc] initWithBytes:ptr length:restSz];
-        [_samples0 addObject:sample];
+        [self pushSample:sample];
     }
 
     return KResult_OK;
@@ -398,6 +402,7 @@ const uint8_t ff_mpeg4audio_channels[8] = {
     self = [super init];
     if (self) {
         self->_type = nil;
+        self->_samples_lock = [[NSObject alloc]init];
         self->_samples0 = [[NSMutableArray alloc]init];
     }
     return self;
@@ -427,5 +432,32 @@ const uint8_t ff_mpeg4audio_channels[8] = {
 //    return 44000;
 //}
 
+    -(void)pushSample:(KMediaSample *)sample
+    {
+        @synchronized (_samples_lock) {
+            [_samples0 addObject:sample];
+        }
+    }
+    -(KMediaSample *)popSamplewithProbe:(BOOL)probe
+    {
+        KMediaSample *result = nil;
+        
+        @synchronized (_samples_lock) {
+            
+            if (_samples0.count>0){
+                result = _samples0.firstObject;
+        
+                if (!probe)
+                    [_samples0 removeObjectAtIndex:0];//FIXME: implement fast FIFO
+            }
+        }
+        return result;
+    }
+     -(void)flush
+    {
+        @synchronized (_samples_lock) {
+            [_samples0 removeAllObjects];
+        }
+    }
 
 @end

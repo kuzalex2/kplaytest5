@@ -8,8 +8,8 @@
 
 #import "KAudioWavSource.h"
 
-#define MYDEBUG
-#define MYWARN
+//#define MYDEBUG
+//#define MYWARN
 #import "myDebug.h"
 #import "Wav/WavReader.h"
 

@@ -141,10 +141,31 @@ NSError *KResult2Error(KResult res)
 
 
 
+#import <pthread.h>
 
 
+@implementation KOutputPin {
+    pthread_mutex_t _pull_lock;
+}
 
-@implementation KOutputPin
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        pthread_mutex_init(&self->_pull_lock, NULL);
+    }
+    return self;
+}
+
+-(void)lockPull
+{
+    pthread_mutex_lock(&_pull_lock);
+    
+}
+-(void)unlockPull
+{
+    pthread_mutex_unlock(&_pull_lock);
+}
 
 /*
 -(instancetype)initWithFilter:(KFilter *)filter andType:(KMediaType *) type

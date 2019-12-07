@@ -10,7 +10,7 @@
 #import "KTestFilters.h"
 
 #define MYDEBUG
-#define MYWARN
+//#define MYWARN
 #include "myDebug.h"
 
 
@@ -125,6 +125,8 @@ void didDecompress( void *decompressionOutputRefCon,
 -(KResult)decodeSample:(KMediaSample *)sample andCallback:(OnMediaSampleCallback)onSuccess
 {
     OSStatus status;
+    
+    DLog(@"<VTDec> decodeSample ts=%lld", sample.ts);
     
     self->onMediaSample = onSuccess;
 

@@ -7,7 +7,7 @@
 //
 
 #import "KTestAudio.h"
-#define MYDEBUG
+//#define MYDEBUG
 //#define MYWARN
 #import "myDebug.h"
 
@@ -56,7 +56,7 @@
                       NULL,
                       &cmformat)!=noErr)
         {
-            NSLog(@"Could not create format from AudioStreamBasicDescription");
+            DErr(@"Could not create format from AudioStreamBasicDescription");
             return nil;
         }
         

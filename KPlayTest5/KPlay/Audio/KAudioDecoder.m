@@ -8,8 +8,8 @@
 
 #import "KAudioDecoder.h"
 
-#define MYDEBUG
-#define MYWARN
+//#define MYDEBUG
+//#define MYWARN
 #include "myDebug.h"
 
 //FIXME: autoreleease

@@ -9,8 +9,8 @@
 #import <XCTest/XCTest.h>
 //#import "KTestFilters.h"
 #import "KPlayGraph.h"
-#define MYDEBUG
-#define MYWARN
+//#define MYDEBUG
+//#define MYWARN
 #import "myDebug.h"
 
 @interface KPlayTest5Test2  : XCTestCase<KPlayEvents>

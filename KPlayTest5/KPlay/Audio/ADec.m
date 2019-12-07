@@ -12,8 +12,8 @@
 
 ///FIXME: FREE resources
 
-#define MYDEBUG
-#define MYWARN
+//#define MYDEBUG
+//#define MYWARN
 #include "myDebug.h"
 
 

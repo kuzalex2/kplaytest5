@@ -9,8 +9,8 @@
 #import "KVideoPlay.h"
 
 #import "KPlayGraph.h"
-#define MYDEBUG
-#define MYWARN
+//#define MYDEBUG
+//#define MYWARN
 #import "myDebug.h"
 
 #import <UIKit/UIScreen.h>

@@ -5,7 +5,7 @@
 //  Created by kuzalex on 4/18/19.
 //  Copyright © 2019 kuzalex. All rights reserved.
 //
-#define MYDEBUG
+//#define MYDEBUG
 #include "myDebug.h"
 
 #import "KQueueFilter.h"

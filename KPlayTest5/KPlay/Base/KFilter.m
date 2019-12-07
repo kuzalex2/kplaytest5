@@ -7,7 +7,7 @@
 //
 
 
-#define MYDEBUG
+//#define MYDEBUG
 #include "myDebug.h"
 
 #import "KFilter.h"
@@ -47,7 +47,6 @@ NSString *KFilterState2String(KFilterState state)
         _inputPins =  [NSMutableArray new];
         _outputPins =  [NSMutableArray new];
         _state_mutex = [NSObject new];
-        _pull_lock = [NSObject new];
         
         _state = KFilterState_STOPPED;
         //if ([self respondsToSelector:@selector(onStateChanged:state:)]){
@@ -110,8 +109,24 @@ NSString *KFilterState2String(KFilterState state)
         }
     }
     
-    @synchronized(_pull_lock) {
-        return [self pullSample:sample probe:probe error:error fromPin:pin];
+    KResult res;
+    [pin lockPull];
+        res=[self pullSample:sample probe:probe error:error fromPin:pin];
+    [pin unlockPull];
+    return res;
+}
+
+-(void)allOutputPinsLock;
+{
+    for (KOutputPin *p in _outputPins) {
+        [p lockPull];
+    }
+}
+
+-(void)allOutputPinsUnlock;
+{
+    for (KOutputPin *p in _outputPins) {
+        [p unlockPull];
     }
 }
 
@@ -163,7 +178,7 @@ NSString *KFilterState2String(KFilterState state)
     @synchronized(_state_mutex) {
         prevState = _state;
         _state = state;
-        NSLog(@"<%@> setStateAndNotify %@", [self name], KFilterState2String(state));
+        DLog(@"<%@> setStateAndNotify %@", [self name], KFilterState2String(state));
     }
     if (prevState!=state && [self respondsToSelector:@selector(onStateChanged:state:)]){
         [self onStateChanged:self state:state];
@@ -213,9 +228,9 @@ NSString *KFilterState2String(KFilterState state)
       //  if (!waitUntilStopped)
 //            return KResult_OK;
         
-         @synchronized(_pull_lock) {
+        [self allOutputPinsLock];
              [self setStateAndNotify:KFilterState_STOPPED];
-         }
+        [self allOutputPinsUnlock];
 
         continue;
     sleep:
@@ -338,7 +353,7 @@ NSString *KFilterState2String(KFilterState state)
     while (1)
     {
         @synchronized(_state_mutex) {
-            NSLog(@"<%@>State is %@", [self name], KFilterState2String(_state));
+            DLog(@"<%@>State is %@", [self name], KFilterState2String(_state));
             switch (_state) {
                 case KFilterState_PAUSED:
                     if (!first)
@@ -448,10 +463,12 @@ stopping:
         assert(_state == KFilterState_STOPPING);
     }
     DLog(@"<%@> threadProc stopping", [self name]);
-    @synchronized(_pull_lock) {
-        [self setStateAndNotify:KFilterState_STOPPED];
-    }
-  //  [self setStateAndNotify:KFilterState_STOPPED];
+    
+    [self allOutputPinsLock];
+    [self setStateAndNotify:KFilterState_STOPPED];
+    [self allOutputPinsUnlock];
+    
+    
     dispatch_semaphore_signal(_stopping_sem);
     
     

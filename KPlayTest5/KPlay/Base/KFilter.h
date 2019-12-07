@@ -41,7 +41,7 @@ NSString *KFilterState2String(KFilterState state);
 {
     @protected KFilterState _state;
     @protected NSObject *_state_mutex;
-    @protected NSObject *_pull_lock;
+   // @protected NSObject *_pull_lock;
 }
     @property (weak, nonatomic) id<KPlayEvents> events;
     @property (readonly, nonatomic, retain) NSMutableArray<KInputPin *> *inputPins;

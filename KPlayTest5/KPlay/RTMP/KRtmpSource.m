@@ -10,7 +10,7 @@
 #import "KRtmpSource.h"
 
 #define MYDEBUG
-#define MYWARN
+//#define MYWARN
 #import "myDebug.h"
 
 #import "librtmp/rtmp_sys.h"
@@ -37,8 +37,8 @@
 {
     self = [super init];
     if (self) {
-        self->_stream_audio = nil;
-        self->_stream_video = nil;
+        self->_stream_audio = [[FlvStream alloc] init];
+        self->_stream_video = [[FlvStream alloc] init];
         self->_audio_pin=nil;
         self->_video_pin=nil;
         self->has_audio=FALSE;
@@ -154,6 +154,17 @@ void RTMP_Interrupt(RTMP *r)
 
 -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(nonnull KOutputPin *)pin
 {
+    if (pin == _audio_pin){
+        *sample = [_stream_audio popSamplewithProbe:probe];
+        if (*sample!=nil)
+            return KResult_OK;
+    }
+    if (pin == _video_pin){
+        *sample = [_stream_video popSamplewithProbe:probe];
+        if (*sample!=nil)
+            return KResult_OK;
+    }
+    
     BOOL needToConnect = false;
     @synchronized (RtmpLockProcess) {
     @synchronized (RtmpLockInit) {
@@ -170,7 +181,7 @@ void RTMP_Interrupt(RTMP *r)
             #endif
             
            // RTMP_SetBufferMS(_rtmp, 5 * 3600 * 1000);
-            RTMP_SetBufferMS(_rtmp, 1  * 1000);
+            RTMP_SetBufferMS(_rtmp, 5  * 1000);
         }
     }
     }
@@ -251,29 +262,6 @@ void RTMP_Interrupt(RTMP *r)
                 RTMPPacket_Free(&packet);
                 
             }
-                    
-                    
-                  
-
-        }
-        
-       
-        
-      
-           
-        if (pin == _audio_pin && _stream_audio!=nil && _stream_audio.samples0.count>0){
-            *sample = _stream_audio.samples0.firstObject;
-            
-            if (!probe)
-                [_stream_audio.samples0 removeObjectAtIndex:0];//FIXME: implement fast FIFO
-            return KResult_OK;
-        }
-        
-        if (pin == _video_pin && _stream_video!=nil && _stream_video.samples0.count>0){
-            *sample = _stream_video.samples0.firstObject;
-            if (!probe)
-                [_stream_video.samples0 removeObjectAtIndex:0];
-            return KResult_OK;
         }
         
         
@@ -297,59 +285,38 @@ void RTMP_Interrupt(RTMP *r)
                 DLog(@"Got pkt type=%@ ts=%d len=%d", [self rtmpPacketStringForType:packet.m_packetType], (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
                 if ( packet.m_packetType == RTMP_PACKET_TYPE_AUDIO && has_audio){
 
-                    if ( _stream_audio == nil){
-                        _stream_audio = [[FlvStream alloc] init];
-                    }
+                    
                     KResult res;
                     if ( (res = [_stream_audio parseRtmp:&packet])!=KResult_OK){
                         DErr(@"Audio parse failed");
                         return res;
                     }
                     
-            
-                    if (_stream_audio.samples0.count > 0 ) {
-                        
-                        if (pin == _audio_pin){
-                            *sample = _stream_audio.samples0.firstObject;
-                        
-                            RTMPPacket_Free(&packet);
-                            if (!probe)
-                                [_stream_audio.samples0 removeObjectAtIndex:0];
-                            return KResult_OK;
-                        }
-                    }else {
-                        // enqueue ?
-                    }
-
                     RTMPPacket_Free(&packet);
+                   
+                    if (pin == _audio_pin){
+                        *sample = [_stream_audio popSamplewithProbe:probe];
+                        if (*sample!=nil)
+                            return KResult_OK;
+                    }
+                    
                     
                 } else if (packet.m_packetType == RTMP_PACKET_TYPE_VIDEO && has_video){
                     
-                    
-                    if ( _stream_video == nil){
-                        _stream_video = [[FlvStream alloc] init];
-                    }
                     KResult res;
                     if ( (res = [_stream_video parseRtmp:&packet])!=KResult_OK){
                         DErr(@"Video parse failed");
                         return res;
                     }
                     
-                
-                    if (_stream_video.samples0.count > 0 ) {
-                        
-                        if (pin == _video_pin){
-                            *sample = _stream_video.samples0.firstObject;
-                            RTMPPacket_Free(&packet);
-                            if (!probe)
-                                [_stream_video.samples0 removeObjectAtIndex:0];
-                            return KResult_OK;
-                        } else {
-                            // enqueue ?
-                        }
-                    }
-
                     RTMPPacket_Free(&packet);
+                    
+                    
+                    if (pin == _video_pin){
+                        *sample = [_stream_video popSamplewithProbe:probe];
+                        if (*sample!=nil)
+                            return KResult_OK;
+                    }
                     
                 } else if (packet.m_packetType == RTMP_PACKET_TYPE_INFO) {
                     
@@ -377,6 +344,11 @@ void RTMP_Interrupt(RTMP *r)
 -(KResult)seek:(float)sec
 {
     @synchronized (RtmpLockProcess) {
+        
+        [_stream_video flush];
+        [_stream_audio flush];
+       
+        
 //        if (!RTMP_ConnectStream(_rtmp, sec*1000)) {
 //            RTMP_Log(RTMP_LOGERROR, "ConnectStream Err\n");
 //            return KResult_RTMP_ConnectFailed;

@@ -17,16 +17,11 @@ NS_ASSUME_NONNULL_BEGIN
 //@end
 
 @interface KQueueFilter : KThreadFilter // <KBufferInfo>
-//    - (instancetype)init;
     -(KResult)onThreadTick:(NSError *__strong*)ppError;
     -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(nonnull KOutputPin *)pin;
 
-//    -(void)onStateChanged:(KFilterState)state;
-//    -(BOOL)isInputMediaTypeSupported:(KMediaType *)type;
-//    -(KMediaType *)getOutputMediaType;
-//
-//    -(KClock *)clock;
-    //@property size_t min_samples_queue;
+    -(KResult)seek:(float)sec;
+
     @property size_t max_samples_queue;
     @property BOOL sorted;
 @end

@@ -13,7 +13,8 @@
 #import "KQueueFilter.h"
 #import "KPlayGraph.h"
 
-#define MYDEBUG
+//#define MYWARN
+//#define MYDEBUG
 #include "myDebug.h"
 
 
@@ -206,7 +207,7 @@
                 }
             }
             
-            
+            DLog(@"ALL PAUSED. start seeking");
             
             
             for (KFilter* filter in _flowchain) {
@@ -428,6 +429,8 @@
     - (KResult)seek:(float)sec
     {
         _suppress_error = false;
+        
+        WLog(@"Seeking to %f", sec);
         
         KGraphState prevState;
         @synchronized (_state_mutex) {

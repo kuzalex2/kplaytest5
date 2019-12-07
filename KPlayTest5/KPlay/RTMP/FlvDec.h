@@ -15,7 +15,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FlvStream : NSObject
     @property KMediaType *type;
-    @property (nonnull) NSMutableArray<KMediaSample *> *samples0;
+   
+
+    //-(void)pushSample:(KMediaSample *)sample;
+    -(KMediaSample *)popSamplewithProbe:(BOOL)probe;
+    -(void)flush;
+    //@property (nonnull) NSMutableArray<KMediaSample *> *samples0;
 
    // -(int64_t)duration;
 

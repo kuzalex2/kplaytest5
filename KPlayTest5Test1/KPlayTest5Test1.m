@@ -7,8 +7,8 @@
 //
 
 #import <XCTest/XCTest.h>
-#define MYDEBUG
-#define MYWARN
+//#define MYDEBUG
+//#define MYWARN
 #import "myDebug.h"
 #import "KFilter.h"
 

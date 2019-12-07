@@ -253,6 +253,11 @@ class ViewController: UIViewController, KPlayerEvents {
     
    
     
+    @IBAction func onDestroyTouchDown(_ sender: Any) {
+        player?.stop();
+        player=nil;
+        
+    }
     
     
     
@@ -513,8 +518,8 @@ class ViewController: UIViewController, KPlayerEvents {
 //            player = KTestRtmpAPlayGraph();
 //            player = KTestRtmpVPlayGraph(self.videoView);
 //            player = KTestRtmpAPlayAACGraph();
-//            player = KTestRtmpAVPlayGraph(self.videoView);
-            player = KTestRtmpAVQueuePlayGraph(self.videoView);
+            player = KTestRtmpAVPlayGraph(self.videoView);
+//            player = KTestRtmpAVQueuePlayGraph(self.videoView);
             
             player?.events = self
         }
@@ -533,7 +538,7 @@ class ViewController: UIViewController, KPlayerEvents {
 //        _ = player?.play("http://p.kuzalex.com/wav/testa2.wav", autoStart: true)
 //        _ = player?.play("http://p.kuzalex.com/wav/dom17.wav", autoStart: true)
 //        _ = player?.play("http://p.kuzalex.com/wav/pipe0.wav", autoStart: true)
-//        _ = player?.play("http://p.kuzalex.com/wav/pipe.wav", autoStart: true)
+//        _ = player?.play("http://p.kuzalex.com/wav/pipe.wav", autoStart: false)
 //        _ = player?.play("http://p.kuzalex.com/wav/2.wav", autoStart: true)
 
     }
