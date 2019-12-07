@@ -186,7 +186,7 @@
         const uint32_t maxDecodedSamples = MAX_AUDIO_FRAMES * 1;
 
         do{
-            uint8_t *buffer = (uint8_t *)malloc(maxDecodedSamples * sizeof(short int));
+            uint8_t *buffer = (uint8_t *)malloc(maxDecodedSamples * sizeof(short int));///FIXME: free!
             AudioBufferList decBuffer;
             decBuffer.mNumberBuffers = 1;
             decBuffer.mBuffers[0].mNumberChannels = 1;

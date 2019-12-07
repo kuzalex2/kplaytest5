@@ -169,6 +169,45 @@ class KTestRtmpAVPlayGraph : KPlayGraphChainBuilder {
    
 }
 
+class KTestRtmpAVQueuePlayGraph : KPlayGraphChainBuilder {
+    
+    var _view:UIView;
+    
+    override func play(_ url: String, autoStart: Bool) -> KResult {
+       
+        
+        do {
+            objc_sync_enter(super.state_mutex)
+            defer { objc_sync_exit(super.state_mutex)}
+            if (super.state == KGraphState_NONE){
+                super.flowchain.removeAllObjects();
+                super.flowchain.add(KRtmpSource(url: url)); //0
+                super.flowchain.add(KAudioDecoder());       //1
+                super.flowchain.add(KQueueFilter());        //2
+                super.flowchain.add(KAudioPlay());          //3
+                              
+                super.flowchain.add(KVideoDecoder());       //4
+                super.flowchain.add(KQueueFilter());        //5
+                super.flowchain.add(KVideoPlay(uiView: _view));//6
+                
+                super.connectchain.add([super.flowchain[0], super.flowchain[1], super.flowchain[2], super.flowchain[3]]);
+                super.connectchain.add([super.flowchain[0], super.flowchain[4], super.flowchain[5], super.flowchain[6]]);
+            }
+        }
+        
+        
+       
+        return super.play(url, autoStart: autoStart)
+    }
+    
+    init(_ view:UIView) {
+        self._view = view;
+        super.init()
+    }
+    
+   
+}
+
 class KTestAudioGraph : KPlayGraphChainBuilder {
     
     override func play(_ url: String, autoStart: Bool) -> KResult {
@@ -474,7 +513,9 @@ class ViewController: UIViewController, KPlayerEvents {
 //            player = KTestRtmpAPlayGraph();
 //            player = KTestRtmpVPlayGraph(self.videoView);
 //            player = KTestRtmpAPlayAACGraph();
-            player = KTestRtmpAVPlayGraph(self.videoView);
+//            player = KTestRtmpAVPlayGraph(self.videoView);
+            player = KTestRtmpAVQueuePlayGraph(self.videoView);
+            
             player?.events = self
         }
 

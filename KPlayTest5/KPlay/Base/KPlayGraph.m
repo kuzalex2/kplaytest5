@@ -515,7 +515,7 @@
             // STOPPING
             KResult res;
             
-            for (KFilter* filter in self->_flowchain ) {
+            for (KFilter* filter in [self->_flowchain reverseObjectEnumerator] ) {
                 DLog(@"KTestGraphChainBuilder interrupting %@", [filter name]);
                 if ((res = [filter stop:true]) != KResult_OK){
                     DLog(@"<%@> stop failed", [filter name]);
@@ -526,7 +526,7 @@
             
             
             @synchronized (self->_async_mutex) {
-                for (KFilter* filter in self->_flowchain ) {
+                for (KFilter* filter in [self->_flowchain reverseObjectEnumerator] ) {
                     DLog(@"KTestGraphChainBuilder stopping %@", [filter name]);
                     if ((res = [filter stop:true]) != KResult_OK){
                         DLog(@"<%@> stop failed", [filter name]);
