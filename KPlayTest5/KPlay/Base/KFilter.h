@@ -53,8 +53,8 @@ NSString *KFilterState2String(KFilterState state);
     -(KResult)waitSemaphoreOrState:(dispatch_semaphore_t)sem;
 
     -(KResult)start;
-    -(KResult)pause:(BOOL)waitUntilPaused;
-    -(KResult)stop:(BOOL)waitUntilStopped;
+    -(KResult)pause;//:(BOOL)waitUntilPaused;
+    -(KResult)stop;//:(BOOL)waitUntilStopped;
     -(KResult)seek:(float)sec;
 
     - (KOutputPin *) getOutputPinAt:(size_t)i;

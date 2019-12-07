@@ -154,7 +154,7 @@
         f.events = self;
         
         DLog(@"<%@> pausing", [f name]);
-        if ((res = [f pause:true]) != KResult_OK ) {
+        if ((res = [f pause]) != KResult_OK ) {
             return res;
         }
         
@@ -195,7 +195,7 @@
             
             for (KFilter* filter in forward ? _flowchain : [_flowchain reverseObjectEnumerator]) {
                 DLog(@"<%@> pausing", [filter name]);
-                res = [filter pause:true];
+                res = [filter pause];
                 if (res!=KResult_OK) {
                     DLog(@"<%@> pause failed", [filter name]);
                     
@@ -224,7 +224,7 @@
             for (KFilter* filter in _flowchain)
             {
                 DLog(@"<%@> pausing", [filter name]);
-                res = [filter pause:true];
+                res = [filter pause];
                 if (res!=KResult_OK) {
                     DLog(@"<%@> pause failed", [filter name]);
                     
@@ -347,7 +347,7 @@
             for (size_t i = 0; i< _flowchain.count; i++)
             {
                 DLog(@"KTestGraphChainBuilder pausing %@", [_flowchain[i] name]);
-                if ((res = [_flowchain[i] pause:true]) != KResult_OK){
+                if ((res = [_flowchain[i] pause]) != KResult_OK){
                     [self notifyError: KResult2Error(res)];
                     [self stop];
                     return res;
@@ -402,7 +402,7 @@
                     KResult res;
                     for (KFilter* filter in forward ? self->_flowchain : [self->_flowchain reverseObjectEnumerator]) {
                         DLog(@"<%@> pausing", [filter name]);
-                        res = [filter pause:true];
+                        res = [filter pause];
                         if (res!=KResult_OK) {
                             DLog(@"<%@> pause failed", [filter name]);
                             
@@ -517,7 +517,7 @@
             
             for (KFilter* filter in self->_flowchain  ) {
                 DLog(@"KTestGraphChainBuilder interrupting %@", [filter name]);
-                if ((res = [filter stop:true]) != KResult_OK){
+                if ((res = [filter stop]) != KResult_OK){
                     DLog(@"<%@> stop failed", [filter name]);
                     
                     [self notifyError: KResult2Error(res)];
@@ -528,7 +528,7 @@
             @synchronized (self->_async_mutex) {
                 for (KFilter* filter in self->_flowchain  ) {
                     DLog(@"KTestGraphChainBuilder stopping %@", [filter name]);
-                    if ((res = [filter stop:true]) != KResult_OK){
+                    if ((res = [filter stop]) != KResult_OK){
                         DLog(@"<%@> stop failed", [filter name]);
                         
                         [self notifyError: KResult2Error(res)];
