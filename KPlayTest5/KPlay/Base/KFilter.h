@@ -41,6 +41,7 @@ NSString *KFilterState2String(KFilterState state);
 {
     @protected KFilterState _state;
     @protected NSObject *_state_mutex;
+    @protected NSObject *_pull_lock;
 }
     @property (weak, nonatomic) id<KPlayEvents> events;
     @property (readonly, nonatomic, retain) NSMutableArray<KInputPin *> *inputPins;
@@ -62,6 +63,7 @@ NSString *KFilterState2String(KFilterState state);
     - (void)onStateChanged:(KFilter *)filter state:(KFilterState)state;
    
 
+    -(KResult)pullSampleInternal:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong _Nonnull*_Nullable)error fromPin:(KOutputPin*)pin;
     -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong _Nonnull*_Nullable)error fromPin:(KOutputPin*)pin;
     -(KMediaType *)getOutputMediaTypeFromPin:(KOutputPin*)pin;
 

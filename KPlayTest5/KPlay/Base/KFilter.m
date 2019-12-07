@@ -47,6 +47,7 @@ NSString *KFilterState2String(KFilterState state)
         _inputPins =  [NSMutableArray new];
         _outputPins =  [NSMutableArray new];
         _state_mutex = [NSObject new];
+        _pull_lock = [NSObject new];
         
         _state = KFilterState_STOPPED;
         //if ([self respondsToSelector:@selector(onStateChanged:state:)]){
@@ -95,6 +96,25 @@ NSString *KFilterState2String(KFilterState state)
     }
 }
 
+-(KResult)pullSampleInternal:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(KOutputPin*)pin
+{
+    @synchronized(_state_mutex) {
+        switch (_state) {
+            case KFilterState_STOPPING:
+            case KFilterState_STOPPED:
+                return KResult_InvalidState;
+            case KFilterState_PAUSING:
+            case KFilterState_STARTED:
+            case KFilterState_PAUSED:
+                break;
+        }
+    }
+    
+    @synchronized(_pull_lock) {
+        return [self pullSample:sample probe:probe error:error fromPin:pin];
+    }
+}
+
 -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(KOutputPin*)pin
 {
     DErr(@"pullSample at %@ not implemented", [self name]);
@@ -134,6 +154,9 @@ NSString *KFilterState2String(KFilterState state)
     return nil;
 }
 
+
+
+
 -(void)setStateAndNotify:(KFilterState)state
 {
     KFilterState prevState;
@@ -164,8 +187,42 @@ NSString *KFilterState2String(KFilterState state)
 }
 -(KResult)stop:(BOOL)waitUntilStopped
 {
-    [self setStateAndNotify:KFilterState_STOPPED];
-    return KResult_OK;
+    while (1)
+    {
+        @synchronized(_state_mutex) {
+            switch (_state) {
+                case KFilterState_STOPPED:
+                    return KResult_OK;
+                    
+                case KFilterState_PAUSING:
+                    
+                    goto sleep;
+                    //                    return KResult_InvalidState;
+                    
+                case KFilterState_PAUSED:
+                case KFilterState_STARTED:
+                    [self setStateAndNotify:KFilterState_STOPPING];
+                    //_stopping_sem = dispatch_semaphore_create(0);
+                    break;
+                    
+                case KFilterState_STOPPING:
+                    break;
+            }
+        }
+        
+        if (!waitUntilStopped)
+            return KResult_OK;
+        
+         @synchronized(_pull_lock) {
+             [self setStateAndNotify:KFilterState_STOPPED];
+         }
+
+        continue;
+    sleep:
+        //wait until paused
+        usleep(10000);
+        
+    }
 }
 -(KResult)seek:(float)sec
 {
@@ -391,7 +448,10 @@ stopping:
         assert(_state == KFilterState_STOPPING);
     }
     DLog(@"<%@> threadProc stopping", [self name]);
-    [self setStateAndNotify:KFilterState_STOPPED];
+    @synchronized(_pull_lock) {
+        [self setStateAndNotify:KFilterState_STOPPED];
+    }
+  //  [self setStateAndNotify:KFilterState_STOPPED];
     dispatch_semaphore_signal(_stopping_sem);
     
     
