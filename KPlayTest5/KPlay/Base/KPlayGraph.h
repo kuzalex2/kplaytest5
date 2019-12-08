@@ -40,11 +40,7 @@ typedef enum
     //@property int32_t timeScale;
 @end
 
-@protocol KPlayPositionInfo<NSObject>
-    -(int64_t)position;
-    -(int64_t)timeScale;
-    -(BOOL)isRunning;
-@end
+
 
 @protocol KPlayBufferPositionInfo<NSObject>
     -(int64_t)startBufferedPosition;

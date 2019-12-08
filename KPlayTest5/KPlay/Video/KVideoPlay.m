@@ -9,8 +9,8 @@
 #import "KVideoPlay.h"
 
 #import "KPlayGraph.h"
-//#define MYDEBUG
-//#define MYWARN
+#define MYDEBUG
+#define MYWARN
 #import "myDebug.h"
 
 #import <UIKit/UIScreen.h>
@@ -258,6 +258,7 @@
 @implementation KVideoPlay {
     VideoDisplay *_video;
     UIView *_view;
+    KMediaSample * __block _last_sample ;
 }
 
 - (instancetype)initWithUIView:(UIView *)view
@@ -265,8 +266,9 @@
     self = [super init];
     if (self) {
         [self.inputPins addObject:[[KInputPin alloc] initWithFilter:self]];
-        _video = nil;
-        _view=view;
+        self->_video = nil;
+        self->_view=view;
+        self->_last_sample=nil;
     }
     return self;
 }
@@ -289,6 +291,7 @@
                 //[_video stop_];
                 [_video flush];
                 [_video onStop];
+                _last_sample = nil;
                
             }
             break;
@@ -321,44 +324,89 @@
 
 -(KResult) onThreadTick:(NSError *__strong*)ppError
 {
-  @autoreleasepool
+    KResult res;
+    
+    if (_video==nil){
+        DErr(@"No VideoDisplay");
+        return KResult_ERROR;
+    }
+    
+    
+    if (_last_sample==nil)
     {
-        
-       // NSError *error;
-        KResult res;
-        
-        if (_video==nil){
-            DErr(@"No VideoDisplay");
-            return KResult_ERROR;
-        }
-        
-        
         KInputPin *pin = [self getInputPinAt:0];
-
-        //@autoreleasepool {
-            KMediaSample *sample;
-            res = [pin pullSample:&sample probe:NO error:ppError];
         
+        @autoreleasepool
+        {
+            KMediaSample *newSample;
+            
+            res = [pin pullSample:&newSample probe:NO error:ppError];
+            
             if (res != KResult_OK) {
                 if (*ppError!=nil){
                     DErr(@"%@ %@", [self name], *ppError);
                 }
                 return res;
             }
-        
-            DLog(@"%@ <%@> got sample type=%@ %ld bytes, ts=%lld/%d", self, [self name], sample.type.name, [sample.data length], sample.ts, sample.timescale);
-            
-                [self->_video displaySample:sample inView:self->_view];
-            return KResult_OK;
-       // }
+            _last_sample = newSample;
+            DLog(@"%@ <%@> got sample type=%@ %ld bytes, ts=%lld/%d", self, [self name], _last_sample.type.name, [_last_sample.data length], _last_sample.ts, _last_sample.timescale);
+        }
     }
-   // }
+    
+    if (_last_sample==nil){
+        DErr(@"No Sample VideoPlay");
+        return KResult_ERROR;
+    }
+    
+    if (self.clock) {
+        
+        switch ([self state]) {
+            case KFilterState_STOPPED:
+            case KFilterState_STOPPING:
+                // skip
+                break;
+            case KFilterState_PAUSING:
+            case KFilterState_PAUSED:
+                //show
+                [self->_video displaySample:_last_sample inView:self->_view];
+                _last_sample=nil;
+                break;
+            case KFilterState_STARTED:{
+                int64_t nowTimeMicrosec = [self.clock position] * 1000 / [self.clock timeScale];
+                int64_t sampleTimeMicrosec = _last_sample.ts * 1000 / _last_sample.timescale;
+                
+                if (nowTimeMicrosec < sampleTimeMicrosec-100){
+                    usleep(100);
+                    return KResult_OK;
+                } else if (nowTimeMicrosec > sampleTimeMicrosec+100){
+                    //опоздал
+                    WLog(@"%@ skip sample now=%lld sample=%lld", [self name], nowTimeMicrosec,sampleTimeMicrosec);
+                    _last_sample=nil;
+                } else {
+                    DLog(@"%@ play sample %lld %lld", [self name],nowTimeMicrosec,sampleTimeMicrosec);
+                    [self->_video displaySample:_last_sample inView:self->_view];
+                    _last_sample=nil;
+                }
+                
+                break;
+            }
+            
+        }
+        
+    } else {
+    
+        [self->_video displaySample:_last_sample inView:self->_view];
+        _last_sample=nil;
+    }
+    
+    return KResult_OK;
 }
 
 -(KResult)seek:(float)sec
 {
   //  [_queue stop_];
     [_video flush];
+    _last_sample=nil;
     return KResult_OK;
 }
 

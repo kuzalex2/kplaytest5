@@ -37,6 +37,12 @@ NSString *KFilterState2String(KFilterState state);
 
 @end
 
+@protocol KPlayPositionInfo<NSObject>
+    -(int64_t)position;
+    -(int64_t)timeScale;
+    -(BOOL)isRunning;
+@end
+
 @interface KFilter : NSObject<KPlayEvents, KPullFilter>
 {
     @protected KFilterState _state;
@@ -46,6 +52,7 @@ NSString *KFilterState2String(KFilterState state);
     @property (weak, nonatomic) id<KPlayEvents> events;
     @property (readonly, nonatomic, retain) NSMutableArray<KInputPin *> *inputPins;
     @property (readonly, nonatomic, retain) NSMutableArray<KOutputPin *> *outputPins;
+    @property (weak) id<KPlayPositionInfo> clock;
 
     
     - (KFilterState) state;

@@ -306,6 +306,12 @@
                 }
             }
             
+            if (self.positionInfo!=nil){
+                for (KFilter *f in _flowchain){
+                    f.clock = self.positionInfo;
+                }
+            }
+            
             
             [self setStateAndNotify:KGraphState_PAUSED];
             
