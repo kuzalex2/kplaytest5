@@ -321,7 +321,7 @@ class ViewController: UIViewController, KPlayerEvents {
     }
     
     @IBAction func valueChanged(_ sender: Any) {
-        NSLog("valueChanged");
+      //  NSLog("valueChanged");
         
         if (!inSeek) {
             return;
