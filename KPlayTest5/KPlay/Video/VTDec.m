@@ -9,7 +9,7 @@
 #import "VTDec.h"
 #import "KTestFilters.h"
 
-#define MYDEBUG
+//#define MYDEBUG
 //#define MYWARN
 #include "myDebug.h"
 

@@ -89,6 +89,12 @@ const uint8_t ff_mpeg4audio_channels[8] = {
 #define GET_BYTE(v,ptr,sz,error) { if ((sz)>=1) {(v)=*ptr++; (sz)--;} else return error;}
 #define SKIP_N_BYTES(nb,ptr,sz,error) { if ((sz)>=(nb)) {ptr+=(nb); (sz)-=(nb);} else return error;}
 
+BOOL AudioStreamBasicDescriptionEqual(const AudioStreamBasicDescription *a, const AudioStreamBasicDescription *b)
+{
+    if (a==nil || b==nil)
+        return FALSE;
+    return memcmp(a, b, sizeof(a[0])) == 0;
+}
 
 
 -(KResult)processAudioPacket:(RTMPPacket *)p
@@ -97,8 +103,7 @@ const uint8_t ff_mpeg4audio_channels[8] = {
     
     uint8_t *ptr = (uint8_t*)p->m_body;
     int restSz = p->m_nBodySize;
-    
-    
+        
     uint8_t flags;
     
     GET_BYTE(flags, ptr,    restSz, KResult_ParseError);
@@ -106,7 +111,7 @@ const uint8_t ff_mpeg4audio_channels[8] = {
     CMFormatDescriptionRef      afd;
     
     AudioStreamBasicDescription format;
-    
+   
     
     format.mChannelsPerFrame = (flags & FLV_AUDIO_CHANNEL_MASK) == FLV_STEREO ? 2 : 1;
     format.mSampleRate = 44100 << ((flags & FLV_AUDIO_SAMPLERATE_MASK) >>
@@ -167,6 +172,8 @@ const uint8_t ff_mpeg4audio_channels[8] = {
                 if (channel_config<=7) {
                     format.mChannelsPerFrame = ff_mpeg4audio_channels[channel_config];
                 }
+                
+                restSz=0;
             }
             break;
         }
@@ -235,6 +242,11 @@ const uint8_t ff_mpeg4audio_channels[8] = {
     format.mBytesPerPacket   = format.mBytesPerFrame * format.mFramesPerPacket;
     format.mReserved         = 0;
     
+//    if (_type!=nil){
+//        if (!AudioStreamBasicDescriptionEqual((const AudioStreamBasicDescription*)_type.format, &format))WRONG
+//            _type=nil;
+//    }
+    
     if (_type == nil){
         
         
@@ -256,14 +268,17 @@ const uint8_t ff_mpeg4audio_channels[8] = {
         [self->_type setFormat:afd];
         return KResult_OK;
     }
+       
+    if (restSz>0)
+    {
+        KMediaSample *sample = [[KMediaSample alloc] init];
+        sample.ts = p->m_nTimeStamp;
+        sample.timescale = 1000;
+        sample.type = _type;
         
-    KMediaSample *sample = [[KMediaSample alloc] init];
-    sample.ts = p->m_nTimeStamp;
-    sample.timescale = 1000;
-    sample.type = _type;
-    
-    sample.data = [[NSData alloc] initWithBytes:ptr length:restSz];
-    [self pushSample:sample];
+        sample.data = [[NSData alloc] initWithBytes:ptr length:restSz];
+        [self pushSample:sample];
+    }
    
     
    
@@ -311,11 +326,7 @@ const uint8_t ff_mpeg4audio_channels[8] = {
             GET_BYTE(CompositionTime[1],ptr,restSz,KResult_ParseError);
             GET_BYTE(CompositionTime[2],ptr,restSz,KResult_ParseError);
             
-            if (_type == nil){
-                if ((flags&0xf0)!=0x10 || AVCPacketType!=0x0){
-                    // not a format packet
-                    return KResult_OK;
-                }
+            if ((flags&0xf0)==0x10 && AVCPacketType==0x0){
                 
                 uint8_t  *sps_data = NULL;
                 uint16_t sps_size = 0;
@@ -350,27 +361,34 @@ const uint8_t ff_mpeg4audio_channels[8] = {
                 pps_data=ptr;
                 SKIP_N_BYTES(pps_size,ptr,restSz,KResult_ParseError);
                 
-                const uint8_t* const parameterSetPointers[2] = { sps_data, pps_data };
-                const size_t parameterSetSizes[2] = { sps_size, pps_size };
-                CMFormatDescriptionRef vfd;
-                OSStatus status = CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault,
-                                                                                      2,
-                                                                                      parameterSetPointers,
-                                                                                      parameterSetSizes,
-                                                                                      4,
-                                                                                      &vfd);
-                if (status != noErr)
-                    return KResult_ParseError;
-                
-                CMVideoDimensions dim = CMVideoFormatDescriptionGetDimensions(vfd);
-                DLog(@"Found %dx%d CMVideoFormatDescription", dim.width, dim.height);
-                UInt32 fourcc = CMVideoFormatDescriptionGetCodecType(vfd);
-                
-                DLog(@"Found %d %d", fourcc, MKBETAG('a','v','c','1'));
-                assert(MKBETAG('a','v','c','1')==fourcc);
-                
-                self->_type = [[KMediaType alloc] initWithName:@"video"];
-                [self->_type setFormat:vfd];
+                if (_type==nil){
+                    const uint8_t* const parameterSetPointers[2] = { sps_data, pps_data };
+                    const size_t parameterSetSizes[2] = { sps_size, pps_size };
+                    CMFormatDescriptionRef vfd;
+                    OSStatus status = CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault,
+                                                                                          2,
+                                                                                          parameterSetPointers,
+                                                                                          parameterSetSizes,
+                                                                                          4,
+                                                                                          &vfd);
+                    if (status != noErr)
+                        return KResult_ParseError;
+                    
+                    CMVideoDimensions dim = CMVideoFormatDescriptionGetDimensions(vfd);
+                    DLog(@"Found %dx%d CMVideoFormatDescription", dim.width, dim.height);
+                    UInt32 fourcc = CMVideoFormatDescriptionGetCodecType(vfd);
+                    
+                    DLog(@"Found %d %d", fourcc, MKBETAG('a','v','c','1'));
+                    assert(MKBETAG('a','v','c','1')==fourcc);
+                    
+                    self->_type = [[KMediaType alloc] initWithName:@"video"];
+                    [self->_type setFormat:vfd];
+                }
+            }
+            
+            if (_type == nil){
+                //SKIP
+                return KResult_OK;
             }
             break;
         }
