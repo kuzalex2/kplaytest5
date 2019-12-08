@@ -19,15 +19,13 @@
 #import <Foundation/Foundation.h>
 #import <CoreMedia/CoreMedia.h>
 
-typedef void(^OnMediaSampleCallback)(KMediaSample *sample);
-
 @implementation VTDec
 {
     
     KMediaType *last_type;
     
     VTDecompressionSessionRef session;
-    OnMediaSampleCallback onMediaSample;
+    __weak OnMediaSampleCallback onMediaSample;
 }
 
 

@@ -91,7 +91,7 @@
         {
             const AudioStreamBasicDescription  * _Nullable pformat  = CMAudioFormatDescriptionGetStreamBasicDescription(type.format);
             if (pformat==nil){
-                DErr(@"VTDec format is audio, but no CMFormatDescriptionRef");
+                DErr(@"ADec format is audio, but no CMFormatDescriptionRef");
                 return FALSE;
             }
             
