@@ -442,13 +442,7 @@ BOOL AudioStreamBasicDescriptionEqual(const AudioStreamBasicDescription *a, cons
     
     return KResult_ERROR;
 }
-//
-//-(int64_t)duration
-//{
-//    ///FIXME!
-//    
-//    return 44000;
-//}
+
 
     -(void)pushSample:(KMediaSample *)sample
     {

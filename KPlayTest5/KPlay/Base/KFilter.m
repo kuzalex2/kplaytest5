@@ -116,6 +116,9 @@ NSString *KFilterState2String(KFilterState state)
     return res;
 }
 
+
+//FIXME: overwrite on pthread_cond_wait
+
 -(void)allOutputPinsLock;
 {
     for (KOutputPin *p in _outputPins) {

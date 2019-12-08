@@ -19,17 +19,19 @@
 
 #include <AudioToolbox/AudioToolbox.h>
 
-
+#define TMP_BUF_SIZE 65536
 
 @implementation ADec{
     AudioConverterRef _audioConverter;
+    uint8_t _tmp_buf[TMP_BUF_SIZE];
+    AudioStreamBasicDescription outFormat;
     
     //;
 }
 
 
     - (OSStatus)setupAudioConverter:(const AudioStreamBasicDescription *)inputASBD{
-        AudioStreamBasicDescription outFormat;
+        
         memset(&outFormat, 0, sizeof(outFormat));
         
         outFormat.mChannelsPerFrame = inputASBD->mChannelsPerFrame;
@@ -182,31 +184,25 @@
         
         NSMutableData *decodedData = [NSMutableData new];
 
-        const uint32_t MAX_AUDIO_FRAMES = 128;
-        const uint32_t maxDecodedSamples = MAX_AUDIO_FRAMES * 1;
+//        const uint32_t MAX_AUDIO_FRAMES = 128;
+//        const uint32_t maxDecodedSamples = MAX_AUDIO_FRAMES * 1;
 
         do{
-            uint8_t *buffer = (uint8_t *)malloc(maxDecodedSamples * sizeof(short int));///FIXME: free!
+//            uint8_t *buffer = (uint8_t *)malloc(maxDecodedSamples * sizeof(short int));///FIXME: free!
             AudioBufferList decBuffer;
             decBuffer.mNumberBuffers = 1;
-            decBuffer.mBuffers[0].mNumberChannels = 1;
-            decBuffer.mBuffers[0].mDataByteSize = maxDecodedSamples * sizeof(short int);
-            decBuffer.mBuffers[0].mData = buffer;
+            decBuffer.mBuffers[0].mNumberChannels = outFormat.mChannelsPerFrame;
+            decBuffer.mBuffers[0].mDataByteSize = TMP_BUF_SIZE ;
+            decBuffer.mBuffers[0].mData = _tmp_buf;
 
-            UInt32 numFrames = MAX_AUDIO_FRAMES;
-
-            AudioStreamPacketDescription outPacketDescription;
-            memset(&outPacketDescription, 0, sizeof(AudioStreamPacketDescription));
-            outPacketDescription.mDataByteSize = MAX_AUDIO_FRAMES;
-            outPacketDescription.mStartOffset = 0;
-            outPacketDescription.mVariableFramesInPacket = 0;
+            UInt32 numFrames = TMP_BUF_SIZE / outFormat.mBytesPerFrame;
 
             OSStatus rv = AudioConverterFillComplexBuffer(_audioConverter,
                                                           inInputDataProc,
                                                           &userData,
                                                           &numFrames /* in/out */,
                                                           &decBuffer,
-                                                          &outPacketDescription);
+                                                          nil);
 
             if (rv!=noErr){
                 if ( rv != 'nmda') {

@@ -12,10 +12,6 @@
 //#define MYWARN
 #include "myDebug.h"
 
-//FIXME: autoreleease
-//FIXME: seek!
-
-
 #import <VideoToolbox/VideoToolbox.h>
 #import <Foundation/Foundation.h>
 #import <CoreMedia/CoreMedia.h>
