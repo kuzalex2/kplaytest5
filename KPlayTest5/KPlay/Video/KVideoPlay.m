@@ -25,6 +25,7 @@
 @implementation VideoDisplay{
     CMVideoDimensions dim;
     GLKView *videoPreviewView;
+    BOOL videoPreviewViewOnView;
     CIContext *ciContext;
     EAGLContext *eaglContext;
     CGRect videoPreviewViewBounds;
@@ -97,11 +98,19 @@
    // return KResult_OK;
   //  [self initVideo:view];
     
-    if (videoPreviewView==nil){
+    if (videoPreviewView==nil || !videoPreviewViewOnView){
         
         dispatch_semaphore_t sem = dispatch_semaphore_create(0);
         
         dispatch_async(dispatch_get_main_queue(), ^{
+            
+            if (self->videoPreviewView!=nil){
+                [view addSubview:self->videoPreviewView];
+                [view sendSubviewToBack:self->videoPreviewView];
+                self->videoPreviewViewOnView=TRUE;
+                dispatch_semaphore_signal(sem);
+                return;
+            }
             
             self->eaglContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
             self->videoPreviewView = [[GLKView alloc] initWithFrame:view.bounds context:self->eaglContext];
@@ -119,6 +128,7 @@
             
             [view addSubview:self->videoPreviewView];
             [view sendSubviewToBack:self->videoPreviewView];
+            self->videoPreviewViewOnView=TRUE;
             
             [self->videoPreviewView bindDrawable];
             self->videoPreviewViewBounds = CGRectZero;
@@ -219,6 +229,25 @@
 
 }
 
+-(void)onStop
+{
+    if (videoPreviewView!=nil && videoPreviewViewOnView){
+        
+        dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->videoPreviewView removeFromSuperview];
+            self->videoPreviewViewOnView=FALSE;
+            
+            dispatch_semaphore_signal(sem);
+        });
+        
+        dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    }
+    
+    
+}
+
 
 
 @end
@@ -259,6 +288,7 @@
                // [_video deinitVideo];
                 //[_video stop_];
                 [_video flush];
+                [_video onStop];
                
             }
             break;
