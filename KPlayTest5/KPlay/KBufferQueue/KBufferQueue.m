@@ -13,6 +13,7 @@
 
 #import "KBufferQueue.h"
 #include <pthread.h>
+#include "CKLinkedList.h"
 
 @interface KQueue : NSObject
 
@@ -21,14 +22,18 @@
 @implementation KQueue {
     pthread_mutex_t queue_lock;
     pthread_cond_t queue_cond;
-    NSMutableArray *samples;
-    NSError *error;
+    CKLinkedList *samples;
+    NSError *error; ///FIXME: error processing
+    //FIXME: EOF processing
     
     KFilterState _state;
     BOOL isRunning;
     
     int64_t lastTs;
     int64_t lastTsTimescale;
+    @public float _firstStartBufferSec;
+    @public float _secondStartBufferSec;
+    float _currectStartBufferSec;
 }
 
 - (instancetype)init
@@ -38,10 +43,14 @@
         //TODO: free???
         pthread_mutex_init(&self->queue_lock, NULL);
         pthread_cond_init(&self->queue_cond, NULL);
-        samples = [[NSMutableArray alloc]init];
+        samples = [[CKLinkedList alloc]init];
         _state = KFilterState_STOPPED;
         isRunning = FALSE;
         error=nil;
+        _firstStartBufferSec = 0.3;
+        _secondStartBufferSec = 3.0;
+        _currectStartBufferSec = _firstStartBufferSec;
+        
     }
     return self;
 }
@@ -56,7 +65,6 @@
     pthread_mutex_unlock(&queue_lock);
 }
 
-#define MIN_SAMPLES 50
 
 -(KResult)pushError:(NSError *)error
 {
@@ -73,18 +81,33 @@
     return KResult_OK;
 }
 
+-(double)secondsInQueue
+{
+    if ([samples isEmpty])
+        return 0.0;
+    
+    KMediaSample *firstSample = [samples objectAtHead];
+    KMediaSample *lastSample = [samples objectAtTail];
+    
+    assert(firstSample!=nil);
+    assert(lastSample!=nil);
+    
+    return (double)(lastSample.ts) / lastSample.timescale - (double)(firstSample.ts) / firstSample.timescale;
+}
+
 -(KResult)pushSample:(KMediaSample *)sample
 {
     pthread_mutex_lock(&queue_lock);
     DLog(@"queue add ts=%lld", sample.ts);
-    [samples addObject:sample];
+    [samples addObjectToTail:sample];
+//    [samples addObject:sample];
     
     lastTs = sample.ts; // + duration
     lastTsTimescale = sample.timescale;
     
     if (!isRunning) {
         DLog(@"queue NOT RUNNING");
-        if ([samples count]>MIN_SAMPLES){
+        if ([self secondsInQueue] > _currectStartBufferSec){
             isRunning = TRUE;
             DLog(@"queue RUN");
             pthread_cond_signal(&queue_cond);
@@ -117,8 +140,11 @@
         
 //        if (error) ...
         
-        if ([samples count] == 0){
+        if ([samples isEmpty] ){
             DLog(@"queue NO SAMPLES");
+            if (isRunning){
+                _currectStartBufferSec = _secondStartBufferSec;
+            }
             isRunning=FALSE;
             pthread_cond_wait(&queue_cond, &queue_lock);
             continue;
@@ -126,7 +152,7 @@
         
         if (probe){
             DLog(@"queue PROBE OK");
-            *sample = [samples objectAtIndex:0];
+            *sample = [samples objectAtHead];
             pthread_mutex_unlock(&queue_lock);
             return KResult_OK;
         }
@@ -137,8 +163,8 @@
         }
         
         
-        *sample = [samples objectAtIndex:0];
-        [samples removeObjectAtIndex:0];
+        *sample = [samples objectAtHead];
+        [samples removeObjectFromHead];
         DLog(@"queue OK ts=%lld", (*sample).ts);
         
         pthread_mutex_unlock(&queue_lock);
@@ -151,10 +177,11 @@
     pthread_mutex_lock(&queue_lock);
   
     DLog(@"queue FLUSH");
-    [samples removeAllObjects];
+    [samples clear];
     isRunning = FALSE;
     error=nil;
     lastTs=0;
+    _currectStartBufferSec = _firstStartBufferSec;
     
     
     pthread_mutex_unlock(&queue_lock);
@@ -164,10 +191,10 @@
     int64_t result;
     
     pthread_mutex_lock(&queue_lock);
-    if ([samples count] == 0) {
+    if ([samples isEmpty]) {
         result = lastTs;
     } else {
-        KMediaSample *s = [samples lastObject];
+        KMediaSample *s = [samples objectAtTail];
         result = s.ts;
     }
     pthread_mutex_unlock(&queue_lock);
@@ -179,10 +206,10 @@
     int64_t result;
     
     pthread_mutex_lock(&queue_lock);
-    if ([samples count] == 0) {
+    if ([samples isEmpty]) {
         result = lastTs;
     } else {
-        KMediaSample *s = [samples firstObject];
+        KMediaSample *s = [samples objectAtHead];
         result = s.ts;
     }
     pthread_mutex_unlock(&queue_lock);
@@ -212,6 +239,22 @@
 //    dispatch_semaphore_t _sem;
    
 }
+-(float)firstStartBufferSec
+{
+    return queue->_firstStartBufferSec;
+}
+-(void)setFirstStartBufferSec:(float)firstStartBufferSec
+{
+    queue->_firstStartBufferSec = firstStartBufferSec;
+}
+-(float)secondStartBufferSec
+{
+    return queue->_secondStartBufferSec;
+}
+-(void)setSecondStartBufferSec:(float)secondStartBufferSec
+{
+    queue->_secondStartBufferSec = secondStartBufferSec;
+}
 - (instancetype)init
 {
     self = [super init];
@@ -223,6 +266,16 @@
         queue = [[KQueue alloc]init];
 //
 //        _error=nil;
+    }
+    return self;
+}
+
+- (instancetype)initWithFirstStartBufferSec:(float)firstStartBufferSec andSecondStartBufferSec:(float)secondStartBufferSec
+{
+    self = [self init];
+    if (self) {
+        queue->_firstStartBufferSec = firstStartBufferSec;
+        queue->_secondStartBufferSec = secondStartBufferSec;
     }
     return self;
 }

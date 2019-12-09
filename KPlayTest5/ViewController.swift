@@ -143,7 +143,7 @@ class KTestRtmpAVPlayGraph : KPlayGraphChainBuilder {
             if (super.state == KGraphState_NONE){
                 super.flowchain.removeAllObjects();
                 super.flowchain.add(KRtmpSource(url: url)); //0
-                super.flowchain.add(KBufferQueue());        //1
+                super.flowchain.add(KBufferQueue(firstStartBufferSec: 0.5, andSecondStartBufferSec: 2.5));        //1
                 
                 super.flowchain.add(KAudioDecoder());       //2
               //  super.flowchain.add(KQueueFilter());        //

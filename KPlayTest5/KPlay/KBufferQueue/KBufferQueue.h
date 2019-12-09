@@ -14,6 +14,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 @interface KBufferQueue : KThreadFilter<KPlayBufferPositionInfo> // <KBufferInfo>
+    @property float firstStartBufferSec;
+    @property float secondStartBufferSec;
+
+    - (instancetype)initWithFirstStartBufferSec:(float)firstStartBufferSec andSecondStartBufferSec:(float)secondStartBufferSec;
+
     -(KResult)onThreadTick:(NSError *__strong*)ppError;
     -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(nonnull KOutputPin *)pin;
 
