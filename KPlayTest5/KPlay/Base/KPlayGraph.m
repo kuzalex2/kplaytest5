@@ -300,7 +300,7 @@
                     }
                 }
                 if (self.bufferPositionInfo == nil) {
-                    if ([_flowchain[i] conformsToProtocol:@protocol(KPlayBufferPositionInfo) ]) {
+                    if (self.bufferPositionInfo == nil && [_flowchain[i] conformsToProtocol:@protocol(KPlayBufferPositionInfo) ]) {
                         self.bufferPositionInfo = (id<KPlayBufferPositionInfo> ) _flowchain[i];
                     }
                 }

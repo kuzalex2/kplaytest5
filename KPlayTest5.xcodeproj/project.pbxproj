@@ -17,6 +17,7 @@
 		915F30A42392FB8A00B98323 /* WavReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 915F30A32392FB8A00B98323 /* WavReader.m */; };
 		915F30A823932A6E00B98323 /* KAudioWavSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 915F30A723932A6E00B98323 /* KAudioWavSource.m */; };
 		918654EA238D1D1B00655EE3 /* KTestAudio.m in Sources */ = {isa = PBXBuildFile; fileRef = 918654E9238D1D1B00655EE3 /* KTestAudio.m */; };
+		919E6593239E51E4006A5DDE /* KBufferQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 919E6592239E51E4006A5DDE /* KBufferQueue.m */; };
 		91C197792382FD86002B2463 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C197782382FD86002B2463 /* AppDelegate.swift */; };
 		91C1977B2382FD86002B2463 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C1977A2382FD86002B2463 /* SceneDelegate.swift */; };
 		91C1977D2382FD86002B2463 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C1977C2382FD86002B2463 /* ViewController.swift */; };
@@ -84,6 +85,8 @@
 		915F30A723932A6E00B98323 /* KAudioWavSource.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KAudioWavSource.m; sourceTree = "<group>"; };
 		918654E8238D1D1B00655EE3 /* KTestAudio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KTestAudio.h; sourceTree = "<group>"; };
 		918654E9238D1D1B00655EE3 /* KTestAudio.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KTestAudio.m; sourceTree = "<group>"; };
+		919E6591239E51E4006A5DDE /* KBufferQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KBufferQueue.h; sourceTree = "<group>"; };
+		919E6592239E51E4006A5DDE /* KBufferQueue.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KBufferQueue.m; sourceTree = "<group>"; };
 		91C197752382FD86002B2463 /* KPlayTest5.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KPlayTest5.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		91C197782382FD86002B2463 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		91C1977A2382FD86002B2463 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -250,6 +253,15 @@
 			path = Audio;
 			sourceTree = "<group>";
 		};
+		919E6590239E51AE006A5DDE /* KBufferQueue */ = {
+			isa = PBXGroup;
+			children = (
+				919E6591239E51E4006A5DDE /* KBufferQueue.h */,
+				919E6592239E51E4006A5DDE /* KBufferQueue.m */,
+			);
+			path = KBufferQueue;
+			sourceTree = "<group>";
+		};
 		91C1976C2382FD86002B2463 = {
 			isa = PBXGroup;
 			children = (
@@ -297,6 +309,7 @@
 				912A80672397CB3900D62669 /* Video */,
 				91EB1096239562E200E80D2F /* RTMP */,
 				915F30A523932A5B00B98323 /* Audio */,
+				919E6590239E51AE006A5DDE /* KBufferQueue */,
 				912CEF332385E0C100EA9213 /* KQueue */,
 				912CEF322385E01600EA9213 /* Base */,
 				91C197932383022D002B2463 /* Test */,
@@ -539,6 +552,7 @@
 				912A806A2397CBE500D62669 /* KVideoDecoder.m in Sources */,
 				91EB10B2239565E300E80D2F /* KRtmpSource.m in Sources */,
 				91E8CFAD239636740044D383 /* FlvDec.m in Sources */,
+				919E6593239E51E4006A5DDE /* KBufferQueue.m in Sources */,
 				910CA422239934DF000629E7 /* KAudioDecoder.m in Sources */,
 				91C197832382FD86002B2463 /* KPlayTest5.xcdatamodeld in Sources */,
 				91208973238E6B7900594FB8 /* KAudioPlay.m in Sources */,

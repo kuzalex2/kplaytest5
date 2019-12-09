@@ -94,12 +94,13 @@ void RTMP_Interrupt(RTMP *r)
                 if (_rtmp != nil){
                     RTMP_Interrupt(_rtmp);
                 }
-            }
-            @synchronized (RtmpLockProcess) {
-                if (_rtmp != nil){
-                    RTMP_Close(_rtmp);
-                    RTMP_Free(_rtmp);
-                    _rtmp = nil;
+                
+                @synchronized (RtmpLockProcess) {
+                    if (_rtmp != nil){
+                        RTMP_Close(_rtmp);
+                        RTMP_Free(_rtmp);
+                        _rtmp = nil;
+                    }
                 }
             }
             [_stream_video flush];

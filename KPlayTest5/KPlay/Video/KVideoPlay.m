@@ -45,54 +45,7 @@
 }
 
 
-//-(void) initVideo:(UIView *)window
-//{
-//   // self.view.backgroundColor = [UIColor clearColor];
-//
-//    if (videoPreviewView!=nil)
-//        return;
-//
-//    // setup the GLKView for video
-//    //UIView *window = ((AppDelegate *)  ( [UIApplication sharedApplication].delegate)).window;
-//
-////    if (videoPreviewView){
-////        [window addSubview:videoPreviewView];
-////        [window sendSubviewToBack:videoPreviewView];
-////        return;
-////    }
-//
-//    eaglContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-//    videoPreviewView = [[GLKView alloc] initWithFrame:window.bounds context:eaglContext];
-//    videoPreviewView.enableSetNeedsDisplay = NO;
-//
-//
-//    if (dim.width>dim.height){
-//        videoPreviewView.transform=CGAffineTransformMakeRotation(M_PI_2);
-//    } else {
-//        videoPreviewView.transform=CGAffineTransformMakeRotation(0);
-//
-//    }
-//
-//    videoPreviewView.frame = window.bounds;
-//
-//    [window addSubview:videoPreviewView];
-//    [window sendSubviewToBack:videoPreviewView];
-//
-//    [videoPreviewView bindDrawable];
-//    videoPreviewViewBounds = CGRectZero;
-//    videoPreviewViewBounds.size.width = videoPreviewView.drawableWidth;
-//    videoPreviewViewBounds.size.height = videoPreviewView.drawableHeight;
-//
-//
-//    ciContext = [CIContext contextWithEAGLContext:eaglContext options:@{kCIContextWorkingColorSpace : [NSNull null]} ];
-//}
 
-//-(void) deinitVideo
-//{
-//    if (videoPreviewView!=nil)
-//        [videoPreviewView removeFromSuperview];
-//
-//}
 - (KResult)displaySample:(KMediaSample *) s inView:(UIView *)view
 {
    // return KResult_OK;
@@ -375,10 +328,10 @@
                 int64_t nowTimeMicrosec = [self.clock position] * 1000 / [self.clock timeScale];
                 int64_t sampleTimeMicrosec = _last_sample.ts * 1000 / _last_sample.timescale;
                 
-                if (nowTimeMicrosec < sampleTimeMicrosec-100){
-                    usleep(100);
+                if (nowTimeMicrosec < sampleTimeMicrosec-10){
+                    usleep(1000);
                     return KResult_OK;
-                } else if (nowTimeMicrosec > sampleTimeMicrosec+100){
+                } else if (nowTimeMicrosec > sampleTimeMicrosec+10){
                     //опоздал
                     WLog(@"%@ skip sample now=%lld sample=%lld", [self name], nowTimeMicrosec,sampleTimeMicrosec);
                     _last_sample=nil;
