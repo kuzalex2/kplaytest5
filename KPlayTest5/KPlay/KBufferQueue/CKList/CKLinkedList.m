@@ -7,6 +7,9 @@
 
 #import "CKLinkedList.h"
 
+//#define MYDEBUG
+#include "myDebug.h"
+
 /**
  Represents a single node in a doubly linked list.
  */
@@ -50,7 +53,7 @@
         _next=nil;
         _previous=nil;
         //_data=nil;
-        NSLog(@"dealloc LinkedListNode");
+        DLog(@"dealloc LinkedListNode");
     }
 
 @end
@@ -287,7 +290,7 @@
 
     -(void)dealloc
     {
-        NSLog(@"dealloc LinkedList");
+        DLog(@"dealloc LinkedList");
         [self clear];
     }
 

@@ -23,9 +23,12 @@
 
     -(void) setFormat: (CMFormatDescriptionRef)someFormat
     {
-    _format = someFormat;
-    if (someFormat!=nil)
-        CFRetain(someFormat);
+        if (_format!=nil){
+            CFRelease(_format);
+        }
+        _format = someFormat;
+//        if (someFormat!=nil)
+//            CFRetain(someFormat);
     }
     -(void)dealloc
     {
