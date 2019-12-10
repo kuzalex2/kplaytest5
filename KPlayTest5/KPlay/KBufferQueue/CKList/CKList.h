@@ -18,10 +18,11 @@
     @property(nonatomic, assign, readonly) NSUInteger size;
 
 
-    -(void) clear;
+    -(void) removeAllObjects;
     -(NSString *) description;
 
     -(BOOL) isEmpty;
+    -(void) addOrdered:(id)object withCompare:(int (^)(id a, id b))compare;
     
     /// --------------------------------
     /// @name Adding objects to the list
@@ -31,7 +32,7 @@
      Adds object to the head of the list.
      @param object An object to add to head.
      */
-    -(void) addObjectToHead:(id) object;
+   // -(void) addObjectToHead:(id) object;
 
     -(void) addObjectToTail:(id)object;
     
@@ -51,7 +52,7 @@
      @param index Specifies the position to remove object from.
      @throws `NSRangeException` if the list is empty.
      */
-    -(id) objectAtIndex:(NSUInteger) index;
+  //  -(id) objectAtIndex:(NSUInteger) index;
     
     /// ------------------------------------
     /// @name Removing objects from the list
@@ -69,7 +70,7 @@
      
      @throws `NSRangeException` if the list is empty.
      */
-    -(void) removeObjectFromTail;
+   // -(void) removeObjectFromTail;
     
     /**
      Removes object from the specified position in the list.
@@ -77,7 +78,7 @@
      @param index Specifies the position to remove object from.
      @throws `NSRangeException` if the list is empty.
      */
-    -(void) removeObjectAtIndex:(NSUInteger) index;
+   // -(void) removeObjectAtIndex:(NSUInteger) index;
     
     /**
      Constructs a new list within a range of the original list.
@@ -91,13 +92,13 @@
      
      @param object Object first occurence of which is to be found.
      */
-    -(NSUInteger) indexOfObject:(id) object;
+  //  -(NSUInteger) indexOfObject:(id) object;
     
     /**
      Finds and returns an index of the last occurence of the specified object.
      
      @param object Object last occurence of which is to be found.
      */
-    -(NSUInteger) lastIndexOfObject:(id) object;
+  //  -(NSUInteger) lastIndexOfObject:(id) object;
 
 @end

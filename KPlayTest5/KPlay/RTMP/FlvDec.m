@@ -7,7 +7,7 @@
 //
 
 #import "FlvDec.h"
-//#define MYDEBUG
+#define MYDEBUG
 //#define MYWARN
 #include "myDebug.h"
 #include "CKLinkedList.h"
@@ -294,6 +294,7 @@ BOOL AudioStreamBasicDescriptionEqual(const AudioStreamBasicDescription *a, cons
     
     uint8_t *ptr = (uint8_t*)p->m_body;
     int restSz = p->m_nBodySize;
+    int64_t pts = p->m_nTimeStamp;
     
     uint8_t flags;
     
@@ -326,6 +327,11 @@ BOOL AudioStreamBasicDescriptionEqual(const AudioStreamBasicDescription *a, cons
             GET_BYTE(CompositionTime[0],ptr,restSz,KResult_ParseError);
             GET_BYTE(CompositionTime[1],ptr,restSz,KResult_ParseError);
             GET_BYTE(CompositionTime[2],ptr,restSz,KResult_ParseError);
+            
+            int32_t cts = (((CompositionTime[0]<<16)|(CompositionTime[1]<<8)|CompositionTime[2]) + 0xff800000) ^ 0xff800000;
+            pts = pts + cts;
+//
+//            DLog(@"DTS %d %d %d %d", CompositionTime[0], CompositionTime[1], CompositionTime[2], cts);
             
             if ((flags&0xf0)==0x10 && AVCPacketType==0x0){
                 
@@ -403,7 +409,7 @@ BOOL AudioStreamBasicDescriptionEqual(const AudioStreamBasicDescription *a, cons
     if (restSz>0)
     {
         KMediaSample *sample = [[KMediaSample alloc] init];
-        sample.ts = p->m_nTimeStamp;
+        sample.ts = pts;
         sample.timescale = 1000;
         sample.type = _type;
         
@@ -469,7 +475,7 @@ BOOL AudioStreamBasicDescriptionEqual(const AudioStreamBasicDescription *a, cons
      -(void)flush
     {
         @synchronized (_samples_lock) {
-            [_samples clear];
+            [_samples removeAllObjects];
         }
     }
 

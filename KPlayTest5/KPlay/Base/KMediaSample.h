@@ -33,6 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface KMediaSampleImageBuffer : KMediaSample
     @property (nonatomic)  CVImageBufferRef image;
+    -(NSString *)description;
 @end
 
 @interface KMediaSampleText : KMediaSample

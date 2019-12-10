@@ -110,6 +110,11 @@
         DLog(@"dealloc sample");
         
     }
+    -(NSString *)description
+    {
+      return [NSString stringWithFormat:@"<KMediaSampleImageBuffer: %p, ts=%lld>",
+                     (void*)self, self.ts];
+    }
 @end
 
 @implementation KMediaSampleText

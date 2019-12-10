@@ -307,7 +307,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     -(void)flushSamples
     {
         @synchronized (self->_samples) {
-            [_samples clear];
+            [_samples removeAllObjects];
             _firstTsValid=false;
         }
     }

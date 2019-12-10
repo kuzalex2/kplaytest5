@@ -144,57 +144,19 @@ class KTestRtmpAVPlayGraph : KPlayGraphChainBuilder {
                 super.flowchain.removeAllObjects();
                 super.flowchain.add(KRtmpSource(url: url)); //0
                 super.flowchain.add(KBufferQueue(firstStartBufferSec: 0.5, andSecondStartBufferSec: 2.5));        //1
-                
                 super.flowchain.add(KAudioDecoder());       //2
-              //  super.flowchain.add(KQueueFilter());        //
                 super.flowchain.add(KAudioPlay());          //3
-                              
-                super.flowchain.add(KVideoDecoder());       //4
-             //   super.flowchain.add(KQueueFilter());        //
-
-                super.flowchain.add(KVideoPlay(uiView: _view));//5
                 
-                super.connectchain.add([super.flowchain[0], super.flowchain[1], super.flowchain[2], super.flowchain[3]]);
-                super.connectchain.add([super.flowchain[0], super.flowchain[4], super.flowchain[5]]);
-            }
-        }
-        
-        
-       
-        return super.play(url, autoStart: autoStart)
-    }
-    
-    init(_ view:UIView) {
-        self._view = view;
-        super.init()
-    }
-    
-   
-}
-
-class KTestRtmpAVQueuePlayGraph : KPlayGraphChainBuilder {
-    
-    var _view:UIView;
-    
-    override func play(_ url: String, autoStart: Bool) -> KResult {
-       
-        
-        do {
-            objc_sync_enter(super.state_mutex)
-            defer { objc_sync_exit(super.state_mutex)}
-            if (super.state == KGraphState_NONE){
-                super.flowchain.removeAllObjects();
-                super.flowchain.add(KRtmpSource(url: url)); //0
-                super.flowchain.add(KAudioDecoder());       //1
-                super.flowchain.add(KQueueFilter());        //2
-                super.flowchain.add(KAudioPlay());          //3
-                              
                 super.flowchain.add(KVideoDecoder());       //4
-                super.flowchain.add(KQueueFilter());        //5
+                super.flowchain.add(KBufferQueue(firstStartBufferSec: 1.0, andSecondStartBufferSec: 1.0));//5
                 super.flowchain.add(KVideoPlay(uiView: _view));//6
-                
                 super.connectchain.add([super.flowchain[0], super.flowchain[1], super.flowchain[2], super.flowchain[3]]);
-                super.connectchain.add([super.flowchain[0], super.flowchain[4], super.flowchain[5], super.flowchain[6]]);
+                super.connectchain.add([super.flowchain[0], super.flowchain[4], super.flowchain[5]
+                
+                
+//                    ]);
+                    
+                    , super.flowchain[6]]);
             }
         }
         
@@ -210,6 +172,45 @@ class KTestRtmpAVQueuePlayGraph : KPlayGraphChainBuilder {
     
    
 }
+
+//class KTestRtmpAVQueuePlayGraph : KPlayGraphChainBuilder {
+//
+//    var _view:UIView;
+//
+//    override func play(_ url: String, autoStart: Bool) -> KResult {
+//
+//
+//        do {
+//            objc_sync_enter(super.state_mutex)
+//            defer { objc_sync_exit(super.state_mutex)}
+//            if (super.state == KGraphState_NONE){
+//                super.flowchain.removeAllObjects();
+//                super.flowchain.add(KRtmpSource(url: url)); //0
+//                super.flowchain.add(KAudioDecoder());       //1
+//                super.flowchain.add(KQueueFilter());        //2
+//                super.flowchain.add(KAudioPlay());          //3
+//
+//                super.flowchain.add(KVideoDecoder());       //4
+//                super.flowchain.add(KQueueFilter());        //5
+//                super.flowchain.add(KVideoPlay(uiView: _view));//6
+//
+//                super.connectchain.add([super.flowchain[0], super.flowchain[1], super.flowchain[2], super.flowchain[3]]);
+//                super.connectchain.add([super.flowchain[0], super.flowchain[4], super.flowchain[5], super.flowchain[6]]);
+//            }
+//        }
+//
+//
+//
+//        return super.play(url, autoStart: autoStart)
+//    }
+//
+//    init(_ view:UIView) {
+//        self._view = view;
+//        super.init()
+//    }
+//
+//
+//}
 
 class KTestAudioGraph : KPlayGraphChainBuilder {
     
@@ -222,14 +223,8 @@ class KTestAudioGraph : KPlayGraphChainBuilder {
             if (super.state == KGraphState_NONE){
                 super.flowchain.removeAllObjects();
                 super.flowchain.add(KAudioWavSource(url: url));
-                //super.chain?.add(KQueueFilter());
-//                 super.chain?.add(KQueueFilter());
-//                 super.chain?.add(KQueueFilter());
-//                 super.chain?.add(KQueueFilter());
-                //super.chain?.add(KTestTransformFilter());
                 super.flowchain.add(KAudioPlay());
-                
-                 super.connectchain.add(super.flowchain);
+                super.connectchain.add(super.flowchain);
                 
             }
         }
@@ -521,8 +516,8 @@ class ViewController: UIViewController, KPlayerEvents {
 //            player = KTestRtmpAPlayGraph();
 //            player = KTestRtmpVPlayGraph(self.videoView);
 //            player = KTestRtmpAPlayAACGraph();
-//            player = KTestRtmpAVPlayGraph(self.videoView);
-            player = KTestRtmpAVQueuePlayGraph(self.videoView);
+            player = KTestRtmpAVPlayGraph(self.videoView);
+//            player = KTestRtmpAVQueuePlayGraph(self.videoView);
             
             player?.events = self
         }
@@ -530,8 +525,8 @@ class ViewController: UIViewController, KPlayerEvents {
 //        player?.play("rtmp://176.9.99.77:1935/vod/testa2.flv", autoStart: true);
 //        player?.play("rtmp://176.9.99.77:1935/vod/testa.mp4", autoStart: true);
 //        player?.play("rtmp://176.9.99.77:1935/vod/testa.flv", autoStart: true);
-        player?.play("rtmp://176.9.99.77:1935/vod/bb.mp4", autoStart: false);
-//        player?.play("rtmp://176.9.99.77:1935/vod/starwars_1080p.mp4", autoStart: true);
+//        player?.play("rtmp://176.9.99.77:1935/vod/bb.mp4", autoStart: false);
+        player?.play("rtmp://176.9.99.77:1935/vod/starwars_1080p.mp4", autoStart: true);
 //        player?.play("rtmp://176.9.99.77:1935/vod/bb.flv", autoStart: true);
 //        player?.play("rtmp://176.9.99.77:1935/vod/testamonoaac.flv", autoStart: true);
 //        player?.play("rtmp://176.9.99.77:1935/vod/test.mp4", autoStart: true);

@@ -107,6 +107,8 @@ void didDecompress( void *decompressionOutputRefCon,
 
 - (void) onImageData:(CVImageBufferRef)imageBuffer withPTS:(CMTime) presentationTimeStamp andDuration:(CMTime) presentationDuration
 {
+    DLog(@"<VTDec> onImageData ts=%lld/%d duration=%lld/%d", presentationTimeStamp.value, presentationTimeStamp.timescale, presentationDuration.value, presentationDuration.timescale);
+    
     KMediaSampleImageBuffer *out_sample = [[KMediaSampleImageBuffer alloc]init];
     out_sample.type = _out_type;
 

@@ -7,8 +7,8 @@
 //
 
 
-#define MYDEBUG
-#define MYWARN
+//#define MYDEBUG
+//#define MYWARN
 #include "myDebug.h"
 
 #import "KBufferQueue.h"
@@ -177,7 +177,7 @@
     pthread_mutex_lock(&queue_lock);
   
     DLog(@"queue FLUSH");
-    [samples clear];
+    [samples removeAllObjects];
     isRunning = FALSE;
     error=nil;
     lastTs=0;
