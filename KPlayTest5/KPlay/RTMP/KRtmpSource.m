@@ -169,8 +169,9 @@ void RTMP_Interrupt(RTMP *r)
     }
     
     BOOL needToConnect = false;
-    @synchronized (RtmpLockProcess) {
     @synchronized (RtmpLockInit) {
+    @synchronized (RtmpLockProcess) {
+    
         if (_rtmp == nil){
             needToConnect=TRUE;
             _rtmp = RTMP_Alloc();
