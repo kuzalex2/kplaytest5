@@ -18,16 +18,10 @@ NS_ASSUME_NONNULL_BEGIN
     @property KMediaType *type;
    
 
-    //-(void)pushSample:(KMediaSample *)sample;
     -(KMediaSample *)popSamplewithProbe:(BOOL)probe;
     -(void)flush;
-    //@property (nonnull) NSMutableArray<KMediaSample *> *samples0;
-
-   // -(int64_t)duration;
 
     -(KResult) parseRtmp:(RTMPPacket *)p;
-
-    
 
 @end
 

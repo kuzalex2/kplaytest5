@@ -10,10 +10,11 @@
 //#define MYDEBUG
 //#define MYWARN
 #include "myDebug.h"
+#include "CKLinkedList.h"
 
 @implementation FlvStream {
     NSObject   *_samples_lock;
-    NSMutableArray<KMediaSample *> *_samples0;
+    CKLinkedList *_samples;
 }
 
 
@@ -421,7 +422,7 @@ BOOL AudioStreamBasicDescriptionEqual(const AudioStreamBasicDescription *a, cons
     if (self) {
         self->_type = nil;
         self->_samples_lock = [[NSObject alloc]init];
-        self->_samples0 = [[NSMutableArray alloc]init];
+        self->_samples = [[CKLinkedList alloc]init];
     }
     return self;
 }
@@ -447,7 +448,7 @@ BOOL AudioStreamBasicDescriptionEqual(const AudioStreamBasicDescription *a, cons
     -(void)pushSample:(KMediaSample *)sample
     {
         @synchronized (_samples_lock) {
-            [_samples0 addObject:sample];
+            [_samples addObjectToTail:sample];
         }
     }
     -(KMediaSample *)popSamplewithProbe:(BOOL)probe
@@ -456,11 +457,11 @@ BOOL AudioStreamBasicDescriptionEqual(const AudioStreamBasicDescription *a, cons
         
         @synchronized (_samples_lock) {
             
-            if (_samples0.count>0){
-                result = _samples0.firstObject;
+            if (![_samples isEmpty]){
+                result = _samples.objectAtHead;
         
                 if (!probe)
-                    [_samples0 removeObjectAtIndex:0];//FIXME: implement fast FIFO
+                    [_samples removeObjectFromHead];
             }
         }
         return result;
@@ -468,7 +469,7 @@ BOOL AudioStreamBasicDescriptionEqual(const AudioStreamBasicDescription *a, cons
      -(void)flush
     {
         @synchronized (_samples_lock) {
-            [_samples0 removeAllObjects];
+            [_samples clear];
         }
     }
 

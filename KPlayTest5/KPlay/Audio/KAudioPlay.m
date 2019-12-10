@@ -13,6 +13,7 @@
 #import "myDebug.h"
 
 #include <AudioToolbox/AudioToolbox.h>
+#include "CKLinkedList.h"
 
 typedef enum  {
     AudioQueueStopped_,
@@ -263,12 +264,12 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
 
 
 
-#define MAX_SAMPLES 100
+#define MAX_SAMPLES 10
 
 
 
 @implementation AudioQueue {
-    NSMutableArray *_samples;
+    CKLinkedList *_samples;
 }
     - (instancetype)initWithSample:(KMediaSample *) sample
     {
@@ -290,7 +291,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
                 return nil;
             }
             
-            self->_samples = [[NSMutableArray alloc] init];
+            self->_samples = [[CKLinkedList alloc]init];
         }
         return self;
     }
@@ -299,14 +300,14 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     -(BOOL)isFull
      {
          @synchronized (self->_samples) {
-             return _samples.count > MAX_SAMPLES;
+             return _samples.size > MAX_SAMPLES;
          }
      }
 
     -(void)flushSamples
     {
         @synchronized (self->_samples) {
-            [_samples removeAllObjects];
+            [_samples clear];
             _firstTsValid=false;
         }
     }
@@ -326,8 +327,8 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         NSUInteger nSamples = 0;
         
         @synchronized (self->_samples) {
-            [self->_samples addObject:sample];
-            nSamples = _samples.count;
+            [self->_samples addObjectToTail:sample];
+            nSamples = _samples.size;
             if (!_firstTsValid){
                 _firstTsValid=true;
                 _firstTs=sample.ts;
@@ -351,9 +352,9 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     {
         KMediaSample *sample = nil;
         @synchronized (self->_samples) {
-            if (_samples.count > 0){
-                sample = [_samples objectAtIndex:0];
-                [_samples removeObjectAtIndex:0];
+            if (_samples.size > 0){
+                sample = [_samples objectAtHead];
+                [_samples removeObjectFromHead];
             }
         }
         return sample;
@@ -362,8 +363,8 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
 
     - (int64_t)endBufferedPosition {
         @synchronized (self->_samples) {
-            if (_samples.count > 0){
-                KMediaSample *sample = [_samples lastObject];
+            if (_samples.size > 0){
+                KMediaSample *sample = [_samples objectAtTail];
                 return sample.ts; ///FIXME + duration
             }
         }
@@ -375,8 +376,8 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     - (int64_t)startBufferedPosition {
        
         @synchronized (self->_samples) {
-            if (_samples.count > 0){
-                KMediaSample *sample = [_samples firstObject];
+            if (_samples.size > 0){
+                KMediaSample *sample = [_samples objectAtHead];
                 return sample.ts;
                
             }
@@ -471,7 +472,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
        // NSError *error;
         KResult res;
         
-        if (_queue!=nil && [_queue isFull])
+        if (_queue!=nil && [_queue isFull])///FIXME: only for...
         {
             if ([_queue state] == AudioQueueRunning_ )
             {
