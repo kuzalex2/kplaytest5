@@ -7,7 +7,7 @@
 //
 
 
-//#define MYDEBUG
+#define MYDEBUG
 //#define MYWARN
 #include "myDebug.h"
 
@@ -24,7 +24,6 @@
     pthread_cond_t queue_cond;
     KLinkedList *samples;
     NSError *error; ///FIXME: error processing
-    //FIXME: EOF processing
     
     KFilterState _state;
     BOOL isRunning;
@@ -97,7 +96,7 @@
 -(KResult)pushSample:(KMediaSample *)sample withOrderByTimestamp:(BOOL)orderByTimestamp
 {
     pthread_mutex_lock(&queue_lock);
-    DLog(@"queue add ts=%lld", sample.ts);
+    DLog(@"queue add ts=%lld/%d", sample.ts.value, sample.ts.timescale);
     
     if (orderByTimestamp) {
         [samples addOrdered:sample withCompare: ^NSComparisonResult(id a, id b){
@@ -116,7 +115,7 @@
     
     if (!isRunning) {
         DLog(@"queue NOT RUNNING");
-        if ([self secondsInQueue] > _currectStartBufferSec){
+        if ([self secondsInQueue] > _currectStartBufferSec || sample.eos){
             isRunning = TRUE;
             DLog(@"queue RUN");
             pthread_cond_signal(&queue_cond);

@@ -27,6 +27,7 @@ NSString *KFilterState2String(KFilterState state);
 @optional
 - (void)onError:(KFilter *)filter result:(KResult)result error:( NSError * _Nullable )error;
 - (void)onStateChanged:(KFilter *)filter state:(KFilterState)state;
+- (void)onEOS:(KFilter *)filter;
 @end
 
 @protocol KPullFilter <NSObject>

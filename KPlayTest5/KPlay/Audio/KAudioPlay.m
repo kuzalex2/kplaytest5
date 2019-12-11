@@ -67,6 +67,17 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         }
     }
 
+
+    -(KMediaSample *)getNextSample
+    {
+        return nil;
+    }
+
+    -(void)eos
+    {
+        
+    }
+
     -(void)waitForRun_
     {
        @synchronized (_lock) {
@@ -125,7 +136,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     }
 
 
-    -(void)stop_
+    -(void)stop_withEOS:(BOOL)isEOS
     {
         @synchronized (_lock) {
             if (_avqueue == nil)
@@ -141,6 +152,9 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         
         if ( AudioQueueStop(_avqueue, true) != noErr ){
             DErr(@"AudioQueueStop failed");
+        }
+        if (isEOS){
+            [self eos];
         }
     }
             
@@ -182,10 +196,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         return KResult_OK;
     }
 
-    -(KMediaSample *)getNextSample
-    {
-        return nil;
-    }
+    
 
 #define MYMIN(a,b) ( (a)<(b) ? (a) : (b) )
     -(void) audioQueueCallback:(AudioQueueRef)queue buffer:(AudioQueueBufferRef) buffer
@@ -195,6 +206,12 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         
        
         if (sample!=nil){
+            
+            if (sample.eos){
+                [self stop_withEOS:TRUE];
+                return;
+            }
+            
             buffer->mAudioDataByteSize = MYMIN((uint32_t)sample.data.length, self->_buffer_size);
             
             if (buffer->mAudioDataByteSize == 0 && [self state] == AudioQueueRunning_) {
@@ -272,10 +289,12 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
 
 
 @implementation AudioQueue {
+    KFilter __weak *filter;
     KLinkedList *_samples;
 }
-    - (instancetype)initWithSample:(KMediaSample *) sample
+    - (instancetype)initWithSample:(KMediaSample *) sample andFilter:(KFilter *)f
     {
+        
         if (sample==nil || sample.type == nil || ! [AudioQueue isInputMediaTypeSupported:sample.type]) {
             DErr(@"invalid sample or type");
             return nil;
@@ -295,6 +314,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
             }
             
             self->_samples = [[KLinkedList alloc]init];
+            self->filter = f;
         }
         return self;
     }
@@ -360,6 +380,16 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
             }
         }
         return sample;
+    }
+
+    -(void)eos
+    {
+        if (filter)
+        {
+            if ([filter.events respondsToSelector:@selector(onEOS:)]) {
+                [filter.events onEOS:filter];
+            }
+        }
     }
 
 
@@ -438,7 +468,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     switch (_state) {
         case KFilterState_STOPPED:
             if (_queue!=nil){
-                [_queue stop_];
+                [_queue stop_withEOS:FALSE];
                 [_queue flushSamples];
                
                // _queue = nil;
@@ -498,7 +528,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         
         
         if (_queue==nil) {
-            _queue = [[AudioQueue alloc] initWithSample:sample];
+            _queue = [[AudioQueue alloc] initWithSample:sample andFilter:self];
             if (_queue == nil) {
                 return KResult_ERROR;
             }
@@ -509,9 +539,11 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
    // }
 }
 
+
+
 -(KResult)seek:(float)sec
 {
-    [_queue stop_];
+    [_queue stop_withEOS:FALSE];
     [_queue flushSamples];
     return KResult_OK;
 }

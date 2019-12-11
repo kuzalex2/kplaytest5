@@ -41,6 +41,9 @@ NSError *KResult2Error(KResult res)
         case KResult_RTMP_Disconnected:
             errorCode = [NSString stringWithFormat:@"RTMP Disconnected"];
             break;
+//        case KResult_EOS:
+//            errorCode = [NSString stringWithFormat:@"EOS"];
+//            break;
         
     }
     return [NSError errorWithDomain:@"KPlay"

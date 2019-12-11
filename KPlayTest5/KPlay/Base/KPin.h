@@ -25,7 +25,8 @@ typedef enum
     KResult_RTMP_ReadFailed,
   //  KResult_NOSAMPLE
     KResult_ParseError,
-    KResult_UnsupportedFormat
+    KResult_UnsupportedFormat,
+   // KResult_EOS
 } KResult;
 
 NSError *KResult2Error(KResult res);

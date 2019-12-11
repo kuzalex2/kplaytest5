@@ -45,6 +45,12 @@
             [self.events onError:error];
         }
     }
+    - (void)onEOS:(KFilter *)filter
+    {
+        if ([self.events respondsToSelector:@selector(onEOS)]) {
+            [self.events onEOS];
+        }
+    }
     - (void)onStateChanged:(KFilter *)filter state:(KFilterState)state
     {
         //FIXME: process filter's change of state here and push to next

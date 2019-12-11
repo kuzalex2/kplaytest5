@@ -30,6 +30,7 @@ typedef enum
 @optional
     - (void)onError:( NSError * _Nullable )error;
     - (void)onStateChanged:(KGraphState)state;
+    - (void)onEOS;
 @end
 
 @protocol KPlayMediaInfo<NSObject>

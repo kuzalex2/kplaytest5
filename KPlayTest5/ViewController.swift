@@ -54,6 +54,7 @@ class KTestWavGraph : KPlayGraphChainBuilder {
             if (super.state == KGraphState_NONE){
                 super.flowchain.removeAllObjects();
                 super.flowchain.add(KAudioWavSource(url: url));
+                super.flowchain.add(KBufferQueue(firstStartBufferSec: 15, andSecondStartBufferSec: 15));  
                 super.flowchain.add(KAudioPlay());
                 super.connectchain.add(super.flowchain);
                 
@@ -261,7 +262,13 @@ class ViewController: UIViewController, KPlayerEvents {
         return String(format: "%.02d:%.02d.%.02d", minutes, seconds, timeMicrosec/10);
     }
     
+    func onEOS() {
+        player?.stop();
+//        player?.seek(0)
+    }
+    
     func onError(_ error: Error?) {
+        
         
         print("onError \(String(describing: error))")
         

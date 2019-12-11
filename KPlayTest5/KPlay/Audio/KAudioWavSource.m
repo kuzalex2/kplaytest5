@@ -150,6 +150,7 @@
         //EOS
         self->_outSample = [[KMediaSample alloc] init];
         self->_outSample.type = self->_type;
+        self->_outSample.eos = TRUE;
         self->_outSample.data =  [NSData dataWithBytes:NULL length:0];
         self->_outSample.ts = CMTimeMake(self->_position/self->reader.format.mBytesPerFrame,self->reader.format.mSampleRate);
         
@@ -248,6 +249,9 @@
     *sample = _outSample;
     if (!probe)
         _outSample = nil;
+    
+    if ([(*sample) eos])
+        usleep(300000);
     return KResult_OK;
 }
 
