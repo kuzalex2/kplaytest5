@@ -45,11 +45,11 @@ typedef enum
     -(CMTime)endBufferedPosition;
 @end
 
-@interface KPlayGraphChainBuilder : NSObject<KPlayEvents, KPlayer>
+@interface KPlayGraphChainBuilder : NSObject<KPlayEvents, KPlayBufferPositionInfo, KPlayer>
     @property (weak, nonatomic) id<KPlayerEvents> _Nullable events;
     @property (weak, nonatomic) id<KPlayMediaInfo> _Nullable mediaInfo;
     @property (weak, nonatomic) id<KPlayPositionInfo> _Nullable positionInfo;
-    @property (weak, nonatomic) id<KPlayBufferPositionInfo> _Nullable bufferPositionInfo;
+//    @property (weak, nonatomic) id<KPlayBufferPositionInfo> _Nullable bufferPositionInfo;
 
     @property KGraphState state;
     @property NSObject * _Nonnull state_mutex;

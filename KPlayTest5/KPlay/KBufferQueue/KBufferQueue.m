@@ -173,7 +173,7 @@
         
         *sample = [samples objectAtHead];
         [samples removeObjectFromHead];
-        DLog(@"queue OK ts=%lld", (*sample).ts);
+        DLog(@"queue OK ts=%lld/%d", (*sample).ts.value, (*sample).ts.timescale);
         
         pthread_mutex_unlock(&queue_lock);
         return KResult_OK;

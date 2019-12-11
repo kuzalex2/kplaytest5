@@ -353,7 +353,7 @@ class ViewController: UIViewController, KPlayerEvents {
                         //NSLog("State=%@ pos=%@", state2String(state:player.state), self.timeLabel.text ?? "");
                     }
                     
-                    if let bufInfo = player?.bufferPositionInfo {
+                    if let bufInfo = player {
                         let startBufSec = ts2sec(ts: bufInfo.startBufferedPosition()) ;
                         let endBufSec = ts2sec(ts: bufInfo.endBufferedPosition()) ;
                         

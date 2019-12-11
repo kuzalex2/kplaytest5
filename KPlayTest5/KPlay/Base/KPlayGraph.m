@@ -304,11 +304,11 @@
                         self.positionInfo = (id<KPlayPositionInfo> ) _flowchain[i];
                     }
                 }
-                if (self.bufferPositionInfo == nil) {
-                    if (self.bufferPositionInfo == nil && [_flowchain[i] conformsToProtocol:@protocol(KPlayBufferPositionInfo) ]) {
-                        self.bufferPositionInfo = (id<KPlayBufferPositionInfo> ) _flowchain[i];
-                    }
-                }
+//                if (self.bufferPositionInfo == nil) {
+//                    if (self.bufferPositionInfo == nil && [_flowchain[i] conformsToProtocol:@protocol(KPlayBufferPositionInfo) ]) {
+//                        self.bufferPositionInfo = (id<KPlayBufferPositionInfo> ) _flowchain[i];
+//                    }
+//                }
             }
             
             if (self.positionInfo!=nil){
@@ -568,6 +568,40 @@
 
 
 
+
+- (CMTime)endBufferedPosition
+{
+    CMTime maxTm = CMTimeMake(0, 1);
+    
+    for (KFilter *f in _flowchain)
+    {
+        if ([f conformsToProtocol:@protocol(KPlayBufferPositionInfo) ]) {
+            id<KPlayBufferPositionInfo> bufferPositionInfo = (id<KPlayBufferPositionInfo> )f;
+            CMTime tm = bufferPositionInfo.endBufferedPosition;
+            if (CMTimeCompare(tm, maxTm) > 0 )
+                maxTm = tm;
+        }
+    }
+    return maxTm;
+}
+
+- (CMTime)startBufferedPosition {
+    BOOL hasMin=FALSE;
+    CMTime minTm = CMTimeMake(0, 1);
+    
+    for (KFilter *f in _flowchain)
+    {
+        if ([f conformsToProtocol:@protocol(KPlayBufferPositionInfo) ]) {
+            id<KPlayBufferPositionInfo> bufferPositionInfo = (id<KPlayBufferPositionInfo> )f;
+            CMTime tm = bufferPositionInfo.startBufferedPosition;
+            if (!hasMin || CMTimeCompare(tm, minTm) < 0 ){
+                hasMin=TRUE;
+                minTm = tm;
+            }
+        }
+    }
+    return hasMin ? minTm : CMTimeMake(0, 1);
+}
 
 @end
 
