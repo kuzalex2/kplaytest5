@@ -16,6 +16,8 @@
 		912CEF362385E0C100EA9213 /* KQueueFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 912CEF342385E0C100EA9213 /* KQueueFilter.m */; };
 		915F30A42392FB8A00B98323 /* WavReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 915F30A32392FB8A00B98323 /* WavReader.m */; };
 		915F30A823932A6E00B98323 /* KAudioWavSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 915F30A723932A6E00B98323 /* KAudioWavSource.m */; };
+		9160D49B23A0E2F7002A4AF7 /* KLinkedList.m in Sources */ = {isa = PBXBuildFile; fileRef = 9160D49A23A0E2F7002A4AF7 /* KLinkedList.m */; };
+		9160D4A323A0E321002A4AF7 /* TestList.m in Sources */ = {isa = PBXBuildFile; fileRef = 9160D4A223A0E321002A4AF7 /* TestList.m */; };
 		918654EA238D1D1B00655EE3 /* KTestAudio.m in Sources */ = {isa = PBXBuildFile; fileRef = 918654E9238D1D1B00655EE3 /* KTestAudio.m */; };
 		919E6593239E51E4006A5DDE /* KBufferQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 919E6592239E51E4006A5DDE /* KBufferQueue.m */; };
 		919E6598239EE6B5006A5DDE /* CKLinkedList.m in Sources */ = {isa = PBXBuildFile; fileRef = 919E6597239EE6B5006A5DDE /* CKLinkedList.m */; };
@@ -48,6 +50,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		9160D4A523A0E321002A4AF7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 91C1976D2382FD86002B2463 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 91C197742382FD86002B2463;
+			remoteInfo = KPlayTest5;
+		};
 		91C197B3238328BB002B2463 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 91C1976D2382FD86002B2463 /* Project object */;
@@ -84,6 +93,11 @@
 		915F30A32392FB8A00B98323 /* WavReader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WavReader.m; sourceTree = "<group>"; };
 		915F30A623932A6E00B98323 /* KAudioWavSource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KAudioWavSource.h; sourceTree = "<group>"; };
 		915F30A723932A6E00B98323 /* KAudioWavSource.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KAudioWavSource.m; sourceTree = "<group>"; };
+		9160D49923A0E2F7002A4AF7 /* KLinkedList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KLinkedList.h; sourceTree = "<group>"; };
+		9160D49A23A0E2F7002A4AF7 /* KLinkedList.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KLinkedList.m; sourceTree = "<group>"; };
+		9160D4A023A0E321002A4AF7 /* TestList.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TestList.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9160D4A223A0E321002A4AF7 /* TestList.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestList.m; sourceTree = "<group>"; };
+		9160D4A423A0E321002A4AF7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		918654E8238D1D1B00655EE3 /* KTestAudio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KTestAudio.h; sourceTree = "<group>"; };
 		918654E9238D1D1B00655EE3 /* KTestAudio.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KTestAudio.m; sourceTree = "<group>"; };
 		919E6591239E51E4006A5DDE /* KBufferQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KBufferQueue.h; sourceTree = "<group>"; };
@@ -150,6 +164,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		9160D49D23A0E321002A4AF7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		91C197722382FD86002B2463 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -257,9 +278,28 @@
 			path = Audio;
 			sourceTree = "<group>";
 		};
+		9160D49823A0E2BE002A4AF7 /* KLinkedList */ = {
+			isa = PBXGroup;
+			children = (
+				9160D49923A0E2F7002A4AF7 /* KLinkedList.h */,
+				9160D49A23A0E2F7002A4AF7 /* KLinkedList.m */,
+			);
+			path = KLinkedList;
+			sourceTree = "<group>";
+		};
+		9160D4A123A0E321002A4AF7 /* TestList */ = {
+			isa = PBXGroup;
+			children = (
+				9160D4A223A0E321002A4AF7 /* TestList.m */,
+				9160D4A423A0E321002A4AF7 /* Info.plist */,
+			);
+			path = TestList;
+			sourceTree = "<group>";
+		};
 		919E6590239E51AE006A5DDE /* KBufferQueue */ = {
 			isa = PBXGroup;
 			children = (
+				9160D49823A0E2BE002A4AF7 /* KLinkedList */,
 				919E6594239EE6B5006A5DDE /* CKList */,
 				919E6591239E51E4006A5DDE /* KBufferQueue.h */,
 				919E6592239E51E4006A5DDE /* KBufferQueue.m */,
@@ -284,6 +324,7 @@
 				91C197772382FD86002B2463 /* KPlayTest5 */,
 				91C197AF238328BB002B2463 /* KPlayTest5Test1 */,
 				91C197BD23832931002B2463 /* KPlayTest5Test2 */,
+				9160D4A123A0E321002A4AF7 /* TestList */,
 				91C197762382FD86002B2463 /* Products */,
 				89A7ABAEC2E65E9830334D43 /* Pods */,
 				6BFC8B0014F4230B05BFB3DE /* Frameworks */,
@@ -296,6 +337,7 @@
 				91C197752382FD86002B2463 /* KPlayTest5.app */,
 				91C197AE238328BB002B2463 /* KPlayTest5Test1.xctest */,
 				91C197BC23832931002B2463 /* KPlayTest5Test2.xctest */,
+				9160D4A023A0E321002A4AF7 /* TestList.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -402,6 +444,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		9160D49F23A0E321002A4AF7 /* TestList */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9160D4A723A0E321002A4AF7 /* Build configuration list for PBXNativeTarget "TestList" */;
+			buildPhases = (
+				9160D49C23A0E321002A4AF7 /* Sources */,
+				9160D49D23A0E321002A4AF7 /* Frameworks */,
+				9160D49E23A0E321002A4AF7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9160D4A623A0E321002A4AF7 /* PBXTargetDependency */,
+			);
+			name = TestList;
+			productName = TestList;
+			productReference = 9160D4A023A0E321002A4AF7 /* TestList.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		91C197742382FD86002B2463 /* KPlayTest5 */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 91C1978C2382FD87002B2463 /* Build configuration list for PBXNativeTarget "KPlayTest5" */;
@@ -466,6 +526,10 @@
 				LastUpgradeCheck = 1120;
 				ORGANIZATIONNAME = kuzalex;
 				TargetAttributes = {
+					9160D49F23A0E321002A4AF7 = {
+						CreatedOnToolsVersion = 11.2.1;
+						TestTargetID = 91C197742382FD86002B2463;
+					};
 					91C197742382FD86002B2463 = {
 						CreatedOnToolsVersion = 11.2.1;
 						LastSwiftMigration = 1120;
@@ -496,11 +560,19 @@
 				91C197742382FD86002B2463 /* KPlayTest5 */,
 				91C197AD238328BB002B2463 /* KPlayTest5Test1 */,
 				91C197BB23832931002B2463 /* KPlayTest5Test2 */,
+				9160D49F23A0E321002A4AF7 /* TestList */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		9160D49E23A0E321002A4AF7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		91C197732382FD86002B2463 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -554,6 +626,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		9160D49C23A0E321002A4AF7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9160D4A323A0E321002A4AF7 /* TestList.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		91C197712382FD86002B2463 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -564,6 +644,7 @@
 				91C1977D2382FD86002B2463 /* ViewController.swift in Sources */,
 				912CEF362385E0C100EA9213 /* KQueueFilter.m in Sources */,
 				91C197A42383022E002B2463 /* KPlayGraph.m in Sources */,
+				9160D49B23A0E2F7002A4AF7 /* KLinkedList.m in Sources */,
 				912A806A2397CBE500D62669 /* KVideoDecoder.m in Sources */,
 				91EB10B2239565E300E80D2F /* KRtmpSource.m in Sources */,
 				919E6598239EE6B5006A5DDE /* CKLinkedList.m in Sources */,
@@ -611,6 +692,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		9160D4A623A0E321002A4AF7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 91C197742382FD86002B2463 /* KPlayTest5 */;
+			targetProxy = 9160D4A523A0E321002A4AF7 /* PBXContainerItemProxy */;
+		};
 		91C197B4238328BB002B2463 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 91C197742382FD86002B2463 /* KPlayTest5 */;
@@ -643,6 +729,46 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		9160D4A823A0E321002A4AF7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HBDW93993P;
+				INFOPLIST_FILE = TestList/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = test.TestList;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KPlayTest5.app/KPlayTest5";
+			};
+			name = Debug;
+		};
+		9160D4A923A0E321002A4AF7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HBDW93993P;
+				INFOPLIST_FILE = TestList/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = test.TestList;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KPlayTest5.app/KPlayTest5";
+			};
+			name = Release;
+		};
 		91C1978A2382FD87002B2463 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -883,6 +1009,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		9160D4A723A0E321002A4AF7 /* Build configuration list for PBXNativeTarget "TestList" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9160D4A823A0E321002A4AF7 /* Debug */,
+				9160D4A923A0E321002A4AF7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		91C197702382FD86002B2463 /* Build configuration list for PBXProject "KPlayTest5" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
