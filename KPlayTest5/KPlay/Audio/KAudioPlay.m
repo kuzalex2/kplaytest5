@@ -375,17 +375,17 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     }
 
 
-    - (CMTime)startBufferedPosition {
-       
-        @synchronized (self->_samples) {
-            if (_samples.count > 0){
-                KMediaSample *sample = [_samples objectAtHead];
-                return sample.ts;
-               
-            }
-        }
-        return CMTimeMake(0, 1);
-    }
+//    - (CMTime)startBufferedPosition {
+//
+//        @synchronized (self->_samples) {
+//            if (_samples.count > 0){
+//                KMediaSample *sample = [_samples objectAtHead];
+//                return sample.ts;
+//
+//            }
+//        }
+//        return CMTimeMake(0, 1);
+//    }
 
    
 
@@ -543,10 +543,11 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
 
 
 - (CMTime)startBufferedPosition {
-    if (_queue!=nil)
-         return [_queue startBufferedPosition];
-    
-     return CMTimeMake(0, 1);
+    return [self position];
+//    if (_queue!=nil)
+//         return [_queue startBufferedPosition];
+//
+//     return CMTimeMake(0, 1);
 }
 
 

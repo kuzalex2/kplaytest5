@@ -479,11 +479,11 @@ class ViewController: UIViewController, KPlayerEvents {
         
         if player == nil {
 //            player = KTestGraph();
-//            player = KTestWavGraph();
+            player = KTestWavGraph();
 //            player = KTestRtmpAPlayGraph();
 //            player = KTestRtmpVPlayGraph(self.videoView);
 //            player = KTestRtmpAPlayAACGraph();
-            player = KTestRtmpAVPlayGraph(self.videoView);
+//            player = KTestRtmpAVPlayGraph(self.videoView);
             
             player?.events = self
         }
@@ -492,7 +492,7 @@ class ViewController: UIViewController, KPlayerEvents {
 //        player?.play("rtmp://176.9.99.77:1935/vod/testa.mp4", autoStart: true);
 //        player?.play("rtmp://176.9.99.77:1935/vod/testa.flv", autoStart: true);
 //        player?.play("rtmp://176.9.99.77:1935/vod/bb.mp4", autoStart: false);
-        player?.play("rtmp://176.9.99.77:1935/vod/starwars_1080p.mp4", autoStart: true);
+//        player?.play("rtmp://176.9.99.77:1935/vod/starwars_1080p.mp4", autoStart: true);
 //        player?.play("rtmp://176.9.99.77:1935/vod/bb.flv", autoStart: true);
 //        player?.play("rtmp://176.9.99.77:1935/vod/testamonoaac.flv", autoStart: true);
 //        player?.play("rtmp://176.9.99.77:1935/vod/test.mp4", autoStart: true);
@@ -501,7 +501,7 @@ class ViewController: UIViewController, KPlayerEvents {
 //        player?.play("rtmp://176.9.99.77:1936/vod/test.mp4", autoStart: true);
 
 //        _ = player?.play("http://p.kuzalex.com/wav/gr.wav", autoStart: true)
-//        _ = player?.play("http://s-21.app.minutta.com/vk/test2.wav", autoStart: true)
+        _ = player?.play("http://s-21.app.minutta.com/vk/test2.wav", autoStart: true)
         
 //        _ = player?.play("http://p.kuzalex.com/wav/testa2.wav", autoStart: true)
 //        _ = player?.play("http://p.kuzalex.com/wav/dom17.wav", autoStart: true)
