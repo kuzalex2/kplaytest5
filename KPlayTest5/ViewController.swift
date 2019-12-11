@@ -54,7 +54,7 @@ class KTestWavGraph : KPlayGraphChainBuilder {
             if (super.state == KGraphState_NONE){
                 super.flowchain.removeAllObjects();
                 super.flowchain.add(KAudioWavSource(url: url));
-                super.flowchain.add(KBufferQueue(firstStartBufferSec: 15, andSecondStartBufferSec: 15));  
+                super.flowchain.add(KBufferQueue(firstStartBufferSec: 15, andSecondStartBufferSec: 15));
                 super.flowchain.add(KAudioPlay());
                 super.connectchain.add(super.flowchain);
                 

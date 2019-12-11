@@ -8,7 +8,7 @@
 
 #import "KAudioPlay.h"
 #import "KPlayGraph.h"
-//#define MYDEBUG
+#define MYDEBUG
 //#define MYWARN
 #import "myDebug.h"
 
@@ -39,6 +39,8 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     @protected uint32_t _buffer_size;
     CMTime _firstTs;
     BOOL _firstTsValid;
+    BOOL _buffersAllocated ;
+    size_t _eosCount;
 }
     - (instancetype)init
     {
@@ -49,6 +51,8 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
             self->_lock = [[NSObject alloc]init];
             self->_sample_rate = 1;
             self->_firstTsValid=false;
+            self->_buffersAllocated=false;
+            self->_eosCount=0;
         }
         return self;
     }
@@ -177,21 +181,26 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
 
      -(KResult)allocBuffers
     {
-               
-        for (int i = 0; i < NUM_BUFFERS; i++)
-        {
-            @synchronized (_lock) {
-
-                if ( AudioQueueAllocateBuffer(_avqueue, _buffer_size, &_buffers[i]) != noErr ){
-                    DErr(@"AudioQueueAllocateBuffer failed");
-                    return KResult_ERROR;
+            
+        if (_buffersAllocated){
+            
+        } else {
+            for (int i = 0; i < NUM_BUFFERS; i++)
+            {
+                @synchronized (_lock) {
+                    
+                    if ( AudioQueueAllocateBuffer(_avqueue, _buffer_size, &_buffers[i]) != noErr ){
+                        DErr(@"AudioQueueAllocateBuffer failed");
+                        return KResult_ERROR;
+                    }
                 }
+                
+                _buffers[i]->mAudioDataByteSize = self->_buffer_size;
+                
+                [self audioQueueCallback:_avqueue buffer:_buffers[i]];
+                
             }
-            
-            _buffers[i]->mAudioDataByteSize = self->_buffer_size;
-            
-            [self audioQueueCallback:_avqueue buffer:_buffers[i]];
-            
+            _buffersAllocated=TRUE;
         }
         return KResult_OK;
     }
@@ -208,7 +217,9 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         if (sample!=nil){
             
             if (sample.eos){
-                [self stop_withEOS:TRUE];
+                _eosCount++;
+                if (_eosCount>=NUM_BUFFERS)
+                    [self stop_withEOS:TRUE];
                 return;
             }
             
@@ -332,6 +343,8 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         @synchronized (self->_samples) {
             [_samples removeAllObjects];
             _firstTsValid=false;
+            _buffersAllocated=false;
+            _eosCount=0;
         }
     }
 
@@ -376,6 +389,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         @synchronized (self->_samples) {
             if (_samples.count > 0){
                 sample = [_samples objectAtHead];
+                DLog(@"AudioQueue getNextSample ts=%lld/%d EOS=%d", sample.ts.value, sample.ts.timescale, sample.eos);
                 [_samples removeObjectFromHead];
             }
         }
