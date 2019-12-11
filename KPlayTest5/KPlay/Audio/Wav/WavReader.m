@@ -106,15 +106,13 @@ BOOL read32Size(unsigned char **ptr, unsigned char *stop, unsigned int *res)
     }
 }
 
--(int64_t)duration{
+-(CMTime)duration{
     switch (_state) {
         case WavReaderStateSample:
-            if (_format.mBytesPerFrame!=0)
-                return header.data_size/_format.mBytesPerFrame;
-            return 0;
+            return CMTimeMake(header.data_size,_format.mBytesPerFrame*_format.mSampleRate);
         default:
             assert(0);
-            return 0;
+            return CMTimeMake(0, 1);
     }
 }
 

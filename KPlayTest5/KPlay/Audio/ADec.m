@@ -222,7 +222,6 @@
 
                     ///FIXME: calculate it
                     out_sample.ts = sample.ts;
-                    out_sample.timescale = sample.timescale;
                     out_sample.data = decodedData;
                 
                 

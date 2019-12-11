@@ -404,21 +404,18 @@ void RTMP_Interrupt(RTMP *r)
 ///  KPlayMediaInfo
 ///
 
--(int64_t)duration
+-(CMTime)duration
 {
     @synchronized (RtmpLockInit) {
         if (_rtmp!=nil)
-            return _rtmp->m_fDuration*1000;
+            return CMTimeMake(_rtmp->m_fDuration*1000,1000);
     }
   
     
-    return 0;
+    return CMTimeMake(0, 1);
 }
 
--(int64_t)timeScale
-{
-    return 1000;
-}
+
 
 
 

@@ -30,8 +30,7 @@
     EAGLContext *eaglContext;
     CGRect videoPreviewViewBounds;
     
-    int64_t last_sample_ts;
-    int64_t last_sample_timescale;
+    CMTime last_sample_ts;
 }
 
 -(BOOL)isInputMediaTypeSupported:(KMediaType *)type
@@ -153,7 +152,6 @@
     [videoPreviewView display];
     
     last_sample_ts = sample.ts;
-    last_sample_timescale = sample.timescale;
     return KResult_OK;
 }
 
@@ -163,22 +161,17 @@
     return TRUE;
 }
 
--(int64_t)position
+-(CMTime)position
 {
     return last_sample_ts;
     
 }
 
--(int64_t)timeScale
-{
-    return last_sample_timescale;
-    
-}
+
 
 -(void)flush
 {
-    last_sample_ts=0;
-    last_sample_timescale=0;
+    last_sample_ts=CMTimeMake(0, 1000);
 
 }
 
@@ -302,7 +295,7 @@
                 return res;
             }
             _last_sample = newSample;
-            DLog(@"%@ <%@> got sample type=%@ %ld bytes, ts=%lld/%d", self, [self name], _last_sample.type.name, [_last_sample.data length], _last_sample.ts, _last_sample.timescale);
+            DLog(@"%@ <%@> got sample type=%@ %ld bytes, ts=%lld/%d", self, [self name], _last_sample.type.name, [_last_sample.data length], _last_sample.ts.value, _last_sample.ts.timescale);
         }
     }
     
@@ -325,18 +318,20 @@
                 _last_sample=nil;
                 break;
             case KFilterState_STARTED:{
-                int64_t nowTimeMicrosec = [self.clock position] * 1000 / [self.clock timeScale];
-                int64_t sampleTimeMicrosec = _last_sample.ts * 1000 / _last_sample.timescale;
                 
-                if (nowTimeMicrosec < sampleTimeMicrosec-10){
+                
+                int64_t nowTimeMillisec = CMTimeConvertScale([self.clock position], 1000, kCMTimeRoundingMethod_Default).value;
+                int64_t sampleTimeMillisec = CMTimeConvertScale(_last_sample.ts, 1000, kCMTimeRoundingMethod_Default).value;
+
+                if (nowTimeMillisec < sampleTimeMillisec-10){
                     usleep(1000);
                     return KResult_OK;
-                } else if (nowTimeMicrosec > sampleTimeMicrosec+10){
+                } else if (nowTimeMillisec > sampleTimeMillisec+10){
                     //опоздал
-                    WLog(@"%@ skip sample now=%lld sample=%lld", [self name], nowTimeMicrosec,sampleTimeMicrosec);
+                    WLog(@"%@ skip sample now=%lld sample=%lld", [self name], nowTimeMillisec,sampleTimeMillisec);
                     _last_sample=nil;
                 } else {
-                    DLog(@"%@ play sample %lld %lld", [self name],nowTimeMicrosec,sampleTimeMicrosec);
+                    DLog(@"%@ play sample %lld %lld", [self name],nowTimeMillisec,sampleTimeMillisec);
                     [self->_video displaySample:_last_sample inView:self->_view];
                     _last_sample=nil;
                 }
@@ -347,7 +342,7 @@
         }
         
     } else {
-        WLog(@"%@ play sample %lld", [self name],_last_sample.ts);
+        WLog(@"%@ play sample %lld/%d", [self name],_last_sample.ts.value, _last_sample.ts.timescale);
 
         [self->_video displaySample:_last_sample inView:self->_view];
         _last_sample=nil;
@@ -368,20 +363,14 @@
 ///  KPlayPositionInfo
 ///
 
--(int64_t)position
+-(CMTime)position
 {
     if (_video!=nil)
         return [_video position];
-    return 0;
+    return CMTimeMake(0, 1);
 }
 
--(int64_t)timeScale
-{
-    if (_video!=nil)
-        return [_video timeScale];
-   
-    return 0;
-}
+
 
 - (BOOL)isRunning {
     if (_video!=nil)

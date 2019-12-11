@@ -33,19 +33,15 @@ typedef enum
 @end
 
 @protocol KPlayMediaInfo<NSObject>
-    -(int64_t)duration;
-    -(int64_t)timeScale;
-    //-(NSInteger)durationSec;
-    //@property int32_t duration;
-    //@property int32_t timeScale;
+    -(CMTime)duration;
+   
 @end
 
 
 
 @protocol KPlayBufferPositionInfo<NSObject>
-    -(int64_t)startBufferedPosition;
-    -(int64_t)endBufferedPosition;
-    -(int64_t)timeScale;
+    -(CMTime)startBufferedPosition;
+    -(CMTime)endBufferedPosition;
 @end
 
 @interface KPlayGraphChainBuilder : NSObject<KPlayEvents, KPlayer>

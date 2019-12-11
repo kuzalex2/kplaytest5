@@ -114,8 +114,9 @@ void didDecompress( void *decompressionOutputRefCon,
 
     out_sample.image = imageBuffer;
 
-    out_sample.ts = presentationTimeStamp.value;
-    out_sample.timescale = presentationTimeStamp.timescale;
+    out_sample.ts = CMTimeMake(presentationTimeStamp.value, presentationTimeStamp.timescale);
+//    out_sample.ts = ;
+//    out_sample.timescale = ;
     
     if (self->onMediaSample!=nil)
         self->onMediaSample(out_sample);
@@ -148,7 +149,7 @@ void didDecompress( void *decompressionOutputRefCon,
     // 6. create a CMSampleBuffer.
     CMSampleBufferRef sbRef = NULL;
     CMSampleTimingInfo timingInfo;
-    timingInfo.presentationTimeStamp = CMTimeMake(sample.ts, sample.timescale);
+    timingInfo.presentationTimeStamp = sample.ts;
     timingInfo.duration = kCMTimeInvalid;
     
             

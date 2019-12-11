@@ -29,8 +29,7 @@
     KFilterState _state;
     BOOL isRunning;
     
-    int64_t lastTs;
-    int64_t lastTsTimescale;
+    CMTime lastTs;
     @public float _firstStartBufferSec;
     @public float _secondStartBufferSec;
     float _currectStartBufferSec;
@@ -92,7 +91,7 @@
     assert(firstSample!=nil);
     assert(lastSample!=nil);
     
-    return (double)(lastSample.ts) / lastSample.timescale - (double)(firstSample.ts) / firstSample.timescale;
+    return (double)(lastSample.ts.value) / lastSample.ts.timescale - (double)(firstSample.ts.value) / firstSample.ts.timescale;
 }
 
 -(KResult)pushSample:(KMediaSample *)sample withOrderByTimestamp:(BOOL)orderByTimestamp
@@ -104,10 +103,9 @@
         [samples addOrdered:sample withCompare: ^NSComparisonResult(id a, id b){
             KMediaSample *A = a;
             KMediaSample *B = b;
-            if (A.ts == B.ts)
-                return 0;
-            return A.ts < B.ts
-                ? -1 : 1;
+            
+            int32_t res = CMTimeCompare(A.ts, B.ts);
+            return res;
         }];
         
     } else {
@@ -115,7 +113,6 @@
     }
     
     lastTs = sample.ts; // + duration
-    lastTsTimescale = sample.timescale;
     
     if (!isRunning) {
         DLog(@"queue NOT RUNNING");
@@ -192,15 +189,15 @@
     [samples removeAllObjects];
     isRunning = FALSE;
     error=nil;
-    lastTs=0;
+    lastTs=CMTimeMake(0, 1000);
     _currectStartBufferSec = _firstStartBufferSec;
     
     
     pthread_mutex_unlock(&queue_lock);
 }
 
-- (int64_t)endBufferedPosition {
-    int64_t result;
+- (CMTime)endBufferedPosition {
+    CMTime result;
     
     pthread_mutex_lock(&queue_lock);
     if ([samples isEmpty]) {
@@ -214,8 +211,8 @@
     return result;
 }
 
-- (int64_t)startBufferedPosition {
-    int64_t result;
+- (CMTime)startBufferedPosition {
+    CMTime result;
     
     pthread_mutex_lock(&queue_lock);
     if ([samples isEmpty]) {
@@ -229,15 +226,7 @@
     return result;
 }
 
-- (int64_t)timeScale {
-    int64_t result;
-    
-    pthread_mutex_lock(&queue_lock);
-    result = lastTsTimescale;
-    pthread_mutex_unlock(&queue_lock);
-    
-    return result;
-}
+
 
 @end
 
@@ -357,17 +346,15 @@
     return [queue popSample:sample probe:probe];
 }
 
-- (int64_t)endBufferedPosition {
+- (CMTime)endBufferedPosition {
     return [queue endBufferedPosition];
 }
 
-- (int64_t)startBufferedPosition {
+- (CMTime)startBufferedPosition {
     return [queue startBufferedPosition];
 }
 
-- (int64_t)timeScale {
-    return [queue timeScale];
-}
+
 
 @end
 

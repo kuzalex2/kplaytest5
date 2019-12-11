@@ -38,8 +38,7 @@ NSString *KFilterState2String(KFilterState state);
 @end
 
 @protocol KPlayPositionInfo<NSObject>
-    -(int64_t)position;
-    -(int64_t)timeScale;
+    -(CMTime)position;
     -(BOOL)isRunning;
 @end
 

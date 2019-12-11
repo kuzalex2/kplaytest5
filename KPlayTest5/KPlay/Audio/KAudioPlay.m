@@ -34,10 +34,10 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     AudioQueueState _state;
     AudioQueueRef _avqueue;
     NSObject *_lock;
-    @protected int64_t _sample_rate;
+    @protected int32_t _sample_rate;
     AudioQueueBufferRef _buffers[NUM_BUFFERS];
     @protected uint32_t _buffer_size;
-    int64_t _firstTs;
+    CMTime _firstTs;
     BOOL _firstTsValid;
 }
     - (instancetype)init
@@ -47,7 +47,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
             self->_state = AudioQueueStopped_;
             self->_avqueue = nil;
             self->_lock = [[NSObject alloc]init];
-            self->_sample_rate = 1000;
+            self->_sample_rate = 1;
             self->_firstTsValid=false;
         }
         return self;
@@ -224,24 +224,27 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     ///  KPlayPositionInfo
     ///
 
-    -(int64_t)position
+    -(CMTime)position
     {
         @synchronized (_lock) {
             if (_avqueue == nil)
-                return 0;
+                return CMTimeMake(0, 1);
             AudioTimeStamp timeStamp;
             Boolean disc;
             OSStatus status2 = AudioQueueGetCurrentTime(_avqueue, NULL, &timeStamp, &disc);
-            if( status2 != noErr )
-                return (_firstTsValid?_firstTs:0);
-            return timeStamp.mSampleTime + (_firstTsValid?_firstTs:0);
+            if( status2 == noErr ){
+                CMTime res = CMTimeMake(timeStamp.mSampleTime, _sample_rate);
+                if (_firstTsValid){
+                    res = CMTimeAdd(res, _firstTs);
+                }
+                return res;
+            } else {
+                return (_firstTsValid?_firstTs:CMTimeMake(0, 1));
+            }
         }
     }
 
-    -(int64_t)timeScale
-    {
-        return _sample_rate;
-    }
+
 
 
     
@@ -332,7 +335,6 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
             if (!_firstTsValid){
                 _firstTsValid=true;
                 _firstTs=sample.ts;
-                _firstTs = _firstTs*_sample_rate/sample.timescale ;
             }
         }
         
@@ -361,19 +363,19 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     }
 
 
-    - (int64_t)endBufferedPosition {
+    - (CMTime)endBufferedPosition {
         @synchronized (self->_samples) {
             if (_samples.count > 0){
                 KMediaSample *sample = [_samples objectAtTail];
                 return sample.ts; ///FIXME + duration
             }
         }
-        return 0;
+        return CMTimeMake(0, 1);
         
     }
 
 
-    - (int64_t)startBufferedPosition {
+    - (CMTime)startBufferedPosition {
        
         @synchronized (self->_samples) {
             if (_samples.count > 0){
@@ -382,7 +384,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
                
             }
         }
-        return 0;
+        return CMTimeMake(0, 1);
     }
 
    
@@ -492,7 +494,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
             return res;
         }
         
-        DLog(@"%@ <%@> got sample type=%@ %ld bytes, ts=%lld/%d", self, [self name], sample.type.name, [sample.data length], sample.ts, sample.timescale);
+        DLog(@"%@ <%@> got sample type=%@ %ld bytes, ts=%lld/%d", self, [self name], sample.type.name, [sample.data length], sample.ts.value, sample.ts.timescale);
         
         
         if (_queue==nil) {
@@ -518,39 +520,33 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
 ///  KPlayPositionInfo
 ///
 
--(int64_t)position
+-(CMTime)position
 {
     if (_queue!=nil)
         return [_queue position];
-    return 0;
+    return CMTimeMake(0, 1);
 }
 
--(int64_t)timeScale
-{
-    if (_queue!=nil)
-        return [_queue timeScale];
-   
-    return 0;
-}
+
 
 
 ///
 ///  KPlayBufferPositionInfo
 ///
 
-- (int64_t)endBufferedPosition {
+- (CMTime)endBufferedPosition {
     if (_queue!=nil)
          return [_queue endBufferedPosition];
     
-     return 0;
+     return CMTimeMake(0, 1);
 }
 
 
-- (int64_t)startBufferedPosition {
+- (CMTime)startBufferedPosition {
     if (_queue!=nil)
          return [_queue startBufferedPosition];
     
-     return 0;
+     return CMTimeMake(0, 1);
 }
 
 

@@ -18,26 +18,47 @@
 import UIKit
 import BufferSlider
 
-class KTestGraph : KPlayGraphChainBuilder {
+//class KTestGraph : KPlayGraphChainBuilder {
+//
+//    override func play(_ url: String, autoStart: Bool) -> KResult {
+//
+//
+//        do {
+//            objc_sync_enter(super.state_mutex)
+//            defer { objc_sync_exit(super.state_mutex)}
+//            if (super.state == KGraphState_NONE){
+//                super.flowchain.removeAllObjects();
+//                super.flowchain.add(KTestUrlSourceFilter(url: url));
+//                super.flowchain.add(KTestTransformFilter());
+//                //super.chain?.add(KQueueFilter());
+//                super.flowchain.add(KTestSinkFilter());
+//
+//                super.connectchain.add(super.flowchain);
+//            }
+//        }
+//
+//
+//
+//        return super.play(url, autoStart: autoStart)
+//    }
+//}
+
+class KTestWavGraph : KPlayGraphChainBuilder {
     
     override func play(_ url: String, autoStart: Bool) -> KResult {
-       
+        
         
         do {
             objc_sync_enter(super.state_mutex)
             defer { objc_sync_exit(super.state_mutex)}
             if (super.state == KGraphState_NONE){
                 super.flowchain.removeAllObjects();
-                super.flowchain.add(KTestUrlSourceFilter(url: url));
-                super.flowchain.add(KTestTransformFilter());
-                //super.chain?.add(KQueueFilter());
-                super.flowchain.add(KTestSinkFilter());
-                
+                super.flowchain.add(KAudioWavSource(url: url));
+                super.flowchain.add(KAudioPlay());
                 super.connectchain.add(super.flowchain);
+                
             }
         }
-        
-        
        
         return super.play(url, autoStart: autoStart)
     }
@@ -54,9 +75,7 @@ class KTestRtmpAPlayGraph : KPlayGraphChainBuilder {
             if (super.state == KGraphState_NONE){
                 super.flowchain.removeAllObjects();
                 super.flowchain.add(KRtmpSource(url: url));
-                
                 super.flowchain.add(KAudioPlay());
-                
                 super.connectchain.add(super.flowchain);
             }
         }
@@ -81,7 +100,6 @@ class KTestRtmpAPlayAACGraph : KPlayGraphChainBuilder {
                 super.flowchain.add(KBufferQueue());
                 super.flowchain.add(KAudioDecoder());
                 super.flowchain.add(KAudioPlay());
-                
                 super.connectchain.add(super.flowchain);
             }
         }
@@ -109,9 +127,6 @@ class KTestRtmpVPlayGraph : KPlayGraphChainBuilder {
               
                 super.flowchain.add(KVideoDecoder());
                 super.flowchain.add(KVideoPlay(uiView: _view));
-                
-                //super.chain?.add(KQueueFilter());
-                //super.chain?.add(KTestSinkFilter());
                 
                 super.connectchain.add(super.flowchain);
             }
@@ -175,67 +190,9 @@ class KTestRtmpAVPlayGraph : KPlayGraphChainBuilder {
    
 }
 
-//class KTestRtmpAVQueuePlayGraph : KPlayGraphChainBuilder {
-//
-//    var _view:UIView;
-//
-//    override func play(_ url: String, autoStart: Bool) -> KResult {
-//
-//
-//        do {
-//            objc_sync_enter(super.state_mutex)
-//            defer { objc_sync_exit(super.state_mutex)}
-//            if (super.state == KGraphState_NONE){
-//                super.flowchain.removeAllObjects();
-//                super.flowchain.add(KRtmpSource(url: url)); //0
-//                super.flowchain.add(KAudioDecoder());       //1
-//                super.flowchain.add(KQueueFilter());        //2
-//                super.flowchain.add(KAudioPlay());          //3
-//
-//                super.flowchain.add(KVideoDecoder());       //4
-//                super.flowchain.add(KQueueFilter());        //5
-//                super.flowchain.add(KVideoPlay(uiView: _view));//6
-//
-//                super.connectchain.add([super.flowchain[0], super.flowchain[1], super.flowchain[2], super.flowchain[3]]);
-//                super.connectchain.add([super.flowchain[0], super.flowchain[4], super.flowchain[5], super.flowchain[6]]);
-//            }
-//        }
-//
-//
-//
-//        return super.play(url, autoStart: autoStart)
-//    }
-//
-//    init(_ view:UIView) {
-//        self._view = view;
-//        super.init()
-//    }
-//
-//
-//}
 
-class KTestAudioGraph : KPlayGraphChainBuilder {
-    
-    override func play(_ url: String, autoStart: Bool) -> KResult {
-        
-        
-        do {
-            objc_sync_enter(super.state_mutex)
-            defer { objc_sync_exit(super.state_mutex)}
-            if (super.state == KGraphState_NONE){
-                super.flowchain.removeAllObjects();
-                super.flowchain.add(KAudioWavSource(url: url));
-                super.flowchain.add(KAudioPlay());
-                super.connectchain.add(super.flowchain);
-                
-            }
-        }
-        
-        
-       
-        return super.play(url, autoStart: autoStart)
-    }
-}
+
+
 class ViewController: UIViewController, KPlayerEvents {
 
     @IBOutlet weak var playBtn: UIButton!
@@ -328,7 +285,7 @@ class ViewController: UIViewController, KPlayerEvents {
         }
            
         if let mi = self.player?.mediaInfo {
-            let durationSec = Float(mi.duration() / mi.timeScale());
+            let durationSec = ts2sec(ts: mi.duration());
             let timeSec = Float(self.progressSlider.value) * durationSec / 1;
             self.timeLabel.text = timeToString(timeSec)
         }
@@ -339,12 +296,20 @@ class ViewController: UIViewController, KPlayerEvents {
         inSeek=false;
         
         if let mi = self.player?.mediaInfo {
-            let durationSec = Float(mi.duration() / mi.timeScale());
+            let durationSec = ts2sec(ts: mi.duration());
             let timeSec = Float(self.progressSlider.value) * durationSec / 1;
             
             player?.seek(timeSec);
            
         }
+    }
+    
+    func ts2sec(ts:CMTime)->Float
+    {
+        if ts.isValid {
+            return Float(ts.value) / Float(ts.timescale);
+        }
+        return 0.0;
     }
             
             
@@ -359,7 +324,7 @@ class ViewController: UIViewController, KPlayerEvents {
             return;
         }
         if let mi = self.player?.mediaInfo {
-            let durationSec = Float(mi.duration() / mi.timeScale());
+            let durationSec = ts2sec(ts:mi.duration());
             self.durationLabel.text = timeToString(durationSec);
             
             if let pi = self.player?.positionInfo {
@@ -371,7 +336,7 @@ class ViewController: UIViewController, KPlayerEvents {
                 
                 if (!inSeek && player?.state != KGraphState_SEEKING){
             
-                    let timeSec = Float(pi.position()) / Float(pi.timeScale());
+                    let timeSec = ts2sec(ts: pi.position());
                     self.timeLabel.text = timeToString(timeSec)
                     
                     self.progressSlider.isEnabled = true;
@@ -382,8 +347,8 @@ class ViewController: UIViewController, KPlayerEvents {
                     }
                     
                     if let bufInfo = player?.bufferPositionInfo {
-                        let startBufSec = Float(bufInfo.startBufferedPosition()) / Float(bufInfo.timeScale());
-                        let endBufSec = Float(bufInfo.endBufferedPosition()) / Float(bufInfo.timeScale());
+                        let startBufSec = ts2sec(ts: bufInfo.startBufferedPosition()) ;
+                        let endBufSec = ts2sec(ts: bufInfo.endBufferedPosition()) ;
                         
                         if startBufSec > 0 && endBufSec > 0 && durationSec != 0 {
                             self.progressSlider.bufferEndValue=Double(endBufSec/Float(durationSec));
@@ -514,12 +479,11 @@ class ViewController: UIViewController, KPlayerEvents {
         
         if player == nil {
 //            player = KTestGraph();
-//            player = KTestAudioGraph();
+//            player = KTestWavGraph();
 //            player = KTestRtmpAPlayGraph();
 //            player = KTestRtmpVPlayGraph(self.videoView);
 //            player = KTestRtmpAPlayAACGraph();
             player = KTestRtmpAVPlayGraph(self.videoView);
-//            player = KTestRtmpAVQueuePlayGraph(self.videoView);
             
             player?.events = self
         }

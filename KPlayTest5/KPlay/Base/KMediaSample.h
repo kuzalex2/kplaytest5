@@ -24,10 +24,10 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface KMediaSample : NSObject
+    
     @property (nonatomic, retain) KMediaType *type;
     @property (nonatomic, retain) NSData *data;
-    @property (nonatomic)        int64_t ts;
-    @property (nonatomic)        int32_t timescale;
+    @property (nonatomic)        CMTime ts;
     @property (nonatomic)  BOOL discontinuity;
 @end
 

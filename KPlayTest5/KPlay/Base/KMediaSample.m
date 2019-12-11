@@ -16,6 +16,15 @@
     CMFormatDescriptionRef _format;
 }
 
+//    - (instancetype)initEOS
+//    {
+//        self = [super init];
+//        if (self) {
+//            CMTime
+//        }
+//        return self;
+//    }
+
     -(CMFormatDescriptionRef)format
     {
         return _format;
@@ -112,8 +121,8 @@
     }
     -(NSString *)description
     {
-      return [NSString stringWithFormat:@"<KMediaSampleImageBuffer: %p, ts=%lld>",
-                     (void*)self, self.ts];
+        return [NSString stringWithFormat:@"<KMediaSampleImageBuffer: %p, ts=%lld/%d>",
+                     (void*)self, self.ts.value, self.ts.timescale];
     }
 @end
 

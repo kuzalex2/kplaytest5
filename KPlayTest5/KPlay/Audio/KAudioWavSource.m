@@ -151,8 +151,7 @@
         self->_outSample = [[KMediaSample alloc] init];
         self->_outSample.type = self->_type;
         self->_outSample.data =  [NSData dataWithBytes:NULL length:0];
-        self->_outSample.ts = (self->_position)/self->reader.format.mBytesPerFrame;
-        self->_outSample.timescale = self->reader.format.mSampleRate;
+        self->_outSample.ts = CMTimeMake(self->_position/self->reader.format.mBytesPerFrame,self->reader.format.mSampleRate);
         
         dispatch_semaphore_signal(self->_sem1);
         return ;
@@ -166,8 +165,7 @@
             self->_outSample = [[KMediaSample alloc] init];
             self->_outSample.type = self->_type;
             self->_outSample.data =  data;
-            self->_outSample.ts = (self->_position-chunk_size)/self->reader.format.mBytesPerFrame;
-            self->_outSample.timescale = self->reader.format.mSampleRate;
+            self->_outSample.ts = CMTimeMake ((self->_position-chunk_size)/self->reader.format.mBytesPerFrame,self->reader.format.mSampleRate);
             
             dispatch_semaphore_signal(self->_sem1);
             return ;
@@ -285,19 +283,14 @@
 ///  KPlayMediaInfo
 ///
 
--(int64_t)duration
+-(CMTime)duration
 {
     if (self->reader.state == WavReaderStateSample )
         return self->reader.duration;
-    return 0;
+    return CMTimeMake(0, 1);
 }
 
--(int64_t)timeScale
-{
-    if (self->reader.state == WavReaderStateSample)
-        return self->reader.format.mSampleRate;
-    return 1000;
-}
+
 
 @end
 

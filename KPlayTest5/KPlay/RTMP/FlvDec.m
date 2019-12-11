@@ -273,8 +273,7 @@ BOOL AudioStreamBasicDescriptionEqual(const AudioStreamBasicDescription *a, cons
     if (restSz>0)
     {
         KMediaSample *sample = [[KMediaSample alloc] init];
-        sample.ts = p->m_nTimeStamp;
-        sample.timescale = 1000;
+        sample.ts = CMTimeMake(p->m_nTimeStamp, 1000);
         sample.type = _type;
         
         sample.data = [[NSData alloc] initWithBytes:ptr length:restSz];
@@ -409,8 +408,7 @@ BOOL AudioStreamBasicDescriptionEqual(const AudioStreamBasicDescription *a, cons
     if (restSz>0)
     {
         KMediaSample *sample = [[KMediaSample alloc] init];
-        sample.ts = pts;
-        sample.timescale = 1000;
+        sample.ts = CMTimeMake(pts, 1000);
         sample.type = _type;
         
         sample.data = [[NSData alloc] initWithBytes:ptr length:restSz];
