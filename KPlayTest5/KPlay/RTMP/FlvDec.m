@@ -10,11 +10,11 @@
 #define MYDEBUG
 //#define MYWARN
 #include "myDebug.h"
-#include "CKLinkedList.h"
+#include "KLinkedList.h"
 
 @implementation FlvStream {
     NSObject   *_samples_lock;
-    CKLinkedList *_samples;
+    KLinkedList *_samples;
 }
 
 
@@ -428,7 +428,7 @@ BOOL AudioStreamBasicDescriptionEqual(const AudioStreamBasicDescription *a, cons
     if (self) {
         self->_type = nil;
         self->_samples_lock = [[NSObject alloc]init];
-        self->_samples = [[CKLinkedList alloc]init];
+        self->_samples = [[KLinkedList alloc]init];
     }
     return self;
 }

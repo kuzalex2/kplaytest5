@@ -13,7 +13,7 @@
 
 #import "KBufferQueue.h"
 #include <pthread.h>
-#include "CKLinkedList.h"
+#include "KLinkedList.h"
 
 @interface KQueue : NSObject
 
@@ -22,7 +22,7 @@
 @implementation KQueue {
     pthread_mutex_t queue_lock;
     pthread_cond_t queue_cond;
-    CKLinkedList *samples;
+    KLinkedList *samples;
     NSError *error; ///FIXME: error processing
     //FIXME: EOF processing
     
@@ -43,7 +43,7 @@
         //TODO: free???
         pthread_mutex_init(&self->queue_lock, NULL);
         pthread_cond_init(&self->queue_cond, NULL);
-        samples = [[CKLinkedList alloc]init];
+        samples = [[KLinkedList alloc]init];
         _state = KFilterState_STOPPED;
         isRunning = FALSE;
         error=nil;

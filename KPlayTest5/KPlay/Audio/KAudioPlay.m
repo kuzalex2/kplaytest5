@@ -13,7 +13,7 @@
 #import "myDebug.h"
 
 #include <AudioToolbox/AudioToolbox.h>
-#include "CKLinkedList.h"
+#include "KLinkedList.h"
 
 typedef enum  {
     AudioQueueStopped_,
@@ -269,7 +269,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
 
 
 @implementation AudioQueue {
-    CKLinkedList *_samples;
+    KLinkedList *_samples;
 }
     - (instancetype)initWithSample:(KMediaSample *) sample
     {
@@ -291,7 +291,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
                 return nil;
             }
             
-            self->_samples = [[CKLinkedList alloc]init];
+            self->_samples = [[KLinkedList alloc]init];
         }
         return self;
     }
@@ -300,7 +300,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     -(BOOL)isFull
      {
          @synchronized (self->_samples) {
-             return _samples.size > MAX_SAMPLES;
+             return _samples.count > MAX_SAMPLES;
          }
      }
 
@@ -328,7 +328,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         
         @synchronized (self->_samples) {
             [self->_samples addObjectToTail:sample];
-            nSamples = _samples.size;
+            nSamples = _samples.count;
             if (!_firstTsValid){
                 _firstTsValid=true;
                 _firstTs=sample.ts;
@@ -352,7 +352,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     {
         KMediaSample *sample = nil;
         @synchronized (self->_samples) {
-            if (_samples.size > 0){
+            if (_samples.count > 0){
                 sample = [_samples objectAtHead];
                 [_samples removeObjectFromHead];
             }
@@ -363,7 +363,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
 
     - (int64_t)endBufferedPosition {
         @synchronized (self->_samples) {
-            if (_samples.size > 0){
+            if (_samples.count > 0){
                 KMediaSample *sample = [_samples objectAtTail];
                 return sample.ts; ///FIXME + duration
             }
@@ -376,7 +376,7 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     - (int64_t)startBufferedPosition {
        
         @synchronized (self->_samples) {
-            if (_samples.size > 0){
+            if (_samples.count > 0){
                 KMediaSample *sample = [_samples objectAtHead];
                 return sample.ts;
                

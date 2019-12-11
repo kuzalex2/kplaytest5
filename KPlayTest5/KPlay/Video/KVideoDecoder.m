@@ -16,19 +16,19 @@
 #import <Foundation/Foundation.h>
 #import <CoreMedia/CoreMedia.h>
 #import "VTDec.h"
-#import "CKLinkedList.h"
+#import "KLinkedList.h"
 
 @implementation KVideoDecoder
 {
     VTDec *dec;
-   CKLinkedList *ordered_out_samples;//fixme - array of ones
+   KLinkedList *ordered_out_samples;//fixme - array of ones
 }
 
 - (instancetype)init
 {
     self = [super init];
     if (self) {
-        self->ordered_out_samples = [[CKLinkedList alloc] init];
+        self->ordered_out_samples = [[KLinkedList alloc] init];
     }
     return self;
 }
@@ -149,12 +149,12 @@
             return res;
         }
         
-        if (probe && ordered_out_samples.size>0){
+        if (probe && ordered_out_samples.count>0){
             *outSample = ordered_out_samples.objectAtHead;
             return KResult_OK;
         }
         
-        if (ordered_out_samples.size > ORDER_WINDOW_NSAMPLES){
+        if (ordered_out_samples.count > ORDER_WINDOW_NSAMPLES){
             *outSample = ordered_out_samples.objectAtTail;
             [ordered_out_samples removeObjectFromHead];
             return KResult_OK;
