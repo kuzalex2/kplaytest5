@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
     
     //-(void) addObjectToHead:(id) object;
     -(void) addObjectToTail:(id)object;
-    -(void) addOrdered:(id)object withCompare:(int (^)(id a, id b))compare;
+    -(void) addOrdered:(id)object withCompare:(NSComparator)compare;
 
 
 

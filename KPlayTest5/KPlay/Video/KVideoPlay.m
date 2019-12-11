@@ -347,7 +347,8 @@
         }
         
     } else {
-    
+        WLog(@"%@ play sample %lld", [self name],_last_sample.ts);
+
         [self->_video displaySample:_last_sample inView:self->_view];
         _last_sample=nil;
     }

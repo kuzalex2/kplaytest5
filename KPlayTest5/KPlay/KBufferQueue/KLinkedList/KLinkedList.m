@@ -93,7 +93,7 @@
         ++self->_size;
     }
 
-    -(void) addOrdered:(id)object withCompare:(int (^)(id a, id b))compare
+    -(void) addOrdered:(id)object withCompare:(NSComparator)compare
     {
         ListNode *cur = _head;
         BOOL added = FALSE;

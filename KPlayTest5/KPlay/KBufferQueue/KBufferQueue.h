@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 @interface KBufferQueue : KThreadFilter<KPlayBufferPositionInfo> // <KBufferInfo>
+    @property BOOL  orderByTimestamp;
     @property float firstStartBufferSec;
     @property float secondStartBufferSec;
 

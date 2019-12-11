@@ -66,7 +66,7 @@
 }
 
 
--(KResult)pushError:(NSError *)error
+-(KResult)pushError:(NSError *)error withOrderByTimestamp:(BOOL)orderByTimestamp ///FIXME: orderByTimestamp
 {
     pthread_mutex_lock(&queue_lock);
     DLog(@"queue add error");
@@ -95,12 +95,24 @@
     return (double)(lastSample.ts) / lastSample.timescale - (double)(firstSample.ts) / firstSample.timescale;
 }
 
--(KResult)pushSample:(KMediaSample *)sample
+-(KResult)pushSample:(KMediaSample *)sample withOrderByTimestamp:(BOOL)orderByTimestamp
 {
     pthread_mutex_lock(&queue_lock);
     DLog(@"queue add ts=%lld", sample.ts);
-    [samples addObjectToTail:sample];
-//    [samples addObject:sample];
+    
+    if (orderByTimestamp) {
+        [samples addOrdered:sample withCompare: ^NSComparisonResult(id a, id b){
+            KMediaSample *A = a;
+            KMediaSample *B = b;
+            if (A.ts == B.ts)
+                return 0;
+            return A.ts < B.ts
+                ? -1 : 1;
+        }];
+        
+    } else {
+        [samples addObjectToTail:sample];
+    }
     
     lastTs = sample.ts; // + duration
     lastTsTimescale = sample.timescale;
@@ -239,6 +251,7 @@
 //    dispatch_semaphore_t _sem;
    
 }
+
 -(float)firstStartBufferSec
 {
     return queue->_firstStartBufferSec;
@@ -329,11 +342,11 @@
 
 
         if (res!=KResult_OK) {
-            [queue pushError:err];
+            [queue pushError:err withOrderByTimestamp:_orderByTimestamp];
             return res;
         }
         
-        [queue pushSample:sample];
+        [queue pushSample:sample withOrderByTimestamp:_orderByTimestamp];
     }
     return KResult_OK;
 }

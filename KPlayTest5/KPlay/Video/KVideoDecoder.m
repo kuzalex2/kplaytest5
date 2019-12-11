@@ -21,14 +21,14 @@
 @implementation KVideoDecoder
 {
     VTDec *dec;
-   KLinkedList *ordered_out_samples;//fixme - array of ones
+    KLinkedList *out_samples;//fixme - array of ones
 }
 
 - (instancetype)init
 {
     self = [super init];
     if (self) {
-        self->ordered_out_samples = [[KLinkedList alloc] init];
+        self->out_samples = [[KLinkedList alloc] init];
     }
     return self;
 }
@@ -42,7 +42,7 @@
 
 - (void) flush
 {
-    [ordered_out_samples removeAllObjects];
+    [out_samples removeAllObjects];
     if (dec){
         [dec flush];
        // dec=nil;
@@ -89,14 +89,7 @@
 
 -(void)pushSample:(KMediaSample *)sample
 {
-    [ordered_out_samples addOrdered:sample withCompare:^int(id a, id b){
-        KMediaSample *A = a;
-        KMediaSample *B = b;
-        if (A.ts == B.ts)
-            return 0;
-        return A.ts < B.ts
-            ? -1 : 1;
-    } ];
+    [out_samples addObjectToTail:sample];
    
 }
 
@@ -149,23 +142,12 @@
             return res;
         }
         
-        if (probe && ordered_out_samples.count>0){
-            *outSample = ordered_out_samples.objectAtHead;
+        if (![out_samples isEmpty]){
+            *outSample = out_samples.objectAtTail;
+            if (!probe)
+                [out_samples removeObjectFromHead];
             return KResult_OK;
         }
-        
-        if (ordered_out_samples.count > ORDER_WINDOW_NSAMPLES){
-            *outSample = ordered_out_samples.objectAtTail;
-            [ordered_out_samples removeObjectFromHead];
-            return KResult_OK;
-        }
-        
-//        if (out_sample!=nil){
-//            *outSample = out_sample;
-//            if (!probe)
-//                out_sample=nil;
-//            return KResult_OK;
-//        }
         
         
         DErr(@"%@ error. attempt # %d",[self name], attempt);

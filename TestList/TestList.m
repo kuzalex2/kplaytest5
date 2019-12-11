@@ -23,37 +23,25 @@
     // Put teardown code here. This method is called after the invocation of each test method in the class.
 }
 
-int compare(id a, id b){
-    NSNumber *A = a;
-    NSNumber *B = b;
-    if (A == B)
-        return 0;
-    return A < B
-        ? -1 : 1;
-}
-
--(void)addOrdered:(KLinkedList *)list object:(id)object{
-    [list addOrdered:object withCompare:^int (id cur, id new){
-        NSNumber *CUR = cur;
-        NSNumber *NEW = new;
-        int ret = (int)[NEW compare:CUR];
-        return ret;
-    }];
-}
-
 - (void)testExample {
     
     KLinkedList *list = [[KLinkedList alloc]init];
+    NSComparator comparator = ^(id cur, id new) {
+        NSNumber *CUR = cur;
+        NSNumber *NEW = new;
+        NSComparisonResult ret = (int)[NEW compare:CUR];
+        return ret;
+    };
     
-    [self addOrdered:list object:[NSNumber numberWithInt:1]];
+    [list addOrdered:[NSNumber numberWithInt:1] withCompare:comparator];
     NSLog(@"%@", list);
-    [self addOrdered:list object:[NSNumber numberWithInt:2]];
+    [list addOrdered:[NSNumber numberWithInt:2] withCompare:comparator];
     NSLog(@"%@", list);
-    [self addOrdered:list object:[NSNumber numberWithInt:3]];
+    [list addOrdered:[NSNumber numberWithInt:3] withCompare:comparator];
     NSLog(@"%@", list);
-    [self addOrdered:list object:[NSNumber numberWithInt:4]];
+    [list addOrdered:[NSNumber numberWithInt:4] withCompare:comparator];
     NSLog(@"%@", list);
-    [self addOrdered:list object:[NSNumber numberWithInt:5]];
+    [list addOrdered:[NSNumber numberWithInt:5] withCompare:comparator];
     NSLog(@"%@", list);
   
      

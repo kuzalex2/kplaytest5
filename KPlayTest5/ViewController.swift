@@ -148,7 +148,9 @@ class KTestRtmpAVPlayGraph : KPlayGraphChainBuilder {
                 super.flowchain.add(KAudioPlay());          //3
                 
                 super.flowchain.add(KVideoDecoder());       //4
-                super.flowchain.add(KBufferQueue(firstStartBufferSec: 1.0, andSecondStartBufferSec: 1.0));//5
+                let q = KBufferQueue(firstStartBufferSec: 1.0, andSecondStartBufferSec: 1.0);
+                q.orderByTimestamp=true;
+                super.flowchain.add(q);//5
                 super.flowchain.add(KVideoPlay(uiView: _view));//6
                 super.connectchain.add([super.flowchain[0], super.flowchain[1], super.flowchain[2], super.flowchain[3]]);
                 super.connectchain.add([super.flowchain[0], super.flowchain[4], super.flowchain[5]

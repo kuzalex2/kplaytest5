@@ -10,7 +10,6 @@
 #import <Foundation/Foundation.h>
 
 #import "KTestFilters.h"
-#import "KQueueFilter.h"
 #import "KPlayGraph.h"
 
 //#define MYWARN
