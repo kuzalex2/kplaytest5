@@ -29,9 +29,8 @@
     BOOL isRunning;
     
     CMTime lastTs;
-    @public float _firstStartBufferSec;
-    @public float _secondStartBufferSec;
-    float _currectStartBufferSec;
+    @public float startBufferSec[2];
+    @public size_t curStartBufferSecIndex;
 }
 
 - (instancetype)init
@@ -45,10 +44,9 @@
         _state = KFilterState_STOPPED;
         isRunning = FALSE;
         error=nil;
-        _firstStartBufferSec = 0.3;
-        _secondStartBufferSec = 3.0;
-        _currectStartBufferSec = _firstStartBufferSec;
-        
+        startBufferSec[0] = 0.3;
+        startBufferSec[1] = 3.0;
+        curStartBufferSecIndex = 0;
     }
     return self;
 }
@@ -115,7 +113,7 @@
     
     if (!isRunning) {
         DLog(@"queue NOT RUNNING");
-        if ([self secondsInQueue] > _currectStartBufferSec || sample.eos){
+        if ([self secondsInQueue] > startBufferSec[curStartBufferSecIndex] || sample.eos){
             isRunning = TRUE;
             DLog(@"queue RUN");
             pthread_cond_signal(&queue_cond);
@@ -151,7 +149,7 @@
         if ([samples isEmpty] ){
             DLog(@"queue NO SAMPLES");
             if (isRunning){
-                _currectStartBufferSec = _secondStartBufferSec;
+                curStartBufferSecIndex = 1;
             }
             isRunning=FALSE;
             pthread_cond_wait(&queue_cond, &queue_lock);
@@ -189,7 +187,7 @@
     isRunning = FALSE;
     error=nil;
     lastTs=CMTimeMake(0, 1000);
-    _currectStartBufferSec = _firstStartBufferSec;
+    curStartBufferSecIndex = 0;
     
     
     pthread_mutex_unlock(&queue_lock);
@@ -242,19 +240,19 @@
 
 -(float)firstStartBufferSec
 {
-    return queue->_firstStartBufferSec;
+    return queue->startBufferSec[0];
 }
 -(void)setFirstStartBufferSec:(float)firstStartBufferSec
 {
-    queue->_firstStartBufferSec = firstStartBufferSec;
+    queue->startBufferSec[0] = firstStartBufferSec;
 }
 -(float)secondStartBufferSec
 {
-    return queue->_secondStartBufferSec;
+    return queue->startBufferSec[1];
 }
 -(void)setSecondStartBufferSec:(float)secondStartBufferSec
 {
-    queue->_secondStartBufferSec = secondStartBufferSec;
+   queue->startBufferSec[1] = secondStartBufferSec;
 }
 - (instancetype)init
 {
@@ -275,8 +273,8 @@
 {
     self = [self init];
     if (self) {
-        queue->_firstStartBufferSec = firstStartBufferSec;
-        queue->_secondStartBufferSec = secondStartBufferSec;
+        self.firstStartBufferSec = firstStartBufferSec;
+        self.secondStartBufferSec = secondStartBufferSec;
     }
     return self;
 }

@@ -30,10 +30,11 @@
     NSObject *RtmpLockInit;
     NSObject *RtmpLockProcess;
     RTMP *_rtmp;
+    float bufferSec;
 //    NSError *_error;
 }
 
--(instancetype)initWithUrl:(NSString *)url
+-(instancetype)initWithUrl:(NSString *)url andBufferSec:(float)bufferSec
 {
     self = [super init];
     if (self) {
@@ -50,6 +51,7 @@
         self->RtmpLockProcess = [[NSObject alloc]init];
         self->_rtmp = nil;
         self->_url = url;
+        self->bufferSec = bufferSec;
        
         
         if (!self->_url)
@@ -185,7 +187,7 @@ void RTMP_Interrupt(RTMP *r)
             #endif
             
            // RTMP_SetBufferMS(_rtmp, 5 * 3600 * 1000);
-            RTMP_SetBufferMS(_rtmp, 5  * 1000);
+            RTMP_SetBufferMS(_rtmp, bufferSec  * 1000);
         }
     }
     }
