@@ -128,6 +128,18 @@
             newSample = s;
         }
         
+        if (newSample.eos){
+            newSample.type = dec.out_type;
+            [self pushSample:newSample];
+            
+            if (![out_samples isEmpty]){
+                *outSample = out_samples.objectAtTail;
+                if (!probe)
+                    [out_samples removeObjectFromHead];
+                return KResult_OK;
+            }
+        }
+        
         if (dec==nil) {
             DErr(@"No decoder");
             return KResult_ERROR;

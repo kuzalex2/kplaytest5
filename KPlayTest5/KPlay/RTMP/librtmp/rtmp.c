@@ -3641,6 +3641,7 @@ HandleCtrl(RTMP *r, const RTMPPacket *packet)
 	case 0:
 	  tmp = AMF_DecodeInt32(packet->m_body + 2);
 	  RTMP_Log(RTMP_LOGDEBUG, "%s, Stream Begin %d", __FUNCTION__, tmp);
+            r->m_eos=0;
 	  break;
 
 	case 1:
@@ -3648,6 +3649,7 @@ HandleCtrl(RTMP *r, const RTMPPacket *packet)
 	  RTMP_Log(RTMP_LOGDEBUG, "%s, Stream EOF %d", __FUNCTION__, tmp);
 	  if (r->m_pausing == 1)
 	    r->m_pausing = 2;
+         r->m_eos=1;
 	  break;
 
 	case 2:

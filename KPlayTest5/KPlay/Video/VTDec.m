@@ -216,7 +216,8 @@ void didDecompress( void *decompressionOutputRefCon,
     }
     
     //DLog(@"VTDecompressionSessionDecodeFrame: %@", (status == noErr) ? @"successfully." : @"failed.");
-    CFRelease(videoBlock);
+    if (videoBlock!=nil)
+        CFRelease(videoBlock);
     
     CFRelease(sbRef);
     

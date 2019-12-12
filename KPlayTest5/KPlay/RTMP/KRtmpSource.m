@@ -9,7 +9,7 @@
 
 #import "KRtmpSource.h"
 
-//#define MYDEBUG
+#define MYDEBUG
 //#define MYWARN
 #import "myDebug.h"
 
@@ -239,7 +239,7 @@ void RTMP_Interrupt(RTMP *r)
                 if (!packet.m_nBodySize)
                     continue;
                 
-                DLog(@"Got pkt type=%@ ts=%d len=%d", [self rtmpPacketStringForType:packet.m_packetType], (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
+                DLog(@"<%@> Got pkt type=%@ ts=%d len=%d", [self name], [self rtmpPacketStringForType:packet.m_packetType], (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
                 
                 if (packet.m_packetType == RTMP_PACKET_TYPE_INFO) {
                     
@@ -288,7 +288,7 @@ void RTMP_Interrupt(RTMP *r)
                 if (!packet.m_nBodySize)
                     continue;
                 
-                DLog(@"Got pkt type=%@ ts=%d len=%d", [self rtmpPacketStringForType:packet.m_packetType], (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
+                DLog(@"<%@> Got pkt type=%@ ts=%d len=%d", [self name], [self rtmpPacketStringForType:packet.m_packetType], (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
                 if ( packet.m_packetType == RTMP_PACKET_TYPE_AUDIO && has_audio){
 
                     
@@ -334,6 +334,23 @@ void RTMP_Interrupt(RTMP *r)
                 } else {
                     RTMP_ClientPacket(_rtmp, &packet);
                     RTMPPacket_Free(&packet);
+                    
+                    if (_rtmp->m_eos)
+                    {
+                        _stream_audio.eos=true;
+                        _stream_video.eos=true;
+                        
+                        if (pin == _audio_pin){
+                            *sample = [_stream_audio popSamplewithProbe:probe];
+                            if (*sample!=nil)
+                                return KResult_OK;
+                        }
+                        if (pin == _video_pin){
+                            *sample = [_stream_video popSamplewithProbe:probe];
+                            if (*sample!=nil)
+                                return KResult_OK;
+                        }
+                    }
                 }
                 
                 
@@ -380,7 +397,7 @@ void RTMP_Interrupt(RTMP *r)
                 if (!packet.m_nBodySize)
                     continue;
                 
-                DLog(@"Got pkt type=%@ ts=%d len=%d", [self rtmpPacketStringForType:packet.m_packetType], (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
+                DLog(@"<%@> Got pkt type=%@ ts=%d len=%d", [self name], [self rtmpPacketStringForType:packet.m_packetType], (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
                 
                 if (packet.m_packetType == RTMP_PACKET_TYPE_INVOKE) {
                     

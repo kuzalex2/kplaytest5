@@ -247,6 +247,7 @@ extern "C"
     uint32_t m_mediaStamp;
     uint32_t m_pauseStamp;
     int m_pausing;
+    int m_eos;
     int m_nServerBW;
     int m_nClientBW;
     uint8_t m_nClientBW2;

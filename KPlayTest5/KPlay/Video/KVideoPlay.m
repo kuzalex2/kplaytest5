@@ -9,7 +9,7 @@
 #import "KVideoPlay.h"
 
 #import "KPlayGraph.h"
-//#define MYDEBUG
+#define MYDEBUG
 #define MYWARN
 #import "myDebug.h"
 
@@ -47,7 +47,7 @@
 
 - (KResult)displaySample:(KMediaSample *) s inView:(UIView *)view
 {
-   // return KResult_OK;
+   
   //  [self initVideo:view];
     
     if (videoPreviewView==nil || !videoPreviewViewOnView){
@@ -264,7 +264,17 @@
     }
 }
 
-
+- (KResult)displaySample:(KMediaSample *) s inView:(UIView *)view
+{
+    if (s.eos) {
+        if ([self.events respondsToSelector:@selector(onEOS:)]) {
+            [self.events onEOS:self];
+        }
+        return KResult_OK;
+    }
+      
+    return [self->_video displaySample:s inView:view];
+}
 
 
 
@@ -304,7 +314,7 @@
         return KResult_ERROR;
     }
     
-    if (self.clock) {
+    if (self.clock && self.clock!=self) {
         
         switch ([self state]) {
             case KFilterState_STOPPED:
@@ -314,7 +324,7 @@
             case KFilterState_PAUSING:
             case KFilterState_PAUSED:
                 //show
-                [self->_video displaySample:_last_sample inView:self->_view];
+                [self displaySample:_last_sample inView:self->_view];
                 _last_sample=nil;
                 break;
             case KFilterState_STARTED:{
@@ -332,7 +342,7 @@
                     _last_sample=nil;
                 } else {
                     DLog(@"%@ play sample %lld %lld", [self name],nowTimeMillisec,sampleTimeMillisec);
-                    [self->_video displaySample:_last_sample inView:self->_view];
+                    [self displaySample:_last_sample inView:self->_view];
                     _last_sample=nil;
                 }
                 
@@ -344,7 +354,7 @@
     } else {
         WLog(@"%@ play sample %lld/%d", [self name],_last_sample.ts.value, _last_sample.ts.timescale);
 
-        [self->_video displaySample:_last_sample inView:self->_view];
+        [self displaySample:_last_sample inView:self->_view];
         _last_sample=nil;
     }
     

@@ -16,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FlvStream : NSObject
     @property KMediaType *type;
+    @property BOOL eos;
    
 
     -(KMediaSample *)popSamplewithProbe:(BOOL)probe;

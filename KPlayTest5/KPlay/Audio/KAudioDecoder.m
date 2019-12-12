@@ -110,6 +110,12 @@
             newSample = s;
         }
         
+        if (newSample.eos){
+            newSample.type = dec.out_type;
+            *outSample = newSample;
+            return KResult_OK;
+        }
+        
         if (dec==nil) {
             DErr(@"No decoder");
             return KResult_ERROR;

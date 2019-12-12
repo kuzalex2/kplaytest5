@@ -15,6 +15,7 @@
 @implementation FlvStream {
     NSObject   *_samples_lock;
     KLinkedList *_samples;
+    CMTime _last_ts;
 }
 
 
@@ -427,6 +428,8 @@ BOOL AudioStreamBasicDescriptionEqual(const AudioStreamBasicDescription *a, cons
         self->_type = nil;
         self->_samples_lock = [[NSObject alloc]init];
         self->_samples = [[KLinkedList alloc]init];
+        self->_last_ts = CMTimeMake(0, 1);
+        self->_eos = false;
     }
     return self;
 }
@@ -453,6 +456,8 @@ BOOL AudioStreamBasicDescriptionEqual(const AudioStreamBasicDescription *a, cons
     {
         @synchronized (_samples_lock) {
             [_samples addObjectToTail:sample];
+            if (CMTimeCompare(sample.ts, _last_ts) > 0)
+                _last_ts = sample.ts;
         }
     }
     -(KMediaSample *)popSamplewithProbe:(BOOL)probe
@@ -466,6 +471,17 @@ BOOL AudioStreamBasicDescriptionEqual(const AudioStreamBasicDescription *a, cons
         
                 if (!probe)
                     [_samples removeObjectFromHead];
+            } else {
+                if (_eos){
+                    KMediaSample *eosSample = [[KMediaSample alloc]init];
+                    eosSample.ts = CMTimeAdd(_last_ts, CMTimeMake(1, 1000));
+                    eosSample.type = _type;
+                    eosSample.eos=true;
+                    
+                    eosSample.data = [[NSData alloc] initWithBytes:nil length:0];
+                    result = eosSample;
+                    usleep(100000);
+                }
             }
         }
         return result;
@@ -474,6 +490,8 @@ BOOL AudioStreamBasicDescriptionEqual(const AudioStreamBasicDescription *a, cons
     {
         @synchronized (_samples_lock) {
             [_samples removeAllObjects];
+            self->_eos = false;
+            self->_last_ts = CMTimeMake(0, 1);
         }
     }
 
