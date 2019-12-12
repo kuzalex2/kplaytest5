@@ -9,7 +9,7 @@
 
 #import "KRtmpSource.h"
 
-//#define MYDEBUG
+#define MYDEBUG
 //#define MYWARN
 #import "myDebug.h"
 
