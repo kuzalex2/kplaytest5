@@ -19,16 +19,35 @@
 
 #include <AudioToolbox/AudioToolbox.h>
 
+
+#import "ADec.h"
+
+
+@implementation KAudioDecoder
+
+- (id)createDecoder
+{
+    return [[ADec alloc]init];
+   
+}
+
+@end
+
+
+
+
 #define TMP_BUF_SIZE 65536
 
 @implementation ADec{
     AudioConverterRef _audioConverter;
     uint8_t _tmp_buf[TMP_BUF_SIZE];
     AudioStreamBasicDescription outFormat;
+    KMediaType *_out_type;
     
     //;
 }
 
+@synthesize out_type = _out_type;
 
     - (OSStatus)setupAudioConverter:(const AudioStreamBasicDescription *)inputASBD{
         
@@ -234,5 +253,7 @@
 
         } while (true);
     }
+
+
 
 @end

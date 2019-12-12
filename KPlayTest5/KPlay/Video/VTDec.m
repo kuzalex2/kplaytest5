@@ -19,16 +19,32 @@
 #import <Foundation/Foundation.h>
 #import <CoreMedia/CoreMedia.h>
 
+
+@implementation KVideoDecoder
+
+- (id)createDecoder
+{
+    return [[VTDec alloc]init];
+   
+}
+
+@end
+
+
+
+
+
 @implementation VTDec
 {
-    
     KMediaType *last_type;
     
     VTDecompressionSessionRef session;
     __weak OnMediaSampleCallback onMediaSample;
+    KMediaTypeImageBuffer *_out_type;
 }
 
 
+@synthesize out_type = _out_type;
 
 - (void) flush
 {

@@ -8,16 +8,25 @@
 
 #import <Foundation/Foundation.h>
 #import "KTestFilters.h"
+#import "AVDec.h"
+#include "KDecoder.h"
+
+
+
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void(^OnMediaSampleCallback)(KMediaSample *sample);
+@interface KAudioDecoder : KDecoder
+    -(id)createDecoder;
+@end
 
-@interface ADec : NSObject
-    @property KMediaType *out_type;
-    -(KResult)decodeSample:(KMediaSample *)s andCallback:(OnMediaSampleCallback)onSuccess;
-    -(void) flush;
-    -(BOOL)isInputMediaTypeSupported:(KMediaType *)type;
+
+
+@interface ADec : NSObject<AVDec>
+//    @property KMediaType *out_type;
+//    -(KResult)decodeSample:(KMediaSample *)s andCallback:(OnMediaSampleCallback)onSuccess;
+//    -(void) flush;
+//    -(BOOL)isInputMediaTypeSupported:(KMediaType *)type;
 
 @end
 

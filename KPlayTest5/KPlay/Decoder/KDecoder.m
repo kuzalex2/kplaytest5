@@ -1,33 +1,37 @@
 //
-//  KAudioDecoder.m
+//  KDecoder.m
 //  KPlayTest5
 //
-//  Created by kuzalex on 12/5/19.
+//  Created by kuzalex on 12/12/19.
 //  Copyright © 2019 kuzalex. All rights reserved.
 //
 
-#import "KAudioDecoder.h"
+#import "KDecoder.h"
+
 
 //#define MYDEBUG
 //#define MYWARN
 #include "myDebug.h"
 
-//FIXME: autoreleease
-//FIXME: seek!
+#import <Foundation/Foundation.h>
+#import <CoreMedia/CoreMedia.h>
+#import "AVDec.h"
+#import "KLinkedList.h"
 
-
-//#import <VideoToolbox/VideoToolbox.h>
-//#import <Foundation/Foundation.h>
-//#import <CoreMedia/CoreMedia.h>
-#import "ADec.h"
-
-@implementation KAudioDecoder
+@implementation KDecoder
 {
-    ADec *dec;
-    KMediaSample * out_sample;//fixme - array of ones
+    id<AVDec> dec;
+    KLinkedList *out_samples;//fixme - array of ones
 }
 
-
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self->out_samples = [[KLinkedList alloc] init];
+    }
+    return self;
+}
 
 -(KMediaType *)getOutputMediaTypeFromPin:(KOutputPin*)pin
 {
@@ -38,7 +42,7 @@
 
 - (void) flush
 {
-    out_sample = nil;
+    [out_samples removeAllObjects];
     if (dec){
         [dec flush];
        // dec=nil;
@@ -69,19 +73,29 @@
     return KResult_OK;
 }
 
+-(id)createDecoder
+{
+    return nil;
+}
 
 
 -(BOOL)isInputMediaTypeSupported:(KMediaType *)type
 {
     if (dec==nil)
-        dec = [[ADec alloc] init];
+        dec = [self createDecoder];
     return [dec isInputMediaTypeSupported:type];
 }
 
 
 
 #define MAX_SEQUENCE_ERRORS 100
+#define ORDER_WINDOW_NSAMPLES 10
 
+-(void)pushSample:(KMediaSample *)sample
+{
+    [out_samples addObjectToTail:sample];
+   
+}
 
 -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)outSample probe:(BOOL)probe error:(NSError *__strong*)outError fromPin:(nonnull KOutputPin *)pin
 {
@@ -92,6 +106,14 @@
     if ([self.inputPins count] < 1 )
         return KResult_ERROR;
     
+    ///FIXME: write this!
+//    if (error || eos){
+//        if (ordered_out_samples.size>0){
+//            *outSample = ordered_out_samples.objectAtTail;
+//            [ordered_out_samples removeObjectFromTail];
+//            return KResult_OK;
+//        }
+//    }
     
     // if out_samples -> return it
     
@@ -112,8 +134,14 @@
         
         if (newSample.eos){
             newSample.type = dec.out_type;
-            *outSample = newSample;
-            return KResult_OK;
+            [self pushSample:newSample];
+            
+            if (![out_samples isEmpty]){
+                *outSample = out_samples.objectAtTail;
+                if (!probe)
+                    [out_samples removeObjectFromHead];
+                return KResult_OK;
+            }
         }
         
         if (dec==nil) {
@@ -122,7 +150,7 @@
         }
         
         res = [dec decodeSample:newSample andCallback:^(KMediaSample * _Nonnull sample) {
-            self->out_sample = sample;
+            [self pushSample:sample];
         }];
         
         if (res!=KResult_OK){
@@ -130,10 +158,10 @@
             return res;
         }
         
-        if (out_sample!=nil){
-            *outSample = out_sample;
+        if (![out_samples isEmpty]){
+            *outSample = out_samples.objectAtTail;
             if (!probe)
-                out_sample=nil;
+                [out_samples removeObjectFromHead];
             return KResult_OK;
         }
         
@@ -147,3 +175,4 @@
 }
 
 @end
+

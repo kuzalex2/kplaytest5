@@ -8,16 +8,21 @@
 
 #import <Foundation/Foundation.h>
 #import "KTestFilters.h"
+#include "KDecoder.h"
+#import "AVDec.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void(^OnMediaSampleCallback)(KMediaSample *sample);
+@interface KVideoDecoder : KDecoder
+    -(id)createDecoder;
+@end
 
-@interface VTDec : NSObject
-    @property KMediaTypeImageBuffer *out_type;
-    -(KResult)decodeSample:(KMediaSample *)s andCallback:(OnMediaSampleCallback)onSuccess;
-    -(void) flush;
-    -(BOOL)isInputMediaTypeSupported:(KMediaType *)type;
+
+@interface VTDec : NSObject<AVDec>
+//    @property KMediaTypeImageBuffer *out_type;
+//    -(KResult)decodeSample:(KMediaSample *)s andCallback:(OnMediaSampleCallback)onSuccess;
+//    -(void) flush;
+//    -(BOOL)isInputMediaTypeSupported:(KMediaType *)type;
 
 @end
 
