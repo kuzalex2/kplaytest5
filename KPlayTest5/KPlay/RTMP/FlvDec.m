@@ -7,7 +7,7 @@
 //
 
 #import "FlvDec.h"
-#define MYDEBUG
+//#define MYDEBUG
 //#define MYWARN
 #include "myDebug.h"
 #include "KLinkedList.h"

@@ -9,7 +9,7 @@
 #import "KVideoPlay.h"
 
 #import "KPlayGraph.h"
-#define MYDEBUG
+//#define MYDEBUG
 #define MYWARN
 #import "myDebug.h"
 
