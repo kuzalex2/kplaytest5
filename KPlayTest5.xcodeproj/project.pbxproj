@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		910CA41F2399313A000629E7 /* ADec.m in Sources */ = {isa = PBXBuildFile; fileRef = 910CA41E2399313A000629E7 /* ADec.m */; };
+		910CA41F2399313A000629E7 /* KAudioDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 910CA41E2399313A000629E7 /* KAudioDecoder.m */; };
 		91208973238E6B7900594FB8 /* KAudioPlay.m in Sources */ = {isa = PBXBuildFile; fileRef = 91208972238E6B7900594FB8 /* KAudioPlay.m */; };
-		912A80952398122100D62669 /* VTDec.m in Sources */ = {isa = PBXBuildFile; fileRef = 912A80942398122100D62669 /* VTDec.m */; };
+		912A80952398122100D62669 /* KVideoDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 912A80942398122100D62669 /* KVideoDecoder.m */; };
 		912A80982398380B00D62669 /* KVideoPlay.m in Sources */ = {isa = PBXBuildFile; fileRef = 912A80972398380B00D62669 /* KVideoPlay.m */; settings = {COMPILER_FLAGS = "-DGLES_SILENCE_DEPRECATION -D CI_SILENCE_GL_DEPRECATION"; }; };
 		915F30A42392FB8A00B98323 /* WavReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 915F30A32392FB8A00B98323 /* WavReader.m */; };
 		915F30A823932A6E00B98323 /* KAudioWavSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 915F30A723932A6E00B98323 /* KAudioWavSource.m */; };
@@ -72,12 +72,12 @@
 
 /* Begin PBXFileReference section */
 		63D61B3D625C59FEAF78B39D /* libPods-KPlayTest5.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-KPlayTest5.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		910CA41D2399313A000629E7 /* ADec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADec.h; sourceTree = "<group>"; };
-		910CA41E2399313A000629E7 /* ADec.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADec.m; sourceTree = "<group>"; };
+		910CA41D2399313A000629E7 /* KAudioDecoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KAudioDecoder.h; sourceTree = "<group>"; };
+		910CA41E2399313A000629E7 /* KAudioDecoder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KAudioDecoder.m; sourceTree = "<group>"; };
 		91208971238E6B7900594FB8 /* KAudioPlay.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KAudioPlay.h; sourceTree = "<group>"; };
 		91208972238E6B7900594FB8 /* KAudioPlay.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KAudioPlay.m; sourceTree = "<group>"; };
-		912A80932398122100D62669 /* VTDec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VTDec.h; sourceTree = "<group>"; };
-		912A80942398122100D62669 /* VTDec.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VTDec.m; sourceTree = "<group>"; };
+		912A80932398122100D62669 /* KVideoDecoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KVideoDecoder.h; sourceTree = "<group>"; };
+		912A80942398122100D62669 /* KVideoDecoder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KVideoDecoder.m; sourceTree = "<group>"; };
 		912A80962398380B00D62669 /* KVideoPlay.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KVideoPlay.h; sourceTree = "<group>"; };
 		912A80972398380B00D62669 /* KVideoPlay.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KVideoPlay.m; sourceTree = "<group>"; };
 		915F30A22392FB8A00B98323 /* WavReader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WavReader.h; sourceTree = "<group>"; };
@@ -209,8 +209,8 @@
 			children = (
 				912A80962398380B00D62669 /* KVideoPlay.h */,
 				912A80972398380B00D62669 /* KVideoPlay.m */,
-				912A80932398122100D62669 /* VTDec.h */,
-				912A80942398122100D62669 /* VTDec.m */,
+				912A80932398122100D62669 /* KVideoDecoder.h */,
+				912A80942398122100D62669 /* KVideoDecoder.m */,
 			);
 			path = Video;
 			sourceTree = "<group>";
@@ -250,8 +250,8 @@
 				915F30A723932A6E00B98323 /* KAudioWavSource.m */,
 				91208971238E6B7900594FB8 /* KAudioPlay.h */,
 				91208972238E6B7900594FB8 /* KAudioPlay.m */,
-				910CA41D2399313A000629E7 /* ADec.h */,
-				910CA41E2399313A000629E7 /* ADec.m */,
+				910CA41D2399313A000629E7 /* KAudioDecoder.h */,
+				910CA41E2399313A000629E7 /* KAudioDecoder.m */,
 			);
 			path = Audio;
 			sourceTree = "<group>";
@@ -630,9 +630,9 @@
 				912A80982398380B00D62669 /* KVideoPlay.m in Sources */,
 				915F30A42392FB8A00B98323 /* WavReader.m in Sources */,
 				91EB10AA2395635F00E80D2F /* hashswf.c in Sources */,
-				910CA41F2399313A000629E7 /* ADec.m in Sources */,
+				910CA41F2399313A000629E7 /* KAudioDecoder.m in Sources */,
 				918654EA238D1D1B00655EE3 /* KTestAudio.m in Sources */,
-				912A80952398122100D62669 /* VTDec.m in Sources */,
+				912A80952398122100D62669 /* KVideoDecoder.m in Sources */,
 				91C197A22383022E002B2463 /* KTestFilters.m in Sources */,
 				91C197A82383022E002B2463 /* KPin.m in Sources */,
 				91C197A72383022E002B2463 /* KClock.m in Sources */,

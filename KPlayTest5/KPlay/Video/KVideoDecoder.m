@@ -6,7 +6,7 @@
 //  Copyright © 2019 kuzalex. All rights reserved.
 //
 
-#import "VTDec.h"
+#import "KVideoDecoder.h"
 #import "KTestFilters.h"
 
 //#define MYDEBUG

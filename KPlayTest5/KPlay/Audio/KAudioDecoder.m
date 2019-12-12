@@ -6,7 +6,7 @@
 //  Copyright © 2019 kuzalex. All rights reserved.
 //
 
-#import "ADec.h"
+#import "KAudioDecoder.h"
 #import "KTestFilters.h"
 
 
@@ -18,9 +18,6 @@
 
 
 #include <AudioToolbox/AudioToolbox.h>
-
-
-#import "ADec.h"
 
 
 @implementation KAudioDecoder
