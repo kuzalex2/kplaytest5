@@ -97,10 +97,14 @@ NSString *KFilterState2String(KFilterState state)
 
 -(KResult)pullSampleInternal:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(KOutputPin*)pin
 {
+    KResult res;
+    [pin lockPull];
+    
     @synchronized(_state_mutex) {
         switch (_state) {
             case KFilterState_STOPPING:
             case KFilterState_STOPPED:
+                [pin unlockPull];
                 return KResult_InvalidState;
             case KFilterState_PAUSING:
             case KFilterState_STARTED:
@@ -109,9 +113,8 @@ NSString *KFilterState2String(KFilterState state)
         }
     }
     
-    KResult res;
-    [pin lockPull];
-        res=[self pullSample:sample probe:probe error:error fromPin:pin];
+
+    res=[self pullSample:sample probe:probe error:error fromPin:pin];
     [pin unlockPull];
     return res;
 }
