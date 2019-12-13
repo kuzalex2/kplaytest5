@@ -7,8 +7,8 @@
 //
 
 
-#define MYDEBUG
-#define MYWARN
+//#define MYDEBUG
+//#define MYWARN
 #include "myDebug.h"
 
 #import "KBufferQueue.h"

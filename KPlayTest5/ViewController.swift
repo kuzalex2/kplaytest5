@@ -199,10 +199,14 @@ class ViewController: UIViewController, KPlayerEvents {
     @IBOutlet weak var playBtn: UIButton!
     @IBOutlet weak var pauseBtn: UIButton!
     @IBOutlet weak var stopBtn: UIButton!
-    @IBOutlet weak var textLabel: UILabel!
+    
+    @IBOutlet weak var statusLabel: UILabel!
+    
     @IBOutlet weak var timeLabel: UILabel!
-    @IBOutlet weak var progressSlider: BufferSlider!
     @IBOutlet weak var durationLabel: UILabel!
+    
+    @IBOutlet weak var progressSlider: BufferSlider!
+    
     @IBOutlet weak var spinner: UIActivityIndicatorView!
     @IBOutlet weak var videoView: UIView!
     
@@ -235,11 +239,12 @@ class ViewController: UIViewController, KPlayerEvents {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        textLabel.text = ""
+        statusLabel?.text = ""
         
         onPlayClick(nil)
-        spinner.startAnimating()
-        spinner.isHidden = true
+        spinner?.startAnimating()
+        spinner?.isHidden = true
+        spinner?.transform = CGAffineTransform.init(scaleX: 2, y: 2)
         
         //timeToString(612.587952)
     }
@@ -294,7 +299,7 @@ class ViewController: UIViewController, KPlayerEvents {
         if let mi = self.player?.mediaInfo {
             let durationSec = ts2sec(ts: mi.duration());
             let timeSec = Float(self.progressSlider.value) * durationSec / 1;
-            self.timeLabel.text = timeToString(timeSec)
+            self.timeLabel?.text = timeToString(timeSec)
         }
     }
     
@@ -324,32 +329,32 @@ class ViewController: UIViewController, KPlayerEvents {
     func showPlayerPosition(valid:Bool)
     {
         if (!valid){
-            self.timeLabel.text =  timeToString(0)
-            self.durationLabel.text  = timeToString(0)
-            self.progressSlider.value=0;
-            self.progressSlider.isEnabled = false;
+            self.timeLabel?.text =  timeToString(0)
+            self.durationLabel?.text  = timeToString(0)
+            self.progressSlider?.value=0;
+            self.progressSlider?.isEnabled = false;
             return;
         }
         if let mi = self.player?.mediaInfo {
             let durationSec = ts2sec(ts:mi.duration());
-            self.durationLabel.text = timeToString(durationSec);
+            self.durationLabel?.text = timeToString(durationSec);
             
             if let pi = self.player?.positionInfo {
                 
                 
                 if player?.state == KGraphState_STARTED {
-                    self.spinner.isHidden = pi.isRunning()
+                    self.spinner?.isHidden = pi.isRunning()
                 }
                 
                 if (!inSeek && player?.state != KGraphState_SEEKING){
             
                     let timeSec = ts2sec(ts: pi.position());
-                    self.timeLabel.text = timeToString(timeSec)
+                    self.timeLabel?.text = timeToString(timeSec)
                     
-                    self.progressSlider.isEnabled = true;
+                    self.progressSlider?.isEnabled = true;
                     
                     if durationSec>0 {
-                        self.progressSlider.value = timeSec/Float(durationSec)
+                        self.progressSlider?.value = timeSec/Float(durationSec)
                         //NSLog("State=%@ pos=%@", state2String(state:player.state), self.timeLabel.text ?? "");
                     }
                     
@@ -358,11 +363,11 @@ class ViewController: UIViewController, KPlayerEvents {
                         let endBufSec = ts2sec(ts: bufInfo.endBufferedPosition()) ;
                         
                         if startBufSec >= 0 && endBufSec > 0 && durationSec != 0 {
-                            self.progressSlider.bufferEndValue=Double(endBufSec/Float(durationSec));
-                            self.progressSlider.bufferStartValue=Double(startBufSec/Float(durationSec));
+                            self.progressSlider?.bufferEndValue=Double(endBufSec/Float(durationSec));
+                            self.progressSlider?.bufferStartValue=Double(startBufSec/Float(durationSec));
                             
-                            self.progressSlider.bufferEndValue=Double(endBufSec/Float(durationSec));
-                            self.progressSlider.bufferStartValue=Double(startBufSec/Float(durationSec));
+                            self.progressSlider?.bufferEndValue=Double(endBufSec/Float(durationSec));
+                            self.progressSlider?.bufferStartValue=Double(startBufSec/Float(durationSec));
                         
                            // NSLog("BuffInfo: \(startBufSec) \(endBufSec) \(self.progressSlider.bufferStartValue) \(self.progressSlider.bufferEndValue) \(durationSec)");
                         }
@@ -407,9 +412,9 @@ class ViewController: UIViewController, KPlayerEvents {
             
             var stateString: String = ""
             
-            self.playBtn.isEnabled = (state == KGraphState_NONE || state == KGraphState_STOPPED || state == KGraphState_PAUSED);
-            self.pauseBtn.isEnabled = (state == KGraphState_STARTED || state == KGraphState_STOPPED);
-            self.stopBtn.isEnabled = (state != KGraphState_STOPPED && state != KGraphState_STOPPING && state != KGraphState_NONE);
+            self.playBtn?.isEnabled = (state == KGraphState_NONE || state == KGraphState_STOPPED || state == KGraphState_PAUSED);
+            self.pauseBtn?.isEnabled = (state == KGraphState_STARTED || state == KGraphState_STOPPED);
+            self.stopBtn?.isEnabled = (state != KGraphState_STOPPED && state != KGraphState_STOPPING && state != KGraphState_NONE);
             
         
             switch state {
@@ -417,29 +422,29 @@ class ViewController: UIViewController, KPlayerEvents {
                 self.showPlayerPosition(valid: false);
                 self.positionTimer?.invalidate();
                 stateString = "none";
-                self.spinner.isHidden = true
-                self.progressSlider.bufferStartValue=0;
-                self.progressSlider.bufferEndValue=0;
+                self.spinner?.isHidden = true
+                self.progressSlider?.bufferStartValue=0;
+                self.progressSlider?.bufferEndValue=0;
                
             case KGraphState_STOPPED:
                 stateString = "stopped";
                 self.showPlayerPosition(valid: false);
                 self.positionTimer?.invalidate();
-                self.spinner.isHidden = true
-                self.progressSlider.bufferStartValue=0;
-                self.progressSlider.bufferEndValue=0;
+                self.spinner?.isHidden = true
+                self.progressSlider?.bufferStartValue=0;
+                self.progressSlider?.bufferEndValue=0;
                 self.inSeek=false;
                
 
             case KGraphState_BUILDING:
                 stateString = "building...";
-                self.spinner.isHidden = false
+                self.spinner?.isHidden = false
             case KGraphState_STOPPING:
                 stateString = "stopping...";
-                self.spinner.isHidden = false
+                self.spinner?.isHidden = false
             case KGraphState_PAUSING:
                 stateString = "pausing...";
-                self.spinner.isHidden = false
+                self.spinner?.isHidden = false
             case KGraphState_PAUSED:
                 self.showPlayerPosition(valid: true);
                 self.positionTimer?.invalidate();
@@ -447,24 +452,26 @@ class ViewController: UIViewController, KPlayerEvents {
 
                 
                 stateString = "paused";
-                self.spinner.isHidden = true
+                self.spinner?.isHidden = true
             case KGraphState_STARTED:
                 stateString = "started";
                 
-                self.spinner.isHidden = self.player?.positionInfo?.isRunning() ?? false;
+                self.spinner?.isHidden = self.player?.positionInfo?.isRunning() ?? false;
 //                NSLog("hidd %d", self.spinner.isHidden);
             case KGraphState_SEEKING:
                 stateString = "seeking";
-                self.spinner.isHidden = false
+                self.spinner?.isHidden = false
             default:
                 assert(false);
             }
-            UIView.transition(with: self.textLabel,
-                              duration: 1.25,
-                              options: .transitionCrossDissolve,
-                              animations: { [weak self] in
-                                self?.textLabel.text = stateString
-                }, completion: nil)
+            if let label = self.statusLabel {
+                UIView.transition(with: label,
+                                  duration: 1.25,
+                                  options: .transitionCrossDissolve,
+                                  animations: { //[weak self] in
+                                    label.text = stateString
+                    }, completion: nil)
+            }
             print("onStateChanged %@", self.state2String(state: state))
         }
     }
@@ -501,11 +508,11 @@ class ViewController: UIViewController, KPlayerEvents {
 //        player?.play("rtmp://138.201.222.150:1935/vod/testa.flv", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb10.mp4", autoStart: true);
-        player?.play("rtmp://138.201.222.150:1935/vod/starwars_1080p.mp4", autoStart: true);
+//        player?.play("rtmp://138.201.222.150:1935/vod/starwars_1080p.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/adv2.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb.flv", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testamonoaac.flv", autoStart: true);
-//        player?.play("rtmp://138.201.222.150:1935/vod/test.mp4", autoStart: true);
+        player?.play("rtmp://138.201.222.150:1935/vod/test.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/myapp/stream", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testv.mp4", autoStart: false);
 //        player?.play("rtmp://138.201.222.150:1936/vod/test.mp4", autoStart: true);
