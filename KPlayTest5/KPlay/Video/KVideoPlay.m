@@ -9,7 +9,7 @@
 #import "KVideoPlay.h"
 
 #import "KPlayGraph.h"
-//#define MYDEBUG
+#define MYDEBUG
 #define MYWARN
 #import "myDebug.h"
 
@@ -54,6 +54,7 @@
         
         dispatch_semaphore_t sem = dispatch_semaphore_create(0);
         
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             
             if (self->videoPreviewView!=nil){
@@ -73,8 +74,10 @@
 //                self->videoPreviewView.transform=CGAffineTransformMakeRotation(M_PI_2);
 //            } else {
 //                self->videoPreviewView.transform=CGAffineTransformMakeRotation(0);
-//                
+//
 //            }
+            
+            
             
             self->videoPreviewView.frame = view.bounds;
             
@@ -83,6 +86,14 @@
             self->videoPreviewViewOnView=TRUE;
             
             [self->videoPreviewView bindDrawable];
+            
+//            self->videoPreviewView.transform=CGAffineTransformMakeScale((float)self->dim.width/self->videoPreviewView.drawableWidth, (float)self->dim.height/self->videoPreviewView.drawableHeight);
+            
+           // float kX = (float)self->videoPreviewView.drawableWidth/self->dim.width;
+            
+//             self->videoPreviewView.transform=CGAffineTransformMakeScale(kX, kX);
+            
+           
             self->videoPreviewViewBounds = CGRectZero;
             self->videoPreviewViewBounds.size.width = self->videoPreviewView.drawableWidth;
             self->videoPreviewViewBounds.size.height = self->videoPreviewView.drawableHeight;
@@ -96,6 +107,24 @@
     }
     
     
+   
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self->videoPreviewViewBounds = CGRectZero;
+        self->videoPreviewViewBounds.size.width = view.bounds.size.width * 2 ;
+        self->videoPreviewViewBounds.size.height = view.bounds.size.height * 2;
+
+//        self->videoPreviewViewBounds.size.width = self->videoPreviewView.drawableWidth;
+//        self->videoPreviewViewBounds.size.height = self->videoPreviewView.drawableHeight;
+
+        DLog(@"aaa %f %f %f %f", self->videoPreviewViewBounds.origin.x, self->videoPreviewViewBounds.origin.y, self->videoPreviewViewBounds.size.width, self->videoPreviewViewBounds.size.height);
+
+        dispatch_semaphore_signal(sem);
+    });
+
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
     
     
     
@@ -115,23 +144,24 @@
     
     
     
+    
     CGFloat sourceAspect = sourceExtent.size.width / sourceExtent.size.height;
     CGFloat previewAspect = videoPreviewViewBounds.size.width  / videoPreviewViewBounds.size.height;
-    
-    // we want to maintain the aspect radio of the screen size, so we clip the video image
+//    DLog(@"a1=%f a2=%f", sourceAspect, previewAspect);
+//    // we want to maintain the aspect radio of the screen size, so we clip the video image
     CGRect drawRect = sourceExtent;
-    if (sourceAspect > previewAspect)
-    {
-        // use full height of the video image, and center crop the width
-        drawRect.origin.x += (drawRect.size.width - drawRect.size.height * previewAspect) / 2.0;
-        drawRect.size.width = drawRect.size.height * previewAspect;
-    }
-    else
-    {
-        // use full width of the video image, and center crop the height
-        drawRect.origin.y += (drawRect.size.height - drawRect.size.width / previewAspect) / 2.0;
-        drawRect.size.height = drawRect.size.width / previewAspect;
-    }
+//    if (sourceAspect < previewAspect)
+//    {
+//        // use full height of the video image, and center crop the width
+//        drawRect.origin.x += (drawRect.size.width - drawRect.size.height * previewAspect) / 2.0;
+//        drawRect.size.width = drawRect.size.height * previewAspect;
+//    }
+//    else
+//    {
+//        // use full width of the video image, and center crop the height
+//        drawRect.origin.y += (drawRect.size.height - drawRect.size.width / previewAspect) / 2.0;
+//        drawRect.size.height = drawRect.size.width / previewAspect;
+//    }
     
     [videoPreviewView bindDrawable];
     

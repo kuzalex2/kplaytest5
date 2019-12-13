@@ -196,6 +196,7 @@ class KTestRtmpAVPlayGraph : KPlayGraphChainBuilder {
 
 class ViewController: UIViewController, KPlayerEvents {
 
+   
     @IBOutlet weak var playBtn: UIButton!
     @IBOutlet weak var pauseBtn: UIButton!
     @IBOutlet weak var stopBtn: UIButton!
@@ -213,7 +214,19 @@ class ViewController: UIViewController, KPlayerEvents {
     var positionTimer: Timer?
     var inSeek:Bool = false
     
-   
+    @IBOutlet weak var playPauseView: UIView!
+    @IBOutlet weak var controlsView: UIView!
+    @IBOutlet weak var debugView: UIView!
+    @IBOutlet var videoGesture: UITapGestureRecognizer!
+    
+    @IBAction func onTap(_ sender: Any) {
+        
+        let isHidden = !(playPauseView?.isHidden ?? false);
+        playPauseView?.isHidden  = isHidden;
+        controlsView.isHidden = isHidden;
+        debugView.isHidden = isHidden;
+    }
+    
     
     @IBAction func onDestroyTouchDown(_ sender: Any) {
         player?.stop();
@@ -506,9 +519,9 @@ class ViewController: UIViewController, KPlayerEvents {
 //        player?.play("rtmp://138.201.222.150:1935/vod/testa2.flv", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testa.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testa.flv", autoStart: true);
-        player?.play("rtmp://138.201.222.150:1935/vod/bb.mp4", autoStart: true);
+//        player?.play("rtmp://138.201.222.150:1935/vod/bb.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb10.mp4", autoStart: true);
-//        player?.play("rtmp://138.201.222.150:1935/vod/starwars_1080p.mp4", autoStart: true);
+        player?.play("rtmp://138.201.222.150:1935/vod/starwars_1080p.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/adv2.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb.flv", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testamonoaac.flv", autoStart: true);

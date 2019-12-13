@@ -18,6 +18,10 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Hvp-cT-Nb4">
                                 <rect key="frame" x="0.0" y="0.0" width="736" height="414"/>
                                 <color key="backgroundColor" systemColor="systemBlueColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <gestureRecognizers/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="zlt-Hw-vhH" appends="YES" id="fJL-Nt-R3C"/>
+                                </connections>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NTd-LC-HLT" userLabel="PlayPauseView">
                                 <rect key="frame" x="248" y="143" width="240" height="128"/>
@@ -142,17 +146,26 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
+                        <outlet property="controlsView" destination="xb2-ab-g0l" id="BuG-DL-ggV"/>
+                        <outlet property="debugView" destination="Fu5-6Q-O61" id="tkA-ah-6A9"/>
                         <outlet property="durationLabel" destination="QAE-8S-t0D" id="oOy-VT-KZb"/>
                         <outlet property="pauseBtn" destination="UGW-qI-E5F" id="ra5-Ba-vWB"/>
                         <outlet property="playBtn" destination="gzW-bF-0nf" id="4lu-8M-sec"/>
+                        <outlet property="playPauseView" destination="NTd-LC-HLT" id="bHA-nf-DUF"/>
                         <outlet property="progressSlider" destination="00e-py-Ela" id="qWD-ap-H3x"/>
                         <outlet property="spinner" destination="g15-hs-X28" id="yKF-zK-yd3"/>
                         <outlet property="statusLabel" destination="bhw-Bu-8j5" id="tpr-iG-Dne"/>
                         <outlet property="timeLabel" destination="oNR-Jh-RGN" id="I2I-re-x5Y"/>
+                        <outlet property="videoGesture" destination="zlt-Hw-vhH" id="5A0-x6-vWW"/>
                         <outlet property="videoView" destination="Hvp-cT-Nb4" id="BAY-fW-1Vl"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer id="zlt-Hw-vhH" userLabel="VideoTap">
+                    <connections>
+                        <action selector="onTap:" destination="BYZ-38-t0r" id="Uhe-lA-oKZ"/>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="134.78260869565219" y="115.7608695652174"/>
         </scene>
