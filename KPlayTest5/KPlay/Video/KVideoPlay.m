@@ -28,7 +28,10 @@
     BOOL videoPreviewViewOnView;
     CIContext *ciContext;
     EAGLContext *eaglContext;
-    CGRect videoPreviewViewBounds;
+    CGRect videoPreviewViewBounds; //FIXME: free resources
+//    CGRect viewBounds;
+    
+    
     
     CMTime last_sample_ts;
 }
@@ -67,17 +70,9 @@
             
             self->eaglContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
             self->videoPreviewView = [[GLKView alloc] initWithFrame:view.bounds context:self->eaglContext];
+//            self->viewBounds = view.bounds;
             self->videoPreviewView.enableSetNeedsDisplay = NO;
-            
-            
-//            if (self->dim.width>self->dim.height){
-//                self->videoPreviewView.transform=CGAffineTransformMakeRotation(M_PI_2);
-//            } else {
-//                self->videoPreviewView.transform=CGAffineTransformMakeRotation(0);
-//
-//            }
-            
-            
+   
             
             self->videoPreviewView.frame = view.bounds;
             
@@ -86,13 +81,6 @@
             self->videoPreviewViewOnView=TRUE;
             
             [self->videoPreviewView bindDrawable];
-            
-//            self->videoPreviewView.transform=CGAffineTransformMakeScale((float)self->dim.width/self->videoPreviewView.drawableWidth, (float)self->dim.height/self->videoPreviewView.drawableHeight);
-            
-           // float kX = (float)self->videoPreviewView.drawableWidth/self->dim.width;
-            
-//             self->videoPreviewView.transform=CGAffineTransformMakeScale(kX, kX);
-            
            
             self->videoPreviewViewBounds = CGRectZero;
             self->videoPreviewViewBounds.size.width = self->videoPreviewView.drawableWidth;
@@ -107,28 +95,27 @@
     }
     
     
-   
+    
+    
+//    __block BOOL needRefresh = FALSE;
+//
 //    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
 //
 //
 //    dispatch_async(dispatch_get_main_queue(), ^{
-//        self->videoPreviewViewBounds = CGRectZero;
-//        self->videoPreviewViewBounds.size.width = view.bounds.size.width * 2 ;
-//        self->videoPreviewViewBounds.size.height = view.bounds.size.height * 2;
 //
-////        self->videoPreviewViewBounds.size.width = self->videoPreviewView.drawableWidth;
-////        self->videoPreviewViewBounds.size.height = self->videoPreviewView.drawableHeight;
-//
-//        DLog(@"aaa %f %f %f %f", self->videoPreviewViewBounds.origin.x, self->videoPreviewViewBounds.origin.y, self->videoPreviewViewBounds.size.width, self->videoPreviewViewBounds.size.height);
+//        needRefresh = !  CGRectEqualToRect(self->viewBounds, view.bounds);
 //
 //        dispatch_semaphore_signal(sem);
 //    });
 //
-//    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+//    if (needRefresh){
+//        [self onStop];
+//        videoPreviewView=nil;
+//        return KResult_OK;
+//    }
     
-    
-    
-    
+
     
     
     
@@ -163,6 +150,7 @@
         drawRect.size.height = drawRect.size.width / previewAspect;
     }
     
+//    if (s.ts.value <=41){
     [videoPreviewView bindDrawable];
     
     if (eaglContext != [EAGLContext currentContext])
@@ -178,7 +166,7 @@
     
     //if (filteredImage)
     [ciContext drawImage:sourceImage inRect:videoPreviewViewBounds fromRect:drawRect];
-    
+//    }
     [videoPreviewView display];
     
     last_sample_ts = sample.ts;

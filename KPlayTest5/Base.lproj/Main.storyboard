@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
-    <device id="retina5_5" orientation="landscape" appearance="light"/>
+    <device id="retina5_5" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15509"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -12,11 +12,11 @@
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="KPlayTest5" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="736" height="414"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Hvp-cT-Nb4">
-                                <rect key="frame" x="0.0" y="0.0" width="736" height="414"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                                 <color key="backgroundColor" systemColor="systemBlueColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <gestureRecognizers/>
                                 <connections>
@@ -24,7 +24,7 @@
                                 </connections>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NTd-LC-HLT" userLabel="PlayPauseView">
-                                <rect key="frame" x="248" y="143" width="240" height="128"/>
+                                <rect key="frame" x="87" y="304" width="240" height="128"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UGW-qI-E5F" userLabel="PauseButton">
                                         <rect key="frame" x="153" y="49" width="42" height="30"/>
@@ -50,7 +50,7 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xb2-ab-g0l" userLabel="ControlsView">
-                                <rect key="frame" x="8" y="358" width="720" height="48"/>
+                                <rect key="frame" x="8" y="680" width="398" height="48"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00.00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oNR-Jh-RGN" userLabel="timeLabel">
                                         <rect key="frame" x="0.0" y="16" width="56" height="16"/>
@@ -62,7 +62,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00.00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QAE-8S-t0D" userLabel="durationLabel">
-                                        <rect key="frame" x="664" y="16" width="56" height="16"/>
+                                        <rect key="frame" x="342" y="16" width="56" height="16"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="56" id="SUK-WE-Hy4"/>
                                         </constraints>
@@ -71,7 +71,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="00e-py-Ela" userLabel="ProgresSlider" customClass="BufferSlider" customModule="BufferSlider">
-                                        <rect key="frame" x="62" y="8" width="596" height="31"/>
+                                        <rect key="frame" x="62" y="8" width="274" height="31"/>
                                         <connections>
                                             <action selector="touchDown:" destination="BYZ-38-t0r" eventType="touchDown" id="fzZ-9f-KHJ"/>
                                             <action selector="touchUpI:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Tn4-tE-4GA"/>
@@ -93,19 +93,26 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fu5-6Q-O61" userLabel="DebugView">
-                                <rect key="frame" x="562" y="8" width="166" height="128"/>
+                                <rect key="frame" x="240" y="8" width="166" height="128"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="status..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bhw-Bu-8j5" userLabel="StatusLabel">
-                                        <rect key="frame" x="52" y="19" width="62" height="21"/>
+                                        <rect key="frame" x="52" y="8" width="62" height="21"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HW6-xI-zuj">
-                                        <rect key="frame" x="56" y="65" width="54" height="30"/>
+                                        <rect key="frame" x="56" y="49" width="54" height="30"/>
                                         <state key="normal" title="Destroy"/>
                                         <connections>
                                             <action selector="onDestroyTouchDown:" destination="BYZ-38-t0r" eventType="touchDown" id="r2g-ne-XT1"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jhr-K8-7zB">
+                                        <rect key="frame" x="67" y="90" width="32" height="30"/>
+                                        <state key="normal" title="Stop"/>
+                                        <connections>
+                                            <action selector="onStopClick:" destination="BYZ-38-t0r" eventType="touchDown" id="p7j-8L-uT1"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -113,14 +120,16 @@
                                 <constraints>
                                     <constraint firstAttribute="width" constant="166" id="0Nq-6l-C5a"/>
                                     <constraint firstAttribute="height" constant="128" id="6FK-Bi-AYw"/>
+                                    <constraint firstItem="bhw-Bu-8j5" firstAttribute="top" secondItem="Fu5-6Q-O61" secondAttribute="top" constant="8" id="Rv8-dd-0jM"/>
                                     <constraint firstItem="bhw-Bu-8j5" firstAttribute="centerX" secondItem="Fu5-6Q-O61" secondAttribute="centerX" id="T9C-Vr-FQZ"/>
-                                    <constraint firstItem="HW6-xI-zuj" firstAttribute="top" secondItem="bhw-Bu-8j5" secondAttribute="bottom" constant="25" id="ZCf-cU-Xkw"/>
+                                    <constraint firstItem="HW6-xI-zuj" firstAttribute="top" secondItem="bhw-Bu-8j5" secondAttribute="bottom" constant="20" id="Yi4-HR-q5b"/>
                                     <constraint firstItem="HW6-xI-zuj" firstAttribute="centerX" secondItem="Fu5-6Q-O61" secondAttribute="centerX" id="afQ-UF-H9o"/>
-                                    <constraint firstItem="bhw-Bu-8j5" firstAttribute="top" secondItem="Fu5-6Q-O61" secondAttribute="top" constant="19" id="pi3-2U-6Wk"/>
+                                    <constraint firstItem="jhr-K8-7zB" firstAttribute="centerX" secondItem="Fu5-6Q-O61" secondAttribute="centerX" id="bqo-id-91m"/>
+                                    <constraint firstAttribute="bottom" secondItem="jhr-K8-7zB" secondAttribute="bottom" constant="8" id="dKx-LB-cfM"/>
                                 </constraints>
                             </view>
                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="g15-hs-X28" userLabel="Spinner">
-                                <rect key="frame" x="348" y="187" width="40" height="40"/>
+                                <rect key="frame" x="187" y="348" width="40" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="40" id="2TZ-MW-dxj"/>
                                     <constraint firstAttribute="height" constant="40" id="KPE-Mf-Wcn"/>
@@ -155,6 +164,7 @@
                         <outlet property="progressSlider" destination="00e-py-Ela" id="qWD-ap-H3x"/>
                         <outlet property="spinner" destination="g15-hs-X28" id="yKF-zK-yd3"/>
                         <outlet property="statusLabel" destination="bhw-Bu-8j5" id="tpr-iG-Dne"/>
+                        <outlet property="stopBtn" destination="jhr-K8-7zB" id="4LN-lN-irS"/>
                         <outlet property="timeLabel" destination="oNR-Jh-RGN" id="I2I-re-x5Y"/>
                         <outlet property="videoGesture" destination="zlt-Hw-vhH" id="5A0-x6-vWW"/>
                         <outlet property="videoView" destination="Hvp-cT-Nb4" id="BAY-fW-1Vl"/>
