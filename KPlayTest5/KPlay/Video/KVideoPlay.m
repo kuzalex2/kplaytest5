@@ -108,23 +108,23 @@
     
     
    
-    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-
-
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self->videoPreviewViewBounds = CGRectZero;
-        self->videoPreviewViewBounds.size.width = view.bounds.size.width * 2 ;
-        self->videoPreviewViewBounds.size.height = view.bounds.size.height * 2;
-
-//        self->videoPreviewViewBounds.size.width = self->videoPreviewView.drawableWidth;
-//        self->videoPreviewViewBounds.size.height = self->videoPreviewView.drawableHeight;
-
-        DLog(@"aaa %f %f %f %f", self->videoPreviewViewBounds.origin.x, self->videoPreviewViewBounds.origin.y, self->videoPreviewViewBounds.size.width, self->videoPreviewViewBounds.size.height);
-
-        dispatch_semaphore_signal(sem);
-    });
-
-    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+//    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+//
+//
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        self->videoPreviewViewBounds = CGRectZero;
+//        self->videoPreviewViewBounds.size.width = view.bounds.size.width * 2 ;
+//        self->videoPreviewViewBounds.size.height = view.bounds.size.height * 2;
+//
+////        self->videoPreviewViewBounds.size.width = self->videoPreviewView.drawableWidth;
+////        self->videoPreviewViewBounds.size.height = self->videoPreviewView.drawableHeight;
+//
+//        DLog(@"aaa %f %f %f %f", self->videoPreviewViewBounds.origin.x, self->videoPreviewViewBounds.origin.y, self->videoPreviewViewBounds.size.width, self->videoPreviewViewBounds.size.height);
+//
+//        dispatch_semaphore_signal(sem);
+//    });
+//
+//    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
     
     
     
@@ -150,18 +150,18 @@
 //    DLog(@"a1=%f a2=%f", sourceAspect, previewAspect);
 //    // we want to maintain the aspect radio of the screen size, so we clip the video image
     CGRect drawRect = sourceExtent;
-//    if (sourceAspect < previewAspect)
-//    {
-//        // use full height of the video image, and center crop the width
-//        drawRect.origin.x += (drawRect.size.width - drawRect.size.height * previewAspect) / 2.0;
-//        drawRect.size.width = drawRect.size.height * previewAspect;
-//    }
-//    else
-//    {
-//        // use full width of the video image, and center crop the height
-//        drawRect.origin.y += (drawRect.size.height - drawRect.size.width / previewAspect) / 2.0;
-//        drawRect.size.height = drawRect.size.width / previewAspect;
-//    }
+    if (sourceAspect < previewAspect)
+    {
+        // use full height of the video image, and center crop the width
+        drawRect.origin.x += (drawRect.size.width - drawRect.size.height * previewAspect) / 2.0;
+        drawRect.size.width = drawRect.size.height * previewAspect;
+    }
+    else
+    {
+        // use full width of the video image, and center crop the height
+        drawRect.origin.y += (drawRect.size.height - drawRect.size.width / previewAspect) / 2.0;
+        drawRect.size.height = drawRect.size.width / previewAspect;
+    }
     
     [videoPreviewView bindDrawable];
     
