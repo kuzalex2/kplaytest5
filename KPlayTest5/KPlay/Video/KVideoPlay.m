@@ -329,7 +329,6 @@
                 break;
             case KFilterState_STARTED:{
                 
-                
                 int64_t nowTimeMillisec = CMTimeConvertScale([self.clock position], 1000, kCMTimeRoundingMethod_Default).value;
                 int64_t sampleTimeMillisec = CMTimeConvertScale(_last_sample.ts, 1000, kCMTimeRoundingMethod_Default).value;
 

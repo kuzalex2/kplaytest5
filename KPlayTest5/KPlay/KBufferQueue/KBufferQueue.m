@@ -7,8 +7,8 @@
 //
 
 
-//#define MYDEBUG
-//#define MYWARN
+#define MYDEBUG
+#define MYWARN
 #include "myDebug.h"
 
 #import "KBufferQueue.h"
@@ -31,6 +31,7 @@
     CMTime lastTs;
     @public float startBufferSec[2];
     @public size_t curStartBufferSecIndex;
+    @public float maxBufferSec;
 }
 
 - (instancetype)init
@@ -47,6 +48,7 @@
         startBufferSec[0] = 0.3;
         startBufferSec[1] = 3.0;
         curStartBufferSecIndex = 0;
+        maxBufferSec = MAX(startBufferSec[0],startBufferSec[1])*2;
     }
     return self;
 }
@@ -89,6 +91,17 @@
     assert(lastSample!=nil);
     
     return (double)(lastSample.ts.value) / lastSample.ts.timescale - (double)(firstSample.ts.value) / firstSample.ts.timescale;
+}
+
+-(BOOL) checkIsFullAndIsRunning
+{
+    BOOL result;
+    pthread_mutex_lock(&queue_lock);
+    
+    result = ([self secondsInQueue] > maxBufferSec && isRunning);
+        
+    pthread_mutex_unlock(&queue_lock);
+    return result;
 }
 
 -(KResult)pushSample:(KMediaSample *)sample withOrderByTimestamp:(BOOL)orderByTimestamp
@@ -234,26 +247,27 @@
 //    NSError *_error;
     KQueue *queue;
     KMediaType *type;
+    
 //    dispatch_semaphore_t _sem;
    
 }
 
--(float)firstStartBufferSec
-{
-    return queue->startBufferSec[0];
-}
--(void)setFirstStartBufferSec:(float)firstStartBufferSec
-{
-    queue->startBufferSec[0] = firstStartBufferSec;
-}
--(float)secondStartBufferSec
-{
-    return queue->startBufferSec[1];
-}
--(void)setSecondStartBufferSec:(float)secondStartBufferSec
-{
-   queue->startBufferSec[1] = secondStartBufferSec;
-}
+//-(float)firstStartBufferSec
+//{
+//    return queue->startBufferSec[0];
+//}
+//-(void)setFirstStartBufferSec:(float)firstStartBufferSec
+//{
+//    queue->startBufferSec[0] = firstStartBufferSec;
+//}
+//-(float)secondStartBufferSec
+//{
+//    return queue->startBufferSec[1];
+//}
+//-(void)setSecondStartBufferSec:(float)secondStartBufferSec
+//{
+//   queue->startBufferSec[1] = secondStartBufferSec;
+//}
 - (instancetype)init
 {
     self = [super init];
@@ -269,12 +283,21 @@
     return self;
 }
 
-- (instancetype)initWithFirstStartBufferSec:(float)firstStartBufferSec andSecondStartBufferSec:(float)secondStartBufferSec
+- (instancetype)initWithFirstStartBufferSec:(float)firstStartBufferSec andSecondStartBufferSec:(float)secondStartBufferSec andMaxBufferSec:(float)maxBufferSec
 {
     self = [self init];
     if (self) {
-        self.firstStartBufferSec = firstStartBufferSec;
-        self.secondStartBufferSec = secondStartBufferSec;
+        queue->startBufferSec[0] =firstStartBufferSec;
+        queue->startBufferSec[1] =secondStartBufferSec;
+        queue->maxBufferSec = maxBufferSec;
+        
+        if (queue->maxBufferSec < MAX(queue->startBufferSec[0], queue->startBufferSec[1])*2){
+            DErr(@"KBufferQueue maxBufferSec too small");
+            queue->maxBufferSec = MAX(queue->startBufferSec[0], queue->startBufferSec[1])*2;
+        }
+        
+//        self.firstStartBufferSec = firstStartBufferSec;
+//        self.secondStartBufferSec = secondStartBufferSec;
     }
     return self;
 }
@@ -317,6 +340,12 @@
     if (!pin){
         DErr(@"%@ no input pin", [self name]);
         return KResult_ERROR;
+    }
+    
+    if ([queue checkIsFullAndIsRunning]){
+        WLog(@"KBufferQueue is full");
+        usleep(10000);
+        return KResult_OK;
     }
 
     @autoreleasepool {
