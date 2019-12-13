@@ -69,12 +69,12 @@
             self->videoPreviewView.enableSetNeedsDisplay = NO;
             
             
-            if (self->dim.width>self->dim.height){
-                self->videoPreviewView.transform=CGAffineTransformMakeRotation(M_PI_2);
-            } else {
-                self->videoPreviewView.transform=CGAffineTransformMakeRotation(0);
-                
-            }
+//            if (self->dim.width>self->dim.height){
+//                self->videoPreviewView.transform=CGAffineTransformMakeRotation(M_PI_2);
+//            } else {
+//                self->videoPreviewView.transform=CGAffineTransformMakeRotation(0);
+//                
+//            }
             
             self->videoPreviewView.frame = view.bounds;
             

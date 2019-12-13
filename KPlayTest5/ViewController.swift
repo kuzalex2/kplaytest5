@@ -506,13 +506,13 @@ class ViewController: UIViewController, KPlayerEvents {
 //        player?.play("rtmp://138.201.222.150:1935/vod/testa2.flv", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testa.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testa.flv", autoStart: true);
-//        player?.play("rtmp://138.201.222.150:1935/vod/bb.mp4", autoStart: true);
+        player?.play("rtmp://138.201.222.150:1935/vod/bb.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb10.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/starwars_1080p.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/adv2.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb.flv", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testamonoaac.flv", autoStart: true);
-        player?.play("rtmp://138.201.222.150:1935/vod/test.mp4", autoStart: true);
+//        player?.play("rtmp://138.201.222.150:1935/vod/test.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/myapp/stream", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testv.mp4", autoStart: false);
 //        player?.play("rtmp://138.201.222.150:1936/vod/test.mp4", autoStart: true);
