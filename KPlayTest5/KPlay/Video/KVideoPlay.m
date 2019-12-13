@@ -9,7 +9,7 @@
 #import "KVideoPlay.h"
 
 #import "KPlayGraph.h"
-#define MYDEBUG
+//#define MYDEBUG
 #define MYWARN
 #import "myDebug.h"
 
@@ -18,7 +18,7 @@
 #import <GLKit/GLKViewController.h>
 
 
-@interface VideoDisplay : NSObject
+@interface VideoDisplay : NSObject<GLKViewDelegate>
 
 @end
 
@@ -29,11 +29,12 @@
     CIContext *ciContext;
     EAGLContext *eaglContext;
     CGRect videoPreviewViewBounds; //FIXME: free resources
-//    CGRect viewBounds;
+    CGRect viewBounds;
     
     
     
     CMTime last_sample_ts;
+    KMediaSample * __block last_sample ;
 }
 
 -(BOOL)isInputMediaTypeSupported:(KMediaType *)type
@@ -46,7 +47,81 @@
     return FALSE;
 }
 
+- (void)glkView:(nonnull GLKView *)view drawInRect:(CGRect)rect
+{
+    
+    
+    
+    @synchronized (self) {
+        
+        
+        
+        if (last_sample==nil)
+            return;
+        
+        self->videoPreviewViewBounds = CGRectZero;
+        self->videoPreviewViewBounds.size.width = self->videoPreviewView.drawableWidth;
+        self->videoPreviewViewBounds.size.height = self->videoPreviewView.drawableHeight;
+        
+        BOOL updateContext = FALSE;
+        if (!CGRectEqualToRect(viewBounds, self->videoPreviewViewBounds)){
+            viewBounds =self->videoPreviewViewBounds;
+            self->ciContext = [CIContext contextWithEAGLContext:self->eaglContext options:@{kCIContextWorkingColorSpace : [NSNull null]} ];
+            updateContext = TRUE;
+        }
+        
+        
+      @autoreleasepool {
+        
+        CIImage *sourceImage = [CIImage imageWithCVPixelBuffer:(CVPixelBufferRef)((KMediaSampleImageBuffer *)last_sample).image options:nil];
+        CGRect sourceExtent = sourceImage.extent;
+        
+        
+        
+        
+        CGFloat sourceAspect = sourceExtent.size.width / sourceExtent.size.height;
+        CGFloat previewAspect = videoPreviewViewBounds.size.width  / videoPreviewViewBounds.size.height;
+        //    DLog(@"a1=%f a2=%f", sourceAspect, previewAspect);
+        //    // we want to maintain the aspect radio of the screen size, so we clip the video image
+        CGRect drawRect = sourceExtent;
+        if (sourceAspect < previewAspect)
+        {
+            // use full height of the video image, and center crop the width
+            drawRect.origin.x += (drawRect.size.width - drawRect.size.height * previewAspect) / 2.0;
+            drawRect.size.width = drawRect.size.height * previewAspect;
+        }
+        else
+        {
+            // use full width of the video image, and center crop the height
+            drawRect.origin.y += (drawRect.size.height - drawRect.size.width / previewAspect) / 2.0;
+            drawRect.size.height = drawRect.size.width / previewAspect;
+        }
+        
+        //    if (s.ts.value <=41){
+        [videoPreviewView bindDrawable];
+        
+        if (eaglContext != [EAGLContext currentContext])
+            [EAGLContext setCurrentContext:eaglContext];
+        
+        // clear eagl view to grey
+        glClearColor(0.5, 0.5, 0.5, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        // set the blend mode to "source over" so that CI will use that
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+        
+//        if (updateContext)
+//            self->ciContext = [CIContext contextWithEAGLContext:self->eaglContext options:@{kCIContextWorkingColorSpace : [NSNull null]} ];
 
+     //   DLog(@" DRAW1 (%f %f) %f x %f | (%f %f) %f x %f %p", videoPreviewViewBounds.origin.x, videoPreviewViewBounds.origin.y, videoPreviewViewBounds.size.width, videoPreviewViewBounds.size.height, drawRect.origin.x, drawRect.origin.y, drawRect.size.width, drawRect.size.height, ciContext);
+     //   DLog(@" DRAW2 (%f %f) %f x %f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
+//        DLog(@" DRAW2 ", );
+        [ciContext drawImage:sourceImage inRect:videoPreviewViewBounds fromRect:drawRect];
+        //    }
+        }
+    }
+}
 
 - (KResult)displaySample:(KMediaSample *) s inView:(UIView *)view
 {
@@ -63,6 +138,10 @@
             if (self->videoPreviewView!=nil){
                 [view addSubview:self->videoPreviewView];
                 [view sendSubviewToBack:self->videoPreviewView];
+                
+               
+                
+                
                 self->videoPreviewViewOnView=TRUE;
                 dispatch_semaphore_signal(sem);
                 return;
@@ -70,14 +149,59 @@
             
             self->eaglContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
             self->videoPreviewView = [[GLKView alloc] initWithFrame:view.bounds context:self->eaglContext];
+            self->videoPreviewView.delegate = self;
 //            self->viewBounds = view.bounds;
-            self->videoPreviewView.enableSetNeedsDisplay = NO;
+          //  self->videoPreviewView.enableSetNeedsDisplay = NO;
+            
+            
+            ////
+            
+            ////
    
             
             self->videoPreviewView.frame = view.bounds;
-            
+            [self->videoPreviewView setTranslatesAutoresizingMaskIntoConstraints:FALSE];
+
             [view addSubview:self->videoPreviewView];
             [view sendSubviewToBack:self->videoPreviewView];
+            
+
+                           NSLayoutConstraint *width =[NSLayoutConstraint
+                                                       constraintWithItem:self->videoPreviewView
+                                                       attribute:NSLayoutAttributeWidth
+                                                       relatedBy:0
+                                                       toItem:view
+                                                       attribute:NSLayoutAttributeWidth
+                                                       multiplier:1.0
+                                                       constant:0];
+                           NSLayoutConstraint *height =[NSLayoutConstraint
+                                                        constraintWithItem:self->videoPreviewView
+                                                        attribute:NSLayoutAttributeHeight
+                                                        relatedBy:0
+                                                        toItem:view
+                                                        attribute:NSLayoutAttributeHeight
+                                                        multiplier:1.0
+                                                        constant:0];
+                           NSLayoutConstraint *top = [NSLayoutConstraint
+                                                      constraintWithItem:self->videoPreviewView
+                                                      attribute:NSLayoutAttributeTop
+                                                      relatedBy:NSLayoutRelationEqual
+                                                      toItem:view
+                                                      attribute:NSLayoutAttributeTop
+                                                      multiplier:1.0f
+                                                      constant:0.f];
+                           NSLayoutConstraint *leading = [NSLayoutConstraint
+                                                          constraintWithItem:self->videoPreviewView
+                                                          attribute:NSLayoutAttributeLeading
+                                                          relatedBy:NSLayoutRelationEqual
+                                                          toItem:view
+                                                          attribute:NSLayoutAttributeLeading
+                                                          multiplier:1.0f
+                                                          constant:0.f];
+                           [view addConstraint:width];
+                           [view addConstraint:height];
+                           [view addConstraint:top];
+                           [view addConstraint:leading];
             self->videoPreviewViewOnView=TRUE;
             
             [self->videoPreviewView bindDrawable];
@@ -97,79 +221,20 @@
     
     
     
-//    __block BOOL needRefresh = FALSE;
-//
-//    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-//
-//
-//    dispatch_async(dispatch_get_main_queue(), ^{
-//
-//        needRefresh = !  CGRectEqualToRect(self->viewBounds, view.bounds);
-//
-//        dispatch_semaphore_signal(sem);
-//    });
-//
-//    if (needRefresh){
-//        [self onStop];
-//        videoPreviewView=nil;
-//        return KResult_OK;
-//    }
-    
 
     
-    
-    
-    KMediaSampleImageBuffer *sample = (KMediaSampleImageBuffer *)s;
-    
-    if (videoPreviewView==nil){
-        DErr(@"videoPreviewView is NULL");
-        return KResult_ERROR;
+    @synchronized (self) {
+        if (s!=nil){
+            last_sample = nil;
+            last_sample = (KMediaSampleImageBuffer *)s;
+            last_sample_ts = last_sample.ts;
+        }
+        
     }
-    // CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-    CIImage *sourceImage = [CIImage imageWithCVPixelBuffer:(CVPixelBufferRef)sample.image options:nil];
-    CGRect sourceExtent = sourceImage.extent;
-    
-    
-    
-    
-    CGFloat sourceAspect = sourceExtent.size.width / sourceExtent.size.height;
-    CGFloat previewAspect = videoPreviewViewBounds.size.width  / videoPreviewViewBounds.size.height;
-//    DLog(@"a1=%f a2=%f", sourceAspect, previewAspect);
-//    // we want to maintain the aspect radio of the screen size, so we clip the video image
-    CGRect drawRect = sourceExtent;
-    if (sourceAspect < previewAspect)
-    {
-        // use full height of the video image, and center crop the width
-        drawRect.origin.x += (drawRect.size.width - drawRect.size.height * previewAspect) / 2.0;
-        drawRect.size.width = drawRect.size.height * previewAspect;
-    }
-    else
-    {
-        // use full width of the video image, and center crop the height
-        drawRect.origin.y += (drawRect.size.height - drawRect.size.width / previewAspect) / 2.0;
-        drawRect.size.height = drawRect.size.width / previewAspect;
-    }
-    
-//    if (s.ts.value <=41){
-    [videoPreviewView bindDrawable];
-    
-    if (eaglContext != [EAGLContext currentContext])
-        [EAGLContext setCurrentContext:eaglContext];
-    
-    // clear eagl view to grey
-    glClearColor(0.5, 0.5, 0.5, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-    
-    // set the blend mode to "source over" so that CI will use that
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    
-    //if (filteredImage)
-    [ciContext drawImage:sourceImage inRect:videoPreviewViewBounds fromRect:drawRect];
-//    }
     [videoPreviewView display];
     
-    last_sample_ts = sample.ts;
+    
+    
     return KResult_OK;
 }
 
@@ -351,7 +416,8 @@
                 int64_t sampleTimeMillisec = CMTimeConvertScale(_last_sample.ts, 1000, kCMTimeRoundingMethod_Default).value;
 
                 if (nowTimeMillisec < sampleTimeMillisec-10){
-                    usleep(1000);
+                    [self displaySample:nil inView:self->_view];
+                    usleep(10000);
                     return KResult_OK;
                 } else if (nowTimeMillisec > sampleTimeMillisec+10){
                     //опоздал
