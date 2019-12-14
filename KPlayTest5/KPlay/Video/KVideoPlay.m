@@ -66,7 +66,7 @@
         BOOL updateContext = FALSE;
         if (!CGRectEqualToRect(viewBounds, self->videoPreviewViewBounds)){
             viewBounds =self->videoPreviewViewBounds;
-            self->ciContext = [CIContext contextWithEAGLContext:self->eaglContext options:@{kCIContextWorkingColorSpace : [NSNull null]} ];
+           // self->ciContext = [CIContext contextWithEAGLContext:self->eaglContext options:@{kCIContextWorkingColorSpace : [NSNull null]} ];
             updateContext = TRUE;
         }
         
