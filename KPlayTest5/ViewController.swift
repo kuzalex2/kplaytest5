@@ -126,7 +126,7 @@ class KTestRtmpVPlayGraph : KPlayGraphChainBuilder {
                 super.flowchain.removeAllObjects();
                 super.flowchain.add(KRtmpSource(url: url, andBufferSec: 5));
                 super.flowchain.add(KVideoDecoder());
-//                super.flowchain.add(KBufferQueue(firstStartBufferSec: 15, andSecondStartBufferSec: 15));
+                super.flowchain.add(KBufferQueue(firstStartBufferSec: 15, andSecondStartBufferSec: 15, andMaxBufferSec: 30));
                 super.flowchain.add(KVideoPlay(uiView: _view));
                 
                 super.connectchain.add(super.flowchain);

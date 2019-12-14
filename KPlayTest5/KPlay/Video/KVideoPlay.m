@@ -39,8 +39,15 @@
         self->glkView.frame = view.bounds;
         [self->glkView setTranslatesAutoresizingMaskIntoConstraints:FALSE];
 
+        NSArray *viewsToRemove = [view subviews];
+        for (UIView *v in viewsToRemove) {
+            [v removeFromSuperview];
+        }
+        
         [view addSubview:self->glkView];
         [view sendSubviewToBack:self->glkView];
+        
+       
         
         
         NSLayoutConstraint *width =[NSLayoutConstraint
@@ -81,12 +88,8 @@
         [view addConstraint:leading];
                     
         [self->glkView bindDrawable];
-                   
-//                    self->videoPreviewViewBounds = CGRectZero;
-//                    self->videoPreviewViewBounds.size.width = self->videoPreviewView.drawableWidth;
-//                    self->videoPreviewViewBounds.size.height = self->videoPreviewView.drawableHeight;
-                    
-                    
+        
+        
         self->ciContext = [CIContext contextWithEAGLContext:self->eaglContext options:@{kCIContextWorkingColorSpace : [NSNull null]} ];
     }
     return self;
@@ -97,7 +100,7 @@
 {
     ///FIXME: deinit from destroy graph!
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self->glkView removeFromSuperview];
+       // [self->glkView removeFromSuperview];
     });
 }
 
@@ -213,7 +216,6 @@
 
 @implementation KVideoPlay {
     VideoDisplay *_video;
-  //  UIView *_view;
     KMediaSample * __block _last_sample ;
 }
 
