@@ -9,7 +9,7 @@
 
 #import "KRtmpSource.h"
 
-//#define MYDEBUG
+#define MYDEBUG
 //#define MYWARN
 #import "myDebug.h"
 
@@ -31,6 +31,7 @@
     NSObject *RtmpLockProcess;
     RTMP *_rtmp;
     float bufferSec;
+    float seekPosition;
 //    NSError *_error;
 }
 
@@ -52,6 +53,7 @@
         self->_rtmp = nil;
         self->_url = url;
         self->bufferSec = bufferSec;
+        self->seekPosition = 0;
        
         
         if (!self->_url)
@@ -107,6 +109,7 @@ void RTMP_Interrupt(RTMP *r)
             }
             [_stream_video flush];
             [_stream_audio flush];
+            seekPosition = 0;
         }
         default:
             break;
@@ -208,7 +211,7 @@ void RTMP_Interrupt(RTMP *r)
                 return KResult_RTMP_ConnectFailed;
             }
             
-            if (!RTMP_ConnectStream(_rtmp, 0)) {
+            if (!RTMP_ConnectStream(_rtmp, seekPosition*1000)) {
                 RTMP_Log(RTMP_LOGERROR, "ConnectStream Err\n");
                 return KResult_RTMP_ConnectFailed;
             }
@@ -370,6 +373,23 @@ void RTMP_Interrupt(RTMP *r)
         
         [_stream_video flush];
         [_stream_audio flush];
+        
+        @synchronized (RtmpLockInit) {
+            if (_rtmp != nil){
+                RTMP_Interrupt(_rtmp);
+            }
+            
+            @synchronized (RtmpLockProcess) {
+                if (_rtmp != nil){
+                    RTMP_Close(_rtmp);
+                    RTMP_Free(_rtmp);
+                    _rtmp = nil;
+                }
+            }
+        }
+        self->seekPosition = sec;
+        
+        return KResult_OK;
        
         
 //        if (!RTMP_ConnectStream(_rtmp, sec*1000)) {
