@@ -16,6 +16,9 @@ NS_ASSUME_NONNULL_BEGIN
     -(instancetype)initWithUrl:(NSString *)url andBufferSec:(float)bufferSec;
     -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(nonnull KOutputPin *)pin;
     -(KResult)seek:(float)sec;
+    -(KResult)flush;
+    -(KResult)flushEOS;
+
    
 @end
 

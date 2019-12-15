@@ -23,15 +23,19 @@ typedef enum
     KGraphState_PAUSING,
     KGraphState_PAUSED,
     KGraphState_STARTED,
-    KGraphState_SEEKING
+    KGraphState_SEEKING,
+    KGraphState_EOF
 } KGraphState;
 
 @protocol KPlayerEvents<NSObject>
 @optional
     - (void)onError:( NSError * _Nullable )error;
     - (void)onStateChanged:(KGraphState)state;
-    - (void)onEOS;
 @end
+
+//@protocol KPlayerEOS<NSObject>
+//    - (void)onEOS;
+//@end
 
 @protocol KPlayMediaInfo<NSObject>
     -(CMTime)duration;

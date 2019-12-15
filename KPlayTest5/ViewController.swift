@@ -124,7 +124,7 @@ class KTestRtmpVPlayGraph : KPlayGraphChainBuilder {
             defer { objc_sync_exit(super.state_mutex)}
             if (super.state == KGraphState_NONE){
                 super.flowchain.removeAllObjects();
-                super.flowchain.add(KRtmpSource(url: url, andBufferSec: 5));
+                super.flowchain.add(KRtmpSource(url: url, andBufferSec: 15));
                 super.flowchain.add(KVideoDecoder());
                 super.flowchain.add(KBufferQueue(firstStartBufferSec: 15, andSecondStartBufferSec: 15, andMaxBufferSec: 30));
                 super.flowchain.add(KVideoPlay(uiView: _view));
@@ -280,10 +280,10 @@ class ViewController: UIViewController, KPlayerEvents {
         return String(format: "%.02d:%.02d.%.02d", minutes, seconds, timeMicrosec/10);
     }
     
-    func onEOS() {
-        player?.stop();
-//        player?.seek(0)
-    }
+//    func onEOS() {
+//        player?.stop();
+////        player?.seek(0)
+//    }
     
     func onError(_ error: Error?) {
         
@@ -412,6 +412,8 @@ class ViewController: UIViewController, KPlayerEvents {
             return "started";
         case KGraphState_SEEKING:
             return "seeking";
+        case KGraphState_EOF:
+            return "eof";
         default:
             assert(false);
         }
@@ -423,9 +425,9 @@ class ViewController: UIViewController, KPlayerEvents {
         
         DispatchQueue.main.async {
             
-            var stateString: String = ""
+            let stateString: String = self.state2String(state: state)
             
-            self.playBtn?.isEnabled = (state == KGraphState_NONE || state == KGraphState_STOPPED || state == KGraphState_PAUSED);
+            self.playBtn?.isEnabled = (state == KGraphState_NONE || state == KGraphState_STOPPED || state == KGraphState_PAUSED || state == KGraphState_EOF);
             self.pauseBtn?.isEnabled = (state == KGraphState_STARTED || state == KGraphState_STOPPED);
             self.stopBtn?.isEnabled = (state != KGraphState_STOPPED && state != KGraphState_STOPPING && state != KGraphState_NONE);
             
@@ -434,13 +436,11 @@ class ViewController: UIViewController, KPlayerEvents {
             case KGraphState_NONE:
                 self.showPlayerPosition(valid: false);
                 self.positionTimer?.invalidate();
-                stateString = "none";
                 self.spinner?.isHidden = true
                 self.progressSlider?.bufferStartValue=0;
                 self.progressSlider?.bufferEndValue=0;
                
             case KGraphState_STOPPED:
-                stateString = "stopped";
                 self.showPlayerPosition(valid: false);
                 self.positionTimer?.invalidate();
                 self.spinner?.isHidden = true
@@ -450,13 +450,10 @@ class ViewController: UIViewController, KPlayerEvents {
                
 
             case KGraphState_BUILDING:
-                stateString = "building...";
                 self.spinner?.isHidden = false
             case KGraphState_STOPPING:
-                stateString = "stopping...";
                 self.spinner?.isHidden = false
             case KGraphState_PAUSING:
-                stateString = "pausing...";
                 self.spinner?.isHidden = false
             case KGraphState_PAUSED:
                 self.showPlayerPosition(valid: true);
@@ -464,16 +461,14 @@ class ViewController: UIViewController, KPlayerEvents {
                 self.positionTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.runTimedCode), userInfo: nil, repeats: true)
 
                 
-                stateString = "paused";
                 self.spinner?.isHidden = true
             case KGraphState_STARTED:
-                stateString = "started";
                 
                 self.spinner?.isHidden = self.player?.positionInfo?.isRunning() ?? false;
-//                NSLog("hidd %d", self.spinner.isHidden);
             case KGraphState_SEEKING:
-                stateString = "seeking";
                 self.spinner?.isHidden = false
+            case KGraphState_EOF:
+                self.spinner?.isHidden = true
             default:
                 assert(false);
             }
@@ -508,10 +503,10 @@ class ViewController: UIViewController, KPlayerEvents {
 //            player = KTestGraph();
 //            player = KTestWavGraph();
 //            player = KTestRtmpVPlayGraph(self.videoView);
-//            player = KTestRtmpVPlayGraph(self.videoView);
+            player = KTestRtmpVPlayGraph(self.videoView);
 //            player = KTestRtmpAPlayGraph();
             
-            player = KTestRtmpAVPlayGraph(self.videoView);
+//            player = KTestRtmpAVPlayGraph(self.videoView);
             
             player?.events = self
         }
@@ -521,13 +516,13 @@ class ViewController: UIViewController, KPlayerEvents {
 //        player?.play("rtmp://138.201.222.150:1935/vod/testa.flv", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb10.mp4", autoStart: true);
-        player?.play("rtmp://138.201.222.150:1935/vod/starwars_1080p.mp4", autoStart: true);
+//            player?.play("rtmp://138.201.222.150:1935/vod/starwars_1080p.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/adv2.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb.flv", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testamonoaac.flv", autoStart: true);
-//        player?.play("rtmp://138.201.222.150:1935/vod/test.mp4", autoStart: true);
+        player?.play("rtmp://138.201.222.150:1935/vod/test.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/myapp/stream", autoStart: true);
-//        player?.play("rtmp://138.201.222.150:1935/vod/testv.mp4", autoStart: false);
+//            player?.play("rtmp://138.201.222.150:1935/vod/testv.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1936/vod/test.mp4", autoStart: true);
 
 //        _ = player?.play("http://p.kuzalex.com/wav/gr.wav", autoStart: true)

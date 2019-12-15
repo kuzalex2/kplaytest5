@@ -350,6 +350,11 @@
 
 -(KResult)seek:(float)sec
 {
+    return [self flush];
+}
+
+-(KResult)flush
+{
     [_video flush];
     _last_sample=nil;
     return KResult_OK;

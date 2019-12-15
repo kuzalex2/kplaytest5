@@ -19,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     -(KResult)onThreadTick:(NSError *__strong*)ppError;
     -(KResult)seek:(float)sec;
+    -(KResult)flush;
 @end
 
 NS_ASSUME_NONNULL_END

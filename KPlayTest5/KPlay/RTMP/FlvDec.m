@@ -381,8 +381,10 @@ BOOL AudioStreamBasicDescriptionEqual(const AudioStreamBasicDescription *a, cons
                     if (status != noErr)
                         return KResult_ParseError;
                     
+                    #ifdef MYDEBUG
                     CMVideoDimensions dim = CMVideoFormatDescriptionGetDimensions(vfd);
                     DLog(@"Found %dx%d CMVideoFormatDescription", dim.width, dim.height);
+                    #endif
                     UInt32 fourcc = CMVideoFormatDescriptionGetCodecType(vfd);
                     
                     DLog(@"Found %d %d", fourcc, MKBETAG('a','v','c','1'));

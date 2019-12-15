@@ -255,6 +255,15 @@
     return KResult_OK;
 }
 
+-(KResult)flush
+{
+    assert(self->reader.state == WavReaderStateSample);
+    
+    ///FIXME: @sync????? aaa
+    _outSample = nil;
+    _position = _start_data_position + 0;
+    return KResult_OK;
+}
 
 -(KResult)seek:(float)sec
 {

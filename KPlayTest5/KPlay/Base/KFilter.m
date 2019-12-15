@@ -250,6 +250,16 @@ NSString *KFilterState2String(KFilterState state)
     return KResult_OK;
 }
 
+-(KResult)flushEOS
+{
+    return KResult_OK;
+}
+
+-(KResult)flush
+{
+     return KResult_OK;
+}
+
 @end
 
 

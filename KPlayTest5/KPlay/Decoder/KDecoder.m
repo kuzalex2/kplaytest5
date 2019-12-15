@@ -40,14 +40,16 @@
     return dec.out_type;
 }
 
-- (void) flush
+-(KResult)flush
 {
     [out_samples removeAllObjects];
     if (dec){
         [dec flush];
        // dec=nil;
     }
+    return KResult_OK;
 }
+
 
 - (void)onStateChanged:(KFilter *)filter state:(KFilterState)state
 {

@@ -45,12 +45,9 @@
             [self.events onError:error];
         }
     }
-    - (void)onEOS:(KFilter *)filter
-    {
-        if ([self.events respondsToSelector:@selector(onEOS)]) {
-            [self.events onEOS];
-        }
-    }
+    
+
+
     - (void)onStateChanged:(KFilter *)filter state:(KFilterState)state
     {
         //FIXME: process filter's change of state here and push to next
@@ -182,15 +179,28 @@
         @synchronized (_async_mutex) {
             
             KResult res;
-            
-            BOOL forward ;
-            
+
             switch (prevState) {
                 case KGraphState_PAUSED:
-                    forward = TRUE;
+                case KGraphState_EOF:
                     break;
                 case KGraphState_STARTED:
-                    forward = FALSE;
+                    {
+                        for (KFilter* filter in  _flowchain ) {
+                            DLog(@"<%@> pausing", [filter name]);
+                            res = [filter pause];
+                            if (res!=KResult_OK) {
+                                DLog(@"<%@> pause failed", [filter name]);
+                                
+                                [self notifyError: KResult2Error(res)];
+                                [self stop];
+                                return;
+                                
+                            }
+                        }
+                        
+                        DLog(@"ALL PAUSED. start seeking");
+                    }
                     break;
                 default:
                     assert(0);
@@ -199,20 +209,7 @@
             
             
             
-            for (KFilter* filter in forward ? _flowchain : [_flowchain reverseObjectEnumerator]) {
-                DLog(@"<%@> pausing", [filter name]);
-                res = [filter pause];
-                if (res!=KResult_OK) {
-                    DLog(@"<%@> pause failed", [filter name]);
-                    
-                    [self notifyError: KResult2Error(res)];
-                    [self stop];
-                    return;
-                    
-                }
-            }
-            
-            DLog(@"ALL PAUSED. start seeking");
+           
             
             
             for (KFilter* filter in _flowchain) {
@@ -249,6 +246,7 @@
                     [self setStateAndNotify:KGraphState_PAUSED];
                     break;
                 case KGraphState_STARTED:
+                case KGraphState_EOF:
                     [self setStateAndNotify:KGraphState_PAUSED];
                     [self startPlaying];
                     break;
@@ -328,6 +326,14 @@
     }
 
 
+
+
+
+
+    //
+    //
+
+
     
 
     - (KResult)startPlaying
@@ -393,6 +399,7 @@
                 case KGraphState_STOPPING:
                 case KGraphState_PAUSING:
                 case KGraphState_SEEKING:
+                case KGraphState_EOF:
                     DErr(@"Invalid State");
                     return KResult_InvalidState;
                 case KGraphState_STOPPED:
@@ -424,10 +431,15 @@
                             return ;
                         }
                     }
+                    
+                    
+                   
                     DErr(@"Here paused");
+#ifdef MYDEBUG
                     for (KFilter* filter in self->_flowchain) {
                         DLog(@"<%@> state is %@", [filter name], KFilterState2String([filter state]));
                     }
+#endif
                     
                     [self setStateAndNotify:KGraphState_PAUSED];
                 }
@@ -454,7 +466,9 @@
                 case KGraphState_STOPPED:
                     DErr(@"Invalid State");
                     return KResult_InvalidState;
-                default:
+                case KGraphState_PAUSED:
+                case KGraphState_STARTED:
+                case KGraphState_EOF:
                     prevState = _state;
                     [self setStateAndNotify:KGraphState_SEEKING];
                     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -462,21 +476,31 @@
                     });
                     
                     return KResult_OK;
-                    break;
             }
         }
     }
    
 
-    - (KResult)play:(NSString * _Nonnull)url autoStart:(BOOL)autoStart;
+    - (KResult)play:(NSString * _Nonnull)url autoStart:(BOOL)autoStart
     {
         _suppress_error = false;
         
-        
         @synchronized (_state_mutex) {
             switch (_state) {
+                    
+                    
+                case KGraphState_EOF: {
+                    KGraphState prevState = _state;
+                    [self setStateAndNotify:KGraphState_SEEKING];
+                    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                        [self seekSync:0 prevState:prevState];
+                    });
+                    
+                    return KResult_OK;
+                }
                 case KGraphState_PAUSED:
                     return [self startPlaying];
+                    
                 case KGraphState_STOPPED:{
                     [self setStateAndNotify:KGraphState_PAUSING];
                     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -495,8 +519,13 @@
                     
                     return KResult_OK;
                 }
-                    
-                default:
+                 
+                case KGraphState_BUILDING:
+                case KGraphState_STOPPING:
+                case KGraphState_PAUSING:
+                case KGraphState_STARTED:
+                case KGraphState_SEEKING:
+                
                     return KResult_InvalidState;
             }
         }
@@ -512,7 +541,13 @@
                 case KGraphState_STOPPED:
                 case KGraphState_STOPPING:
                     return KResult_OK;
-                default:
+                
+                case KGraphState_BUILDING:
+                case KGraphState_PAUSING:
+                case KGraphState_PAUSED:
+                case KGraphState_STARTED:
+                case KGraphState_SEEKING:
+                case KGraphState_EOF:
                     [self setStateAndNotify:KGraphState_STOPPING];
                     prevState = _state;
                     break;
@@ -550,9 +585,11 @@
                 }
                 [self setStateAndNotify: prevState == KGraphState_BUILDING ? KGraphState_NONE :KGraphState_STOPPED];
                 DErr(@"Here stopped");
+#ifdef MYDEBUG
                 for (KFilter* filter in self->_flowchain) {
                     DLog(@"STOP <%@> state is %@", [filter name], KFilterState2String([filter state]));
                 }
+#endif
             }
             
             [self setStateAndNotify:KGraphState_STOPPED];
@@ -560,6 +597,68 @@
         }});
         
         return KResult_OK;
+    }
+
+
+    - (void)onEOS:(KFilter *)filter
+    {
+        _suppress_error = false;
+        BOOL forward;
+        @synchronized (_state_mutex) {
+            switch (_state) {
+                case KGraphState_NONE:
+                case KGraphState_BUILDING:
+                case KGraphState_STOPPING:
+                case KGraphState_PAUSING:
+                case KGraphState_SEEKING:
+                case KGraphState_EOF:
+                case KGraphState_STOPPED:
+                case KGraphState_PAUSED:
+                    return;
+                case KGraphState_STARTED:
+                    forward=FALSE;
+                    [self setStateAndNotify:KGraphState_PAUSING];
+                    break;
+                    
+            }
+        }
+                   
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            {
+                @synchronized (self->_async_mutex) {
+                    KResult res;
+                    for (KFilter* filter in forward ? self->_flowchain : [self->_flowchain reverseObjectEnumerator]) {
+                        DLog(@"<%@> pausing", [filter name]);
+                        res = [filter pause];
+                        if (res!=KResult_OK) {
+                            DLog(@"<%@> pause failed", [filter name]);
+                            
+                            [self notifyError: KResult2Error(res)];
+                            [self stop];
+                            
+                            return ;
+                        }
+                        DLog(@"<%@> EOS flushing", [filter name]);
+                        res = [filter flushEOS];
+                        if (res!=KResult_OK) {
+                            DLog(@"<%@> flush failed", [filter name]);
+                            
+                            [self notifyError: KResult2Error(res)];
+                            [self stop];
+                            
+                            return ;
+                        }
+                    }
+                    DErr(@"Here paused");
+#ifdef MYDEBUG
+                    for (KFilter* filter in self->_flowchain) {
+                        DLog(@"<%@> state is %@", [filter name], KFilterState2String([filter state]));
+                    }
+#endif
+                    [self setStateAndNotify:KGraphState_EOF];
+                }
+            }
+        });
     }
 
 

@@ -315,8 +315,13 @@
 
 -(KResult)seek:(float)sec
 {
+    return [self flush];
+}
+
+-(KResult)flush
+{
     [queue flush];
-   
+    
     return KResult_OK;
 }
 

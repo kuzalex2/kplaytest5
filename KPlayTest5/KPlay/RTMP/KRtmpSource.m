@@ -9,7 +9,7 @@
 
 #import "KRtmpSource.h"
 
-#define MYDEBUG
+//#define MYDEBUG
 //#define MYWARN
 #import "myDebug.h"
 
@@ -107,9 +107,8 @@ void RTMP_Interrupt(RTMP *r)
                     }
                 }
             }
-            [_stream_video flush];
-            [_stream_audio flush];
-            seekPosition = 0;
+            [self flush];
+            
         }
         default:
             break;
@@ -367,12 +366,12 @@ void RTMP_Interrupt(RTMP *r)
 
 }
 
--(KResult)seek:(float)sec
+-(KResult)flush
 {
+    [_stream_video flush];
+    [_stream_audio flush];
+    seekPosition = 0;
     @synchronized (RtmpLockProcess) {
-        
-        [_stream_video flush];
-        [_stream_audio flush];
         
         @synchronized (RtmpLockInit) {
             if (_rtmp != nil){
@@ -387,57 +386,25 @@ void RTMP_Interrupt(RTMP *r)
                 }
             }
         }
-        self->seekPosition = sec;
-        
-        return KResult_OK;
-       
-        
-//        if (!RTMP_ConnectStream(_rtmp, sec*1000)) {
-//            RTMP_Log(RTMP_LOGERROR, "ConnectStream Err\n");
-//            return KResult_RTMP_ConnectFailed;
-//        }
-        if (!RTMP_SendSeek(_rtmp, sec*1000))
-        {
-            return KResult_ERROR;
-        }
-        
-        RTMPPacket packet = { 0 };
-        
-        while (1)
-        {
-            if (!RTMP_IsConnected(_rtmp))
-                return KResult_RTMP_Disconnected;
-            
-            int res = RTMP_ReadPacket(_rtmp, &packet);
-            if (!res)
-                return KResult_RTMP_ReadFailed;
-            
-            if (RTMPPacket_IsReady(&packet))
-            {
-                if (!packet.m_nBodySize)
-                    continue;
-                
-                DLog(@"<%@> Got pkt type=%@ ts=%d len=%d", [self name], [self rtmpPacketStringForType:packet.m_packetType], (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
-                
-                if (packet.m_packetType == RTMP_PACKET_TYPE_INVOKE) {
-                    
-                    RTMP_ClientPacket(_rtmp, &packet);
-                    RTMPPacket_Free(&packet);
-                    
-                    ///FIXME -> check  HandleInvoke, onStatus: NetStream.Seek.Notify
-                    return KResult_OK;
-                    
-                } else {
-                    RTMP_ClientPacket(_rtmp, &packet);
-                    RTMPPacket_Free(&packet);
-                }
-            }
-        }
-        
-        
     }
     return KResult_OK;
 }
+
+-(KResult)flushEOS
+{
+    // disconnect on EOS
+    return [self flush];
+}
+
+-(KResult)seek:(float)sec
+{
+    [self flush];
+    self->seekPosition = sec;
+        
+    return KResult_OK;
+}
+        
+
 
 ///
 ///  KPlayMediaInfo
