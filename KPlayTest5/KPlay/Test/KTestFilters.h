@@ -21,11 +21,11 @@ NS_ASSUME_NONNULL_BEGIN
 //    -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(nonnull KOutputPin *)pin;
 //@end
 //
-//@interface KTestSinkFilter : KThreadFilter<KPlayPositionInfo> {
-//    @public int _consumed_samples;
-//}
-//    -(KResult)onThreadTick:(NSError *__strong*)ppError;
-//@end
+@interface KNullSink : KThreadFilter<KPlayPositionInfo> {
+    @public int _consumed_samples;
+}
+    -(KResult)onThreadTick:(NSError *__strong*)ppError;
+@end
 //
 //@interface KTestTransformFilter : KTransformFilter
 //    -(KResult)onTransformSample:(KMediaSample *_Nonnull*_Nullable)sample error:(NSError *__strong*)error;

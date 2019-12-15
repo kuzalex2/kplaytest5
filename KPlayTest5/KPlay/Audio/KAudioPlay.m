@@ -37,8 +37,8 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     @protected int32_t _sample_rate;
     AudioQueueBufferRef _buffers[NUM_BUFFERS];
     @protected uint32_t _buffer_size;
-    CMTime _firstTs;
-    BOOL _firstTsValid;
+    CMTime _firstRcvdTs;
+    CMTime _lastPlayedTs;
 //    BOOL _buffersAllocated ;
     size_t _eosCount;
 }
@@ -50,7 +50,8 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
             self->_avqueue = nil;
             self->_lock = [[NSObject alloc]init];
             self->_sample_rate = 1;
-            self->_firstTsValid=false;
+            self->_firstRcvdTs=CMTimeMake(0, 1);
+            self->_lastPlayedTs=CMTimeMake(0, 1);
 //            self->_buffersAllocated=false;
             for (int i = 0; i < NUM_BUFFERS; i++){
                 _buffers[i]=nil;
@@ -266,6 +267,9 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     -(void)flushBuffers
     {
         @synchronized (_lock) {
+            _firstRcvdTs=CMTimeMake(0, 1);
+            _lastPlayedTs=CMTimeMake(0, 1);
+            
             for (int i = 0; i < NUM_BUFFERS; i++)
             {
                 AudioQueueFreeBuffer(_avqueue, _buffers[i]);
@@ -287,13 +291,13 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
             Boolean disc;
             OSStatus status2 = AudioQueueGetCurrentTime(_avqueue, NULL, &timeStamp, &disc);
             if( status2 == noErr ){
-                CMTime res = CMTimeMake(timeStamp.mSampleTime, _sample_rate);
-                if (_firstTsValid){
-                    res = CMTimeAdd(res, _firstTs);
-                }
-                return res;
+                _lastPlayedTs = CMTimeMake(timeStamp.mSampleTime, _sample_rate);
+                _lastPlayedTs = CMTimeAdd(_lastPlayedTs, _firstRcvdTs);
+                return _lastPlayedTs;
             } else {
-                return (_firstTsValid?_firstTs:CMTimeMake(0, 1));
+                if (CMTimeCompare(_firstRcvdTs, _lastPlayedTs)<0)
+                    return _lastPlayedTs;
+                return _firstRcvdTs;
             }
         }
     }
@@ -368,7 +372,8 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
     {
         @synchronized (self->_samples) {
             [_samples removeAllObjects];
-            _firstTsValid=false;
+            
+            
             [super flushBuffers];
             _eosCount=0;
         }
@@ -391,9 +396,8 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
         @synchronized (self->_samples) {
             [self->_samples addObjectToTail:sample];
             nSamples = _samples.count;
-            if (!_firstTsValid){
-                _firstTsValid=true;
-                _firstTs=sample.ts;
+            if (_firstRcvdTs.value==0){
+                _firstRcvdTs=sample.ts;
             }
         }
         

@@ -162,6 +162,12 @@ void didDecompress( void *decompressionOutputRefCon,
                                                 0,
                                                 &videoBlock);
     
+    if (status!=noErr){
+        
+        DErr(@"VTDec CMBlockBufferCreateWithMemoryBlock error");
+        return KResult_ERROR;
+    }
+    
     // 6. create a CMSampleBuffer.
     CMSampleBufferRef sbRef = NULL;
     CMSampleTimingInfo timingInfo;
@@ -176,6 +182,12 @@ void didDecompress( void *decompressionOutputRefCon,
     
     
     status = CMSampleBufferCreate(kCFAllocatorDefault, videoBlock, true, NULL, NULL,sample.type.format , 1, 1, &timingInfo, 1, sampleSizeArray, &sbRef);
+    
+    if (status!=noErr){
+        
+        DErr(@"VTDec CMSampleBufferCreate error");
+        return KResult_ERROR;
+    }
     
     
     if (last_type==nil || ![last_type isEqual:sample.type] || session==nil)

@@ -54,7 +54,7 @@ class KTestWavGraph : KPlayGraphChainBuilder {
             if (super.state == KGraphState_NONE){
                 super.flowchain.removeAllObjects();
                 super.flowchain.add(KAudioWavSource(url: url));
-                super.flowchain.add(KBufferQueue(firstStartBufferSec: 15, andSecondStartBufferSec: 15, andMaxBufferSec: 30));
+                super.flowchain.add(KBufferQueue(firstStartBufferSec: 0.1, andSecondStartBufferSec: 3, andMaxBufferSec: 30));
                 super.flowchain.add(KAudioPlay());
                 super.connectchain.add(super.flowchain);
                 
@@ -162,12 +162,14 @@ class KTestRtmpAVPlayGraph : KPlayGraphChainBuilder {
                 super.flowchain.add(KBufferQueue(firstStartBufferSec: 1, andSecondStartBufferSec: 10, andMaxBufferSec: 10));        //1
                 super.flowchain.add(KAudioDecoder());       //2
                 super.flowchain.add(KAudioPlay());          //3
-                
                 super.flowchain.add(KVideoDecoder());       //4
-                    let q = KBufferQueue(firstStartBufferSec: 1.0, andSecondStartBufferSec: 1.0, andMaxBufferSec: 2);
-                    q.orderByTimestamp=true;
+                
+                let q = KBufferQueue(firstStartBufferSec: 1.0, andSecondStartBufferSec: 1.0, andMaxBufferSec: 2);
+                q.orderByTimestamp=true;
                 super.flowchain.add(q);//5
-                super.flowchain.add(KVideoPlay(uiView: _view));//6
+                
+//                super.flowchain.add(KVideoPlay(uiView: _view));//6
+                super.flowchain.add(KNullSink());
                 super.connectchain.add([super.flowchain[0], super.flowchain[1], super.flowchain[2], super.flowchain[3]]);
                 super.connectchain.add([super.flowchain[0], super.flowchain[4], super.flowchain[5]
                 
@@ -503,10 +505,10 @@ class ViewController: UIViewController, KPlayerEvents {
 //            player = KTestGraph();
 //            player = KTestWavGraph();
 //            player = KTestRtmpVPlayGraph(self.videoView);
-            player = KTestRtmpVPlayGraph(self.videoView);
+//            player = KTestRtmpVPlayGraph(self.videoView);
 //            player = KTestRtmpAPlayGraph();
             
-//            player = KTestRtmpAVPlayGraph(self.videoView);
+            player = KTestRtmpAVPlayGraph(self.videoView);
             
             player?.events = self
         }

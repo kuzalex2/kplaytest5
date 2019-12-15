@@ -1,16 +1,16 @@
-////
-////  KTestFilters.m
-////  KPlayer
-////
-////  Created by test name on 16.04.2019.
-////  Copyright © 2019 kuzalex. All rights reserved.
-////
 //
-////#define MYDEBUG
-//#include "myDebug.h"
+//  KTestFilters.m
+//  KPlayer
 //
-//#import "KTestFilters.h"
+//  Created by test name on 16.04.2019.
+//  Copyright © 2019 kuzalex. All rights reserved.
 //
+
+//#define MYDEBUG
+#include "myDebug.h"
+
+#import "KTestFilters.h"
+
 //
 //
 ////@interface OutSampleQueue : NSObject
@@ -309,89 +309,77 @@
 //
 //
 //
-///*
-// *   KTestSinkFilter
-// *
-// *
-// */
-//
-//
-//@implementation KTestSinkFilter{
-//    int64_t _last_sample_ts;
-//    int64_t _last_sample_timescale;
-//}
-//
-//- (instancetype)init
-//{
-//    self = [super init];
-//    if (self) {
-//        [self.inputPins addObject:[[KInputPin alloc] initWithFilter:self]];
-//        self->_last_sample_ts=0;
-//        self->_last_sample_timescale=1000;
-//    }
-//    return self;
-//}
-//
-//-(BOOL)isInputMediaTypeSupported:(KMediaType *)type
-//{
-//    // any type
-//    return TRUE;
-//}
-//
-////-(void)onStateChanged:(KFilterState)state
-////{
-////    if (state==KFilterState_STARTED)
-////        _consumed_samples = 0;
-////}
-//
-//-(KResult) onThreadTick:(NSError *__strong*)ppError
-//{
-//    @autoreleasepool {
-//        KMediaSample *sample;
-//       // NSError *error;
-//        KResult res;
-//        
-//        KInputPin *pin = [self getInputPinAt:0];
-//        res = [pin pullSample:&sample probe:NO error:ppError];
-//        
-//        if (res != KResult_OK) {
-//            return res;
-//        }
-//        
-//        DLog(@"%@ <%@> got sample type=%@ %ld bytes, ts=%lld/%d", self, [self name], sample.type.name, [sample.data length], sample.ts, sample.timescale);
-//        
-//        _last_sample_ts = sample.ts;
-//        _last_sample_timescale = sample.timescale;
+
+/*
+ *   KNullSink Filter
+ *
+ *
+ */
+
+
+@implementation KNullSink{
+    CMTime _last_sample_ts;
+}
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        [self.inputPins addObject:[[KInputPin alloc] initWithFilter:self]];
+        self->_last_sample_ts=CMTimeMake(0, 1);
+    }
+    return self;
+}
+
+-(BOOL)isInputMediaTypeSupported:(KMediaType *)type
+{
+    // any type
+    return TRUE;
+}
+
+
+-(KResult) onThreadTick:(NSError *__strong*)ppError
+{
+    @autoreleasepool {
+        KMediaSample *sample;
+       // NSError *error;
+        KResult res;
+        
+        KInputPin *pin = [self getInputPinAt:0];
+        res = [pin pullSample:&sample probe:NO error:ppError];
+        
+        if (res != KResult_OK) {
+            return res;
+        }
+        
+        DLog(@"%@ <%@> got sample type=%@ %ld bytes, ts=%lld/%d", self, [self name], sample.type.name, [sample.data length], sample.ts, sample.timescale);
+        
+        _last_sample_ts = sample.ts;
 //        _consumed_samples++;
-//        usleep(10000);
-//
-//        return KResult_OK;
-//    }
-//}
-//
-/////
-/////  KPlayPositionInfo
-/////
-//
-//-(int64_t)position
-//{
-//   
-//    return _last_sample_ts;
-//}
-//
-//-(int64_t)timeScale
-//{
-//  
-//    return _last_sample_timescale;
-//}
-//
-//- (BOOL)isRunning {
-//    return TRUE;
-//}
-//
-//@end
-//
-//
+        usleep(10000);
+
+        return KResult_OK;
+    }
+}
+
+///
+///  KPlayPositionInfo
+///
+
+-(CMTime)position
+{
+   
+    return _last_sample_ts;
+}
+
+
+- (BOOL)isRunning {
+    return TRUE;
+}
+
+@end
+
+
 //
 //
 //

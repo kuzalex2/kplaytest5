@@ -25,6 +25,7 @@
     __weak KOutputPin *_video_pin;
     BOOL has_audio;
     BOOL has_video;
+    float duration;
     
     
     NSObject *RtmpLockInit;
@@ -45,6 +46,7 @@
         self->_video_pin=nil;
         self->has_audio=FALSE;
         self->has_video=FALSE;
+        self->duration=0.0;
         
 //        self->_outSample=nil;
        // self->_error = nil;
@@ -264,6 +266,8 @@ void RTMP_Interrupt(RTMP *r)
                         } else if (has_video){
                             _video_pin = self.outputPins[0];
                         }
+                        
+                        duration = _rtmp->m_fDuration;
                     }
                 }
                 RTMP_ClientPacket(_rtmp, &packet);
@@ -328,7 +332,10 @@ void RTMP_Interrupt(RTMP *r)
                     
                 } else if (packet.m_packetType == RTMP_PACKET_TYPE_INFO) {
                     
-                    // ... do some stuf here
+                    if (HandleMetadata(_rtmp, packet.m_body, packet.m_nBodySize))
+                    {
+                        duration = _rtmp->m_fDuration;
+                    }
                     
                     RTMP_ClientPacket(_rtmp, &packet);
                     RTMPPacket_Free(&packet);
@@ -368,9 +375,18 @@ void RTMP_Interrupt(RTMP *r)
 
 -(KResult)flush
 {
+    [self flushEOS];
+    duration=0.0;
+    return KResult_OK;
+}
+
+-(KResult)flushEOS
+{
+    // disconnect on EOS
     [_stream_video flush];
     [_stream_audio flush];
     seekPosition = 0;
+    
     @synchronized (RtmpLockProcess) {
         
         @synchronized (RtmpLockInit) {
@@ -390,12 +406,6 @@ void RTMP_Interrupt(RTMP *r)
     return KResult_OK;
 }
 
--(KResult)flushEOS
-{
-    // disconnect on EOS
-    return [self flush];
-}
-
 -(KResult)seek:(float)sec
 {
     [self flush];
@@ -412,13 +422,7 @@ void RTMP_Interrupt(RTMP *r)
 
 -(CMTime)duration
 {
-    @synchronized (RtmpLockInit) {
-        if (_rtmp!=nil)
-            return CMTimeMake(_rtmp->m_fDuration*1000,1000);
-    }
-  
-    
-    return CMTimeMake(0, 1);
+    return CMTimeMake(duration*1000,1000);
 }
 
 
