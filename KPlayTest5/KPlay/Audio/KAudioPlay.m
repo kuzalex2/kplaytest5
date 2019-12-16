@@ -587,7 +587,8 @@ void audioQueueCallback2(void *custom_data, AudioQueueRef queue, AudioQueueBuffe
 
 -(KResult)seek:(float)sec
 {
-    return [self flush];
+    return KResult_OK;
+   // return [self flush];
 }
 
 -(KResult)flush

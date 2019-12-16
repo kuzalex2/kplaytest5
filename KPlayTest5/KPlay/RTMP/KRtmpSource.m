@@ -373,12 +373,7 @@ void RTMP_Interrupt(RTMP *r)
 
 }
 
--(KResult)flush
-{
-    [self flushEOS];
-    duration=0.0;
-    return KResult_OK;
-}
+
 
 -(KResult)flushEOS
 {
@@ -408,9 +403,16 @@ void RTMP_Interrupt(RTMP *r)
 
 -(KResult)seek:(float)sec
 {
-    [self flush];
+   // [self flush];
     self->seekPosition = sec;
         
+    return KResult_OK;
+}
+
+-(KResult)flush
+{
+    [self flushEOS];
+    duration=0.0;
     return KResult_OK;
 }
         

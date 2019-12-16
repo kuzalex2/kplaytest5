@@ -13,7 +13,7 @@
 #import "KPlayGraph.h"
 
 //#define MYWARN
-//#define MYDEBUG
+#define MYDEBUG
 #include "myDebug.h"
 
 
@@ -53,7 +53,7 @@
         //FIXME: process filter's change of state here and push to next
        // if ([filter.events respondsToSelector:@selector(onStateChanged:state:)])
          //   [filter.events onStateChanged:filter state:state];
-        DLog(@"<%@> onStateChanged %@ ", [filter name], KFilterState2String(state) );
+       // DLog(@"<%@> onStateChanged %@ ", [filter name], KFilterState2String(state) );
         
         
 //        if (_chain.count > 0 && filter == [_chain lastObject]){
@@ -214,7 +214,19 @@
             
             for (KFilter* filter in _flowchain) {
                 
-                KResult res = [filter seek:sec];
+                KResult res;
+                DLog(@"<%@> flushing", [filter name]);
+                res = [filter flush];
+                if (res!=KResult_OK) {
+                    DLog(@"<%@> flush failed", [filter name]);
+                    
+                    [self notifyError: KResult2Error(res)];
+                    [self stop];
+                    return;
+                }
+                
+                DLog(@"<%@> seeking", [filter name]);
+                res = [filter seek:sec];
                 if (res!=KResult_OK) {
                     DLog(@"<%@> seek failed", [filter name]);
                     

@@ -269,8 +269,6 @@
 {
     assert(self->reader.state == WavReaderStateSample);
     
-    
-    
     int64_t bytesPerSec =
         self->reader.format.mSampleRate *
         self->reader.format.mBytesPerFrame *
@@ -286,7 +284,6 @@
     ///FIXME: @sync????? aaa
     _outSample = nil;
     _position = _start_data_position + offset;
-//    _position=1114208*2;
     return KResult_OK;
 }
 

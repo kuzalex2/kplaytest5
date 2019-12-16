@@ -352,7 +352,8 @@
 
 -(KResult)seek:(float)sec
 {
-    return [self flush];
+    //return [self flush];
+    return KResult_OK;
 }
 
 -(KResult)flush
