@@ -54,7 +54,8 @@ class KTestWavGraph : KPlayGraphChainBuilder {
             if (super.state == KGraphState_NONE){
                 super.flowchain.removeAllObjects();
                 super.flowchain.add(KAudioWavSource(url: url));
-                super.flowchain.add(KBufferQueue(firstStartBufferSec: 0.1, andSecondStartBufferSec: 3, andMaxBufferSec: 30));
+                super.flowchain.add(KBufferQueue(firstStartBufferSec: 30, andSecondStartBufferSec: 30, andMaxBufferSec: 60));
+//                 super.flowchain.add(KBufferQueue(firstStartBufferSec: 0.1, andSecondStartBufferSec: 3, andMaxBufferSec: 60));
                 super.flowchain.add(KAudioPlay());
                 super.connectchain.add(super.flowchain);
                 
@@ -377,7 +378,10 @@ class ViewController: UIViewController, KPlayerEvents {
                         let startBufSec = ts2sec(ts: bufInfo.startBufferedPosition()) ;
                         let endBufSec = ts2sec(ts: bufInfo.endBufferedPosition()) ;
                         
+                        
+                        
                         if startBufSec >= 0 && endBufSec > 0 && durationSec != 0 {
+                          //  NSLog("InBuf=%f", endBufSec-startBufSec)
                             self.progressSlider?.bufferEndValue=Double(endBufSec/Float(durationSec));
                             self.progressSlider?.bufferStartValue=Double(startBufSec/Float(durationSec));
                             
@@ -503,12 +507,12 @@ class ViewController: UIViewController, KPlayerEvents {
         
         if player == nil {
 //            player = KTestGraph();
-//            player = KTestWavGraph();
+            player = KTestWavGraph();
 //            player = KTestRtmpVPlayGraph(self.videoView);
 //            player = KTestRtmpVPlayGraph(self.videoView);
 //            player = KTestRtmpAPlayGraph();
             
-            player = KTestRtmpAVPlayGraph(self.videoView);
+//            player = KTestRtmpAVPlayGraph(self.videoView);
             
             player?.events = self
         }
@@ -522,7 +526,7 @@ class ViewController: UIViewController, KPlayerEvents {
 //        player?.play("rtmp://138.201.222.150:1935/vod/adv2.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb.flv", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testamonoaac.flv", autoStart: true);
-        player?.play("rtmp://138.201.222.150:1935/vod/test.mp4", autoStart: true);
+//        player?.play("rtmp://138.201.222.150:1935/vod/test.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/myapp/stream", autoStart: true);
 //            player?.play("rtmp://138.201.222.150:1935/vod/testv.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1936/vod/test.mp4", autoStart: true);
@@ -531,7 +535,7 @@ class ViewController: UIViewController, KPlayerEvents {
 //        _ = player?.play("http://s-21.app.minutta.com/vk/test2.wav", autoStart: true)
         
 //        _ = player?.play("http://p.kuzalex.com/wav/testa2.wav", autoStart: true)
-//        _ = player?.play("http://p.kuzalex.com/wav/dom17.wav", autoStart: true)
+        _ = player?.play("http://p.kuzalex.com/wav/dom17.wav", autoStart: true)
 //        _ = player?.play("http://p.kuzalex.com/wav/pipe0.wav", autoStart: true)
 //        _ = player?.play("http://p.kuzalex.com/wav/pipe.wav", autoStart: false)
 //        _ = player?.play("http://p.kuzalex.com/wav/2.wav", autoStart: true)

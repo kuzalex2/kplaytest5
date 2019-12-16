@@ -291,7 +291,7 @@
         queue->startBufferSec[1] =secondStartBufferSec;
         queue->maxBufferSec = maxBufferSec;
         
-        if (queue->maxBufferSec < MAX(queue->startBufferSec[0], queue->startBufferSec[1])*2){
+        if (queue->maxBufferSec < MAX(queue->startBufferSec[0], queue->startBufferSec[1])*1.2){
             DErr(@"KBufferQueue maxBufferSec too small");
             queue->maxBufferSec = MAX(queue->startBufferSec[0], queue->startBufferSec[1])*2;
         }
