@@ -37,19 +37,20 @@
         self->glkView = [[GLKView alloc] initWithFrame:view.bounds context:self->eaglContext];
         self->glkView.delegate = self;
         self->glkView.frame = view.bounds;
+        self->glkView.enableSetNeedsDisplay=false;
         [self->glkView setTranslatesAutoresizingMaskIntoConstraints:FALSE];
 
         NSArray *viewsToRemove = [view subviews];
         for (UIView *v in viewsToRemove) {
             [v removeFromSuperview];
         }
-        
+
         [view addSubview:self->glkView];
         [view sendSubviewToBack:self->glkView];
-        
-       
-        
-        
+//
+
+
+
         NSLayoutConstraint *width =[NSLayoutConstraint
                                     constraintWithItem:self->glkView
                                     attribute:NSLayoutAttributeWidth
@@ -86,10 +87,10 @@
         [view addConstraint:height];
         [view addConstraint:top];
         [view addConstraint:leading];
-                    
+
         [self->glkView bindDrawable];
-        
-        
+
+
         self->ciContext = [CIContext contextWithEAGLContext:self->eaglContext options:@{kCIContextWorkingColorSpace : [NSNull null]} ];
     }
     return self;
@@ -99,14 +100,15 @@
 - (void)dealloc
 {
     ///FIXME: deinit from destroy graph!
-    dispatch_async(dispatch_get_main_queue(), ^{
+   // dispatch_async(dispatch_get_main_queue(), ^{
        // [self->glkView removeFromSuperview];
-    });
+   // });
 }
 
 
 - (void)glkView:(nonnull GLKView *)view drawInRect:(CGRect)rect
 {
+//    return;
     @synchronized (self) {
         
         if (last_sample==nil) {

@@ -168,8 +168,8 @@ class KTestRtmpAVPlayGraph : KPlayGraphChainBuilder {
                 q.orderByTimestamp=true;
                 super.flowchain.add(q);//5
                 
-//                super.flowchain.add(KVideoPlay(uiView: _view));//6
-                super.flowchain.add(KNullSink());
+                super.flowchain.add(KVideoPlay(uiView: _view));//6
+//                super.flowchain.add(KNullSink());
                 super.connectchain.add([super.flowchain[0], super.flowchain[1], super.flowchain[2], super.flowchain[3]]);
                 super.connectchain.add([super.flowchain[0], super.flowchain[4], super.flowchain[5]
                 
