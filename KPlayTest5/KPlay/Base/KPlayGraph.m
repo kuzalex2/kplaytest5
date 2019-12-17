@@ -207,14 +207,28 @@
                     return;
             }
             
+            int I;
+            for (I=((int)_flowchain.count)-1;I>=0;I--)
+            {
+                KFilter* filter = _flowchain[I];
+                DLog(@"<%@> couldRewindTo? %f", [filter name], sec);
+                if ([filter couldRewindTo:sec]){
+                    DLog(@"<%@> rewind to %f", [filter name], sec);
+                    
+                    res = [filter rewindTo:sec];
+                    if (res!=KResult_OK){
+                        DLog(@"<%@> rewind failed", [filter name]);
+                        
+                        [self notifyError: KResult2Error(res)];
+                        [self stop];
+                        return;
+                    }
+                    break;
+                }
+            }
             
-            
-           
-            
-            
-            for (KFilter* filter in _flowchain) {
-                
-                KResult res;
+            for (int j=I+1;j<(int)_flowchain.count;j++){
+                KFilter* filter = _flowchain[j];
                 DLog(@"<%@> flushing", [filter name]);
                 res = [filter flush];
                 if (res!=KResult_OK) {

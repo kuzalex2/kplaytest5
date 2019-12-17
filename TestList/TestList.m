@@ -23,6 +23,8 @@
     // Put teardown code here. This method is called after the invocation of each test method in the class.
 }
 
+
+
 - (void)testExample {
     
     KLinkedList *list = [[KLinkedList alloc]init];
@@ -43,6 +45,46 @@
     NSLog(@"%@", list);
     [list addOrdered:[NSNumber numberWithInt:5] withCompare:comparator];
     NSLog(@"%@", list);
+    
+//    for(int i=0, b=1.0;i<10;i++){
+//        NSLog(@"%d %d", i, b);
+//    }
+    
+    
+    
+    KLinkedListIterator *begin = [list begin];
+    KLinkedListIterator *end = [list end];
+    
+    
+    KLinkedListIterator *it1 = [list begin];
+    while(![it1 isEqualTo:end]) {
+        NSLog(@"%@", [it1 data]);
+        it1 = [it1 next];
+    };
+    while(![it1 isEqualTo:begin]) {
+        NSLog(@"%@", [it1 data]);
+        it1 = [it1 prev];
+    };
+    while(![it1 isEqualTo:end]) {
+        NSLog(@"%@", [it1 data]);
+        it1 = [it1 next];
+    };
+    
+    for (KLinkedListIterator *it = [list begin],*end = [list end]; ![it isEqualTo:end]; it = [it next]) {
+        NSLog(@"%@", [it data]);
+    }
+    
+//    KLinkedListIterator *i = [list iteratorHead];
+//    while([i hasNext]){
+//        id obj = [i next];
+//        NSLog(@"%@", obj);
+//    }
+    
+//        for (KLinkedListIterator i = [list iteratorHead], end=[list end]; it!=end; i=[i next]) {
+//            [i hasPrev];
+//            [i hasNext];
+//        }
+    
   
      
     // This is an example of a functional test case.

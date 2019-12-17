@@ -10,11 +10,33 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class KLinkedList;
+@class ListNode;
+@interface KLinkedListIterator : NSObject {
+    @public KLinkedList *list;
+    @public ListNode *cur;
+    
+    @public ListNode *next;
+    @public ListNode *prev;
+}
+
+    
+    -(BOOL)isEqualTo:(KLinkedListIterator *)it;
+    -(KLinkedListIterator *)next;
+    -(KLinkedListIterator *)prev;
+    -(id)data;
+
+
+   
+
+@end
+
 
 @interface KLinkedList : NSObject
     @property(nonatomic, assign, readonly) NSUInteger count;
 
-  
+    -(KLinkedListIterator *)begin;
+    -(KLinkedListIterator *)end;
 
     -(BOOL) isEmpty;
  

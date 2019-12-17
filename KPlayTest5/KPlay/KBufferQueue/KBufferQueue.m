@@ -206,6 +206,46 @@
     pthread_mutex_unlock(&queue_lock);
 }
 
+///FIXME: key frames! and
+
+-(BOOL)couldRewindTo:(float)sec
+{
+    KMediaSample *found = nil;
+    CMTime secTo = CMTimeMake(sec*1000, 1000);
+    
+    
+    
+    pthread_mutex_lock(&queue_lock);
+    
+//    KLinkedListIterator *it = [samples begin];
+//    KLinkedListIterator *end = [samples end];
+//
+//
+//    while (![it isEqualTo:end])
+//    {
+//        KMediaSample *s = [it data];
+//        if (CMTimeCompare(s.ts, secTo)>0){
+//            if (![it isEqualTo:[samples begin]]){
+//                found = [[it prev]data];
+//            }
+//            break;
+//        }
+//
+//        it = [it next];
+//    }
+    
+    pthread_mutex_unlock(&queue_lock);
+    return found!=nil;
+}
+
+-(KResult)rewindTo:(float)sec
+{
+    pthread_mutex_lock(&queue_lock);
+    
+    pthread_mutex_unlock(&queue_lock);
+    return KResult_ERROR;
+}
+
 - (CMTime)endBufferedPosition {
     CMTime result;
     
@@ -324,6 +364,16 @@
     [queue flush];
     
     return KResult_OK;
+}
+
+-(BOOL)couldRewindTo:(float)sec
+{
+    return [queue couldRewindTo:sec];
+}
+
+-(KResult)rewindTo:(float)sec
+{
+     return [queue rewindTo:sec];
 }
 
 

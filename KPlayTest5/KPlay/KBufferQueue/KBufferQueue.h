@@ -25,6 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     -(KResult)seek:(float)sec;
     -(KResult)flush;
+    -(BOOL)couldRewindTo:(float)sec;
+    -(KResult)rewindTo:(float)sec;
 
 @end
 

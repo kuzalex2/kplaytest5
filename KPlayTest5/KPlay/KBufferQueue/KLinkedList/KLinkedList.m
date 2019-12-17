@@ -57,8 +57,8 @@
 
 
 @implementation KLinkedList {
-    ListNode *_head;
-    ListNode *_tail;
+    @public ListNode *_head;
+    @public ListNode *_tail;
 }
 
     @synthesize count = _size;
@@ -245,5 +245,87 @@
     return [self removeNode:[self listNodeAtIndex:index]];
 }
 
+
+-(KLinkedListIterator *)begin
+{
+    KLinkedListIterator *it = [[KLinkedListIterator alloc] init];
+    it->list = self;
+    
+    it->cur = self->_head;
+    
+    it->prev = nil;
+    it->next = self->_head;
+    return it;
+    
+}
+-(KLinkedListIterator *)end
+{
+    KLinkedListIterator *it = [[KLinkedListIterator alloc] init];
+    it->list = self;
+    
+    it->cur = self->_tail;
+    
+    it->prev = self->_tail;
+    it->next = nil;
+    return it;
+}
+
 @end
 
+
+
+
+
+
+
+
+
+@implementation KLinkedListIterator
+
+-(id)data
+{
+    if (cur!=nil)
+        return cur.data;
+    //throw??
+    return nil;
+}
+
+
+-(KLinkedListIterator *)next
+{
+    prev = next;
+    
+    if (cur && cur.next)
+        cur = cur.next;
+    if (next)
+        next = next.next;
+    
+    return self;
+}
+-(KLinkedListIterator *)prev
+{
+    next = prev ;
+    
+    if (cur && cur.previous)
+        cur = cur.previous;
+    if (prev)
+        prev = prev.previous;
+  
+    return self;
+}
+
+-(BOOL)isEqualTo:(KLinkedListIterator *)it
+{
+    return
+        self->list == it->list &&
+        self->prev == it->prev &&
+        self->next == it->next;
+}
+
+
+
+@end
+
+
+
+    
