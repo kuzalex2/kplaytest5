@@ -214,7 +214,7 @@
                 
                 DLog(@"<%@> try rewind to %f", [filter name], sec);
                 res = [filter rewindTo:sec];
-                if (0 && res==KResult_OK){
+                if (1 && res==KResult_OK){
                     break;
                 }
             }
@@ -261,10 +261,11 @@
                     break;
                 case KGraphState_PAUSING:
                 case KGraphState_PAUSED:
-                case KGraphState_EOF:
+                
                     [self setStateAndNotify:KGraphState_PAUSED];
                     break;
                 case KGraphState_STARTED:
+                case KGraphState_EOF:
                 
                     [self setStateAndNotify:KGraphState_PAUSED];
                     [self startPlaying];
