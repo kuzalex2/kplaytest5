@@ -11,20 +11,10 @@
 //#define MYDEBUG
 #include "myDebug.h"
 
-/**
- Represents a single node in a doubly linked list.
- */
-@interface ListNode : NSObject
-
-    @property(nonatomic, strong) ListNode *next;
-    @property(nonatomic, strong) ListNode *previous;
-    @property(nonatomic, strong) id data;
-
-    -(id) initWithData:(id) data;
-@end
 
 
-@implementation ListNode
+
+@implementation KLinkedListNode
 
     @synthesize next = _next;
     @synthesize previous = _previous;
@@ -56,10 +46,7 @@
 @end
 
 
-@implementation KLinkedList {
-    @public ListNode *_head;
-    @public ListNode *_tail;
-}
+@implementation KLinkedList 
 
     @synthesize count = _size;
 
@@ -74,7 +61,7 @@
     }
 
     -(void) addObjectToTail:(id)object {
-        ListNode *listNode = [[ListNode alloc] initWithData:object];
+        KLinkedListNode *listNode = [[KLinkedListNode alloc] initWithData:object];
         
         
         
@@ -95,7 +82,7 @@
 
     -(void) addOrdered:(id)object withCompare:(NSComparator)compare
     {
-        ListNode *cur = _head;
+        KLinkedListNode *cur = _head;
         BOOL added = FALSE;
         
         while(cur!=nil)
@@ -103,7 +90,7 @@
             if (compare(cur.data,object)<=0) {
                 cur = cur.next;
             } else {
-                ListNode *listNode = [[ListNode alloc] initWithData:object];
+                KLinkedListNode *listNode = [[KLinkedListNode alloc] initWithData:object];
                 
                 listNode.next = cur;
                 listNode.previous = cur.previous;
@@ -199,12 +186,12 @@
 // Private interface
 // ---------------------------------
 
--(ListNode *) listNodeAtIndex:(NSUInteger) index {
+-(KLinkedListNode *) listNodeAtIndex:(NSUInteger) index {
     if (index >= self.count ) {
         return nil;
     }
 
-    ListNode *listNode = _head;
+    KLinkedListNode *listNode = _head;
     for (NSUInteger listNodeIndex = 0; listNodeIndex < index; ++listNodeIndex) {
         listNode = [listNode next];
     }
@@ -212,7 +199,7 @@
     return listNode;
 }
 
--(BOOL) removeNode:(ListNode *) deallocationTarget {
+-(BOOL) removeNode:(KLinkedListNode *) deallocationTarget {
 
     if (deallocationTarget == nil){
 //        assert(false);
@@ -246,86 +233,11 @@
 }
 
 
--(KLinkedListIterator *)begin
-{
-    KLinkedListIterator *it = [[KLinkedListIterator alloc] init];
-    it->list = self;
-    
-    it->cur = self->_head;
-    
-    it->prev = nil;
-    it->next = self->_head;
-    return it;
-    
-}
--(KLinkedListIterator *)end
-{
-    KLinkedListIterator *it = [[KLinkedListIterator alloc] init];
-    it->list = self;
-    
-    it->cur = self->_tail;
-    
-    it->prev = self->_tail;
-    it->next = nil;
-    return it;
-}
-
-@end
-
-
-
-
-
-
-
-
-
-@implementation KLinkedListIterator
-
--(id)data
-{
-    if (cur!=nil)
-        return cur.data;
-    //throw??
-    return nil;
-}
-
-
--(KLinkedListIterator *)next
-{
-    prev = next;
-    
-    if (cur && cur.next)
-        cur = cur.next;
-    if (next)
-        next = next.next;
-    
-    return self;
-}
--(KLinkedListIterator *)prev
-{
-    next = prev ;
-    
-    if (cur && cur.previous)
-        cur = cur.previous;
-    if (prev)
-        prev = prev.previous;
-  
-    return self;
-}
-
--(BOOL)isEqualTo:(KLinkedListIterator *)it
-{
-    return
-        self->list == it->list &&
-        self->prev == it->prev &&
-        self->next == it->next;
-}
-
 
 
 @end
 
 
 
-    
+
+

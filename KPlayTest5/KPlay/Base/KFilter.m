@@ -245,10 +245,10 @@ NSString *KFilterState2String(KFilterState state)
         
     }
 }
--(BOOL)couldRewindTo:(float)sec
-{
-    return FALSE;
-}
+//-(BOOL)couldRewindTo:(float)sec
+//{
+//    return FALSE;
+//}
 
 -(KResult)rewindTo:(float)sec
 {

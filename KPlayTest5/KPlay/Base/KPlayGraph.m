@@ -186,7 +186,7 @@
                     break;
                 case KGraphState_STARTED:
                     {
-                        for (KFilter* filter in  _flowchain ) {
+                        for (KFilter* filter in  [_flowchain reverseObjectEnumerator] ) {
                             DLog(@"<%@> pausing", [filter name]);
                             res = [filter pause];
                             if (res!=KResult_OK) {
@@ -211,18 +211,10 @@
             for (I=((int)_flowchain.count)-1;I>=0;I--)
             {
                 KFilter* filter = _flowchain[I];
-                DLog(@"<%@> couldRewindTo? %f", [filter name], sec);
-                if ([filter couldRewindTo:sec]){
-                    DLog(@"<%@> rewind to %f", [filter name], sec);
-                    
-                    res = [filter rewindTo:sec];
-                    if (res!=KResult_OK){
-                        DLog(@"<%@> rewind failed", [filter name]);
-                        
-                        [self notifyError: KResult2Error(res)];
-                        [self stop];
-                        return;
-                    }
+                
+                DLog(@"<%@> try rewind to %f", [filter name], sec);
+                res = [filter rewindTo:sec];
+                if (0 && res==KResult_OK){
                     break;
                 }
             }
@@ -269,10 +261,11 @@
                     break;
                 case KGraphState_PAUSING:
                 case KGraphState_PAUSED:
+                case KGraphState_EOF:
                     [self setStateAndNotify:KGraphState_PAUSED];
                     break;
                 case KGraphState_STARTED:
-                case KGraphState_EOF:
+                
                     [self setStateAndNotify:KGraphState_PAUSED];
                     [self startPlaying];
                     break;
@@ -629,7 +622,6 @@
     - (void)onEOS:(KFilter *)filter
     {
         _suppress_error = false;
-        BOOL forward;
         @synchronized (_state_mutex) {
             switch (_state) {
                 case KGraphState_NONE:
@@ -642,7 +634,6 @@
                 case KGraphState_PAUSED:
                     return;
                 case KGraphState_STARTED:
-                    forward=FALSE;
                     [self setStateAndNotify:KGraphState_PAUSING];
                     break;
                     
@@ -653,7 +644,7 @@
             {
                 @synchronized (self->_async_mutex) {
                     KResult res;
-                    for (KFilter* filter in forward ? self->_flowchain : [self->_flowchain reverseObjectEnumerator]) {
+                    for (KFilter* filter in  [self->_flowchain reverseObjectEnumerator]) {
                         DLog(@"<%@> pausing", [filter name]);
                         res = [filter pause];
                         if (res!=KResult_OK) {

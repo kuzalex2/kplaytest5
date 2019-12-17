@@ -11,32 +11,29 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class KLinkedList;
-@class ListNode;
-@interface KLinkedListIterator : NSObject {
-    @public KLinkedList *list;
-    @public ListNode *cur;
-    
-    @public ListNode *next;
-    @public ListNode *prev;
-}
+@class KLinkedListNode;
 
-    
-    -(BOOL)isEqualTo:(KLinkedListIterator *)it;
-    -(KLinkedListIterator *)next;
-    -(KLinkedListIterator *)prev;
-    -(id)data;
+/**
+ Represents a single node in a doubly linked list.
+ */
+@interface KLinkedListNode : NSObject
 
+    @property(nonatomic, strong) KLinkedListNode *next;
+    @property(nonatomic, strong) KLinkedListNode *previous;
+    @property(nonatomic, strong) id data;
 
-   
-
+    -(id) initWithData:(id) data;
 @end
 
+@interface KLinkedList : NSObject{
+    @public KLinkedListNode *_head;
+    @public KLinkedListNode *_tail;
+}
 
-@interface KLinkedList : NSObject
     @property(nonatomic, assign, readonly) NSUInteger count;
 
-    -(KLinkedListIterator *)begin;
-    -(KLinkedListIterator *)end;
+   
+    
 
     -(BOOL) isEmpty;
  

@@ -207,43 +207,58 @@
 }
 
 ///FIXME: key frames! and
-
--(BOOL)couldRewindTo:(float)sec
+-(KLinkedListNode *)findNodeToRewind:(float)sec
 {
-    KMediaSample *found = nil;
     CMTime secTo = CMTimeMake(sec*1000, 1000);
+  
     
+    KLinkedListNode *found = samples->_head;
     
-    
-    pthread_mutex_lock(&queue_lock);
-    
-//    KLinkedListIterator *it = [samples begin];
-//    KLinkedListIterator *end = [samples end];
-//
-//
-//    while (![it isEqualTo:end])
-//    {
-//        KMediaSample *s = [it data];
-//        if (CMTimeCompare(s.ts, secTo)>0){
-//            if (![it isEqualTo:[samples begin]]){
-//                found = [[it prev]data];
-//            }
-//            break;
-//        }
-//
-//        it = [it next];
-//    }
+    while(found) {
+        KMediaSample *s = [found data];
+        if (CMTimeCompare(s.ts, secTo)>0){
+            if (found.previous){
+                found = found.previous;
+            } else {
+                found=nil;
+            }
+            
+            break;
+        }
+        found=found.next;
+    }
     
     pthread_mutex_unlock(&queue_lock);
-    return found!=nil;
+    return found;
 }
+
+
+
+//-(BOOL)couldRewindTo:(float)sec
+//{
+//    pthread_mutex_lock(&queue_lock);
+//    KLinkedListNode *found = [self findNodeToRewind:sec];
+//    pthread_mutex_unlock(&queue_lock);
+//
+//    return found!=nil;
+//}
 
 -(KResult)rewindTo:(float)sec
 {
+    KResult result = KResult_ERROR;
+    
     pthread_mutex_lock(&queue_lock);
+    KLinkedListNode *found = [self findNodeToRewind:sec];
+    if (found!=nil){
+        while (samples->_head != found){
+            [samples removeObjectFromHead];
+        }
+        result = KResult_OK;
+        
+    }
     
     pthread_mutex_unlock(&queue_lock);
-    return KResult_ERROR;
+    return result;
 }
 
 - (CMTime)endBufferedPosition {
@@ -366,10 +381,10 @@
     return KResult_OK;
 }
 
--(BOOL)couldRewindTo:(float)sec
-{
-    return [queue couldRewindTo:sec];
-}
+//-(BOOL)couldRewindTo:(float)sec
+//{
+//    return [queue couldRewindTo:sec];
+//}
 
 -(KResult)rewindTo:(float)sec
 {

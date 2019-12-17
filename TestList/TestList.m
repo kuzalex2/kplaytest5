@@ -51,39 +51,12 @@
 //    }
     
     
-    
-    KLinkedListIterator *begin = [list begin];
-    KLinkedListIterator *end = [list end];
-    
-    
-    KLinkedListIterator *it1 = [list begin];
-    while(![it1 isEqualTo:end]) {
-        NSLog(@"%@", [it1 data]);
-        it1 = [it1 next];
-    };
-    while(![it1 isEqualTo:begin]) {
-        NSLog(@"%@", [it1 data]);
-        it1 = [it1 prev];
-    };
-    while(![it1 isEqualTo:end]) {
-        NSLog(@"%@", [it1 data]);
-        it1 = [it1 next];
-    };
-    
-    for (KLinkedListIterator *it = [list begin],*end = [list end]; ![it isEqualTo:end]; it = [it next]) {
-        NSLog(@"%@", [it data]);
+    KLinkedListNode *cur = list->_head;
+    while (cur){
+        NSLog(@"%@", [cur data]);
+        cur=cur.next;
     }
     
-//    KLinkedListIterator *i = [list iteratorHead];
-//    while([i hasNext]){
-//        id obj = [i next];
-//        NSLog(@"%@", obj);
-//    }
-    
-//        for (KLinkedListIterator i = [list iteratorHead], end=[list end]; it!=end; i=[i next]) {
-//            [i hasPrev];
-//            [i hasNext];
-//        }
     
   
      
