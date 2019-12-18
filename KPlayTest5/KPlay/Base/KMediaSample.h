@@ -30,6 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
     @property (nonatomic)        CMTime ts;
     @property (nonatomic)  BOOL discontinuity;
     @property (nonatomic)  BOOL eos;
+
+    -(NSString *)description;
 @end
 
 @interface KMediaSampleImageBuffer : KMediaSample

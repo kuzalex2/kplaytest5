@@ -176,6 +176,7 @@
 
     - (void)seekSync:(float)sec prevState:(KGraphState)prevState
     {
+        BOOL try_rewind = (self.connectchain.count==1);
         @synchronized (_async_mutex) {
             
             KResult res;
@@ -210,12 +211,15 @@
             int I;
             for (I=((int)_flowchain.count)-1;I>=0;I--)
             {
-                KFilter* filter = _flowchain[I];
+                if (try_rewind)
+                {
+                    KFilter* filter = _flowchain[I];
                 
-                DLog(@"<%@> try rewind to %f", [filter name], sec);
-                res = [filter rewindTo:sec];
-                if (1 && res==KResult_OK){
-                    break;
+                    DLog(@"<%@> try rewind to %f", [filter name], sec);
+                    res = [filter rewindTo:sec];
+                    if (1 && res==KResult_OK){
+                        break;
+                    }
                 }
             }
             

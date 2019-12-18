@@ -16,6 +16,24 @@
 #define DLog(format, ...)
 #endif
 
+#ifdef MYDEBUG1
+#define DLog1(format, ...) NSLog(format, ## __VA_ARGS__)
+#else
+#define DLog1(format, ...)
+#endif
+
+#ifdef MYDEBUG2
+#define DLog2(format, ...) NSLog(format, ## __VA_ARGS__)
+#else
+#define DLog2(format, ...)
+#endif
+
+#ifdef MYDEBUG3
+#define DLog3(format, ...) NSLog(format, ## __VA_ARGS__)
+#else
+#define DLog3(format, ...)
+#endif
+
 #ifdef MYWARN
 #define WLog(format, ...) NSLog(format, ## __VA_ARGS__)
 #else

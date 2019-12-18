@@ -33,6 +33,7 @@
     RTMP *_rtmp;
     float bufferSec;
     float seekPosition;
+    BOOL eos;
 //    NSError *_error;
 }
 
@@ -373,15 +374,8 @@ void RTMP_Interrupt(RTMP *r)
 
 }
 
-
-
--(KResult)flushEOS
+-(void)disconnectRTMP
 {
-    // disconnect on EOS
-    [_stream_video flush];
-    [_stream_audio flush];
-    seekPosition = 0;
-    
     @synchronized (RtmpLockProcess) {
         
         @synchronized (RtmpLockInit) {
@@ -398,12 +392,18 @@ void RTMP_Interrupt(RTMP *r)
             }
         }
     }
+}
+
+
+-(KResult)flushEOS
+{
+    [self disconnectRTMP];
+   
     return KResult_OK;
 }
 
 -(KResult)seek:(float)sec
 {
-   // [self flush];
     self->seekPosition = sec;
         
     return KResult_OK;
@@ -411,8 +411,13 @@ void RTMP_Interrupt(RTMP *r)
 
 -(KResult)flush
 {
-    [self flushEOS];
+    [_stream_video flush];
+    [_stream_audio flush];
+    seekPosition = 0;
     duration=0.0;
+    
+    [self disconnectRTMP];
+    
     return KResult_OK;
 }
         
