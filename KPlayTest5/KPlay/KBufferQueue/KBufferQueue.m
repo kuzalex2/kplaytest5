@@ -116,7 +116,7 @@
     BOOL result;
     pthread_mutex_lock(&queue_lock);
     
-    result = ([self secondsInQueueAfterCursor3] > MAX(self->startBufferSec[0], self->startBufferSec[1])*2 && isRunning);
+    result = ([self secondsInQueueAfterCursor3] > MAX(self->maxBufferSec/3, MAX(self->startBufferSec[0], self->startBufferSec[1])*2) && isRunning);
         
     pthread_mutex_unlock(&queue_lock);
     return result;
@@ -228,7 +228,7 @@
         while([self secondsInQueue3]>maxBufferSec)
         {
             if (samples2->_head==lastConsumedSample){
-                lastConsumedSample=nil;
+                //lastConsumedSample=nil;
                 break;
             }
             [samples2 removeObjectFromHead];
@@ -391,7 +391,7 @@
         queue->startBufferSec[0] =firstStartBufferSec;
         queue->startBufferSec[1] =secondStartBufferSec;
         queue->maxBufferSec = maxBufferSec;
-        self->_orderByTimestamp = true;
+//        self->_orderByTimestamp = true;
         
         if (queue->maxBufferSec < MAX(queue->startBufferSec[0], queue->startBufferSec[1])*1.2){
             DErr(@"KBufferQueue maxBufferSec too small");
