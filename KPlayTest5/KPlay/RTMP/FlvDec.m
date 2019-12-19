@@ -8,6 +8,8 @@
 
 #import "FlvDec.h"
 //#define MYDEBUG
+#define MYDEBUG1
+
 //#define MYWARN
 #include "myDebug.h"
 #include "KLinkedList.h"
@@ -470,6 +472,8 @@ BOOL AudioStreamBasicDescriptionEqual(const AudioStreamBasicDescription *a, cons
             
             if (![_samples isEmpty]){
                 result = _samples.objectAtHead;
+                
+                DLog1(@"%@ popSamplewithProbe %@",  NSStringFromClass([self class]), result);
         
                 if (!probe)
                     [_samples removeObjectFromHead];

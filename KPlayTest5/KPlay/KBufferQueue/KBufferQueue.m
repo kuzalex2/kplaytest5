@@ -229,7 +229,7 @@
         if ([self secondsInQueue2]>maxBufferSec && [self secondsInQueueAfterCursor] < maxBufferSec/2)
             for(int i=0;i<10;i++){/// FIXME: remove duration chunk of maxBufferSec/2 - [self secondsInQueueAfterCursor]
 //                assert(samples2->_head!=lastConsumedSample);
-                if (samples2->_head!=lastConsumedSample)
+                if (samples2->_head==lastConsumedSample)
                     lastConsumedSample=nil;
                 [samples2 removeObjectFromHead];
             }
