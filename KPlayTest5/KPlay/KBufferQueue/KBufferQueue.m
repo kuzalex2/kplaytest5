@@ -51,7 +51,7 @@
         startBufferSec[0] = 0.3;
         startBufferSec[1] = 3.0;
         curStartBufferSecIndex = 0;
-        maxBufferSec = MAX(startBufferSec[0],startBufferSec[1])*2;
+        maxBufferSec = MAX(startBufferSec[0],startBufferSec[1])*1.2;
     }
     return self;
 }
@@ -82,7 +82,7 @@
     return KResult_OK;
 }
 
--(double)secondsInQueue2
+-(double)secondsInQueue3
 {
     if ([samples2 isEmpty])
         return 0.0;
@@ -96,7 +96,7 @@
     return (double)(lastSample.ts.value) / lastSample.ts.timescale - (double)(firstSample.ts.value) / firstSample.ts.timescale;
 }
 
--(double)secondsInQueueAfterCursor
+-(double)secondsInQueueAfterCursor3
 {
     if ([samples2 isEmpty])
         return 0.0;
@@ -116,7 +116,7 @@
     BOOL result;
     pthread_mutex_lock(&queue_lock);
     
-    result = ([self secondsInQueue2] > maxBufferSec && isRunning);
+    result = ([self secondsInQueueAfterCursor3] > MAX(self->startBufferSec[0], self->startBufferSec[1])*2 && isRunning);
         
     pthread_mutex_unlock(&queue_lock);
     return result;
@@ -147,7 +147,7 @@
     
     if (!isRunning) {
         DLog(@"queue NOT RUNNING");
-        if ([self secondsInQueueAfterCursor] > startBufferSec[curStartBufferSecIndex] || sample.eos){
+        if ([self secondsInQueueAfterCursor3] > startBufferSec[curStartBufferSecIndex] || sample.eos){
             isRunning = TRUE;
             DLog(@"queue RUN");
             pthread_cond_signal(&queue_cond);
@@ -225,14 +225,14 @@
             assert(0);
         }
         
-       
-        if ([self secondsInQueue2]>maxBufferSec && [self secondsInQueueAfterCursor] < maxBufferSec/2)
-            for(int i=0;i<10;i++){/// FIXME: remove duration chunk of maxBufferSec/2 - [self secondsInQueueAfterCursor]
-//                assert(samples2->_head!=lastConsumedSample);
-                if (samples2->_head==lastConsumedSample)
-                    lastConsumedSample=nil;
-                [samples2 removeObjectFromHead];
+        while([self secondsInQueue3]>maxBufferSec)
+        {
+            if (samples2->_head==lastConsumedSample){
+                lastConsumedSample=nil;
+                break;
             }
+            [samples2 removeObjectFromHead];
+        }
         
         pthread_mutex_unlock(&queue_lock);
         return KResult_OK;
@@ -395,7 +395,7 @@
         
         if (queue->maxBufferSec < MAX(queue->startBufferSec[0], queue->startBufferSec[1])*1.2){
             DErr(@"KBufferQueue maxBufferSec too small");
-            queue->maxBufferSec = MAX(queue->startBufferSec[0], queue->startBufferSec[1])*2;
+            queue->maxBufferSec = MAX(queue->startBufferSec[0], queue->startBufferSec[1])*1.2;
         }
         
 //        self.firstStartBufferSec = firstStartBufferSec;

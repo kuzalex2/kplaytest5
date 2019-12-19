@@ -8,7 +8,7 @@
 
 #import "FlvDec.h"
 //#define MYDEBUG
-#define MYDEBUG1
+//#define MYDEBUG1
 
 //#define MYWARN
 #include "myDebug.h"
