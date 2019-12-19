@@ -246,7 +246,8 @@ class ViewController: UIViewController, KPlayerEvents {
     
     @IBAction func touchUpO(_ sender: Any) {
         NSLog("touchUpO");
-        touchUpI(sender);
+        inSeek=false;
+      //  touchUpI(sender);
     }
     
     
