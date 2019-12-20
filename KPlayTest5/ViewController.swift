@@ -126,7 +126,7 @@ class KTestRtmpVPlayGraph : KPlayGraphChainBuilder {
             if (super.state == KGraphState_NONE){
                 super.flowchain.removeAllObjects();
                 super.flowchain.add(KRtmpSource(url: url, andBufferSec: 15));
-                super.flowchain.add(KBufferQueue(firstStartBufferSec: 15, andSecondStartBufferSec: 15, andMaxBufferSec: 30));
+               // super.flowchain.add(KBufferQueue(firstStartBufferSec: 15, andSecondStartBufferSec: 15, andMaxBufferSec: 30));
                 super.flowchain.add(KVideoDecoder());
                 super.flowchain.add(KVideoPlay(uiView: _view));
                 
@@ -437,7 +437,7 @@ class ViewController: UIViewController, KPlayerEvents {
             let stateString: String = self.state2String(state: state)
             
             self.playBtn?.isEnabled = (state == KGraphState_NONE || state == KGraphState_STOPPED || state == KGraphState_PAUSED || state == KGraphState_EOF);
-            self.pauseBtn?.isEnabled = (state == KGraphState_STARTED || state == KGraphState_STOPPED);
+            self.pauseBtn?.isEnabled = (state == KGraphState_STARTED || state == KGraphState_STOPPED /*|| state == KGraphState_PAUSED*/);
             self.stopBtn?.isEnabled = (state != KGraphState_STOPPED && state != KGraphState_STOPPING && state != KGraphState_NONE);
             
         
@@ -510,10 +510,9 @@ class ViewController: UIViewController, KPlayerEvents {
         
         if player == nil {
 //            player = KTestGraph();
-            player = KTestWavGraph();
+//            player = KTestWavGraph();
 //            player = KTestRtmpVPlayGraph(self.videoView);
-//            player = KTestRtmpVPlayGraph(self.videoView);
-//            player = KTestRtmpAPlayGraph();
+            player = KTestRtmpAPlayGraph();
             
 //            player = KTestRtmpAVPlayGraph(self.videoView);
             
@@ -521,7 +520,7 @@ class ViewController: UIViewController, KPlayerEvents {
         }
 
 //        player?.play("rtmp://138.201.222.150:1935/vod/testa2.flv", autoStart: true);
-//        player?.play("rtmp://138.201.222.150:1935/vod/testa.mp4", autoStart: true);
+        player?.play("rtmp://138.201.222.150:1935/vod/testa.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testa.flv", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb10.mp4", autoStart: true);
@@ -534,7 +533,7 @@ class ViewController: UIViewController, KPlayerEvents {
 //            player?.play("rtmp://138.201.222.150:1935/vod/testv.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1936/vod/test.mp4", autoStart: true);
 
-        _ = player?.play("http://p.kuzalex.com/wav/gr.wav", autoStart: true)
+//        _ = player?.play("http://p.kuzalex.com/wav/gr.wav", autoStart: true)
 //        _ = player?.play("http://s-21.app.minutta.com/vk/test2.wav", autoStart: true)
         
 //        _ = player?.play("http://p.kuzalex.com/wav/testa2.wav", autoStart: true)
