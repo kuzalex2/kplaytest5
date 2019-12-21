@@ -217,7 +217,7 @@
                 
                     DLog(@"<%@> try rewind to %f", [filter name], sec);
                     res = [filter rewindTo:sec];
-                    if (1 && res==KResult_OK){
+                    if (res==KResult_OK){
                         break;
                     }
                 }

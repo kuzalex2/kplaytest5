@@ -160,7 +160,7 @@ class KTestRtmpAVPlayGraph : KPlayGraphChainBuilder {
             if (super.state == KGraphState_NONE){
                 super.flowchain.removeAllObjects();
                 super.flowchain.add(KRtmpSource(url: url, andBufferSec: 10)); //0
-                super.flowchain.add(KBufferQueue(firstStartBufferSec: 1, andSecondStartBufferSec: 10, andMaxBufferSec: 10));        //1
+                super.flowchain.add(KBufferQueue(firstStartBufferSec: 0.3, andSecondStartBufferSec: 3, andMaxBufferSec: 120));        //1
                 super.flowchain.add(KAudioDecoder());       //2
                 super.flowchain.add(KAudioPlay());          //3
                 super.flowchain.add(KVideoDecoder());       //4
@@ -512,19 +512,19 @@ class ViewController: UIViewController, KPlayerEvents {
 //            player = KTestGraph();
 //            player = KTestWavGraph();
 //            player = KTestRtmpVPlayGraph(self.videoView);
-            player = KTestRtmpAPlayGraph();
+//            player = KTestRtmpAPlayGraph();
             
-//            player = KTestRtmpAVPlayGraph(self.videoView);
+            player = KTestRtmpAVPlayGraph(self.videoView);
             
             player?.events = self
         }
 
 //        player?.play("rtmp://138.201.222.150:1935/vod/testa2.flv", autoStart: true);
-        player?.play("rtmp://138.201.222.150:1935/vod/testa.mp4", autoStart: true);
+//        player?.play("rtmp://138.201.222.150:1935/vod/testa.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testa.flv", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb10.mp4", autoStart: true);
-//            player?.play("rtmp://138.201.222.150:1935/vod/starwars_1080p.mp4", autoStart: true);
+            player?.play("rtmp://138.201.222.150:1935/vod/starwars_1080p.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/adv2.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb.flv", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testamonoaac.flv", autoStart: true);
