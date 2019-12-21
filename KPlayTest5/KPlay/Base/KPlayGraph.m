@@ -215,40 +215,52 @@
 
     -(BOOL)tryRewindTo2:(float)sec
     {
-        if (self.connectchain.count!=1)
-            return FALSE;
-        
         KResult res;
         
-        for (int I=((int)_flowchain.count)-1;I>=0;I--)
+        for (int dry_run=1; dry_run>=0; dry_run--)
         {
-            KFilter* filter = _flowchain[I];
-            
-            DLog(@"<%@> check can rewind to %f", [filter name], sec);
-            
-            if ([filter canRewindTo:sec]){
+            for (NSMutableArray<KFilter*> * chain in _connectchain) {
                 
-                DLog(@"<%@> try rewind to %f", [filter name], sec);
-                res = [filter rewindTo:sec];
-                if (res!=KResult_OK){
-                    DLog(@"<%@> rewind failed: %@", [filter name], KResult2Error(res));
-                    return FALSE;
-                }
-                
-                for (int j=I+1;j<(int)_flowchain.count;j++){
-                    KFilter* filter = _flowchain[j];
-                    DLog(@"<%@> flushing", [filter name]);
-                    res = [filter flush];
-                    if (res!=KResult_OK) {
-                        DLog(@"<%@> flush failed: %@", [filter name], KResult2Error(res));
-
-                        return FALSE;
+                BOOL chainOK = FALSE;
+                for (int I=((int)chain.count)-1;I>=0 && !chainOK;I--)
+                {
+                    KFilter* filter = chain[I];
+                    
+                    DLog(@"%d: <%@> check can rewind to %f", dry_run, [filter name], sec);
+                    
+                    if ([filter canRewindTo:sec]){
+                        
+                        if (!dry_run)
+                        {
+                            
+                            DLog(@"%d: <%@> try rewind to %f", dry_run, [filter name], sec);
+                            res = [filter rewindTo:sec];
+                            if (res!=KResult_OK){
+                                DLog(@"%d: <%@> rewind failed: %@", dry_run, [filter name], KResult2Error(res));
+                                return FALSE;
+                            }
+                            
+                            for (int j=I+1;j<(int)chain.count;j++){
+                                KFilter* filter = chain[j];
+                                DLog(@"%d: <%@> flushing", dry_run, [filter name]);
+                                res = [filter flush];
+                                if (res!=KResult_OK) {
+                                    DLog(@"%d: <%@> flush failed: %@", dry_run, [filter name], KResult2Error(res));
+                                    
+                                    return FALSE;
+                                }
+                            }
+                        }
+                        chainOK = TRUE;
                     }
                 }
-                return TRUE;
+                
+                if (!chainOK)
+                    return FALSE;
             }
         }
-        return FALSE;
+        
+        return _connectchain.count>0;
     }
 
     -(KResult)trySeekTo:(float)sec
@@ -257,6 +269,13 @@
         KResult res;
         for (KFilter* filter in _flowchain) {
             if (i==0){
+                DLog(@"<%@> flushing", [filter name]);
+                res = [filter flush];
+                if (res!=KResult_OK){
+                    DLog(@"<%@> flush failed: %@", [filter name], KResult2Error(res));
+                    return res;
+                }
+                
                 DLog(@"<%@> try seek to %f", [filter name], sec);
                 res = [filter seekTo:sec];
                 if (res!=KResult_OK){
@@ -313,7 +332,7 @@
             
             
             DLog(@"<KTestGraphChainBuilder> try rewind to %f", sec);
-            if (![self tryRewindTo:sec]){
+            if (![self tryRewindTo2:sec]){
                 DLog(@"<KTestGraphChainBuilder> try seek to %f", sec);
                 if ((res=[self trySeekTo:sec])!=KResult_OK){
                     DLog(@"<KTestGraphChainBuilder> seek impossible");

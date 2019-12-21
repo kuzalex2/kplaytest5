@@ -159,25 +159,24 @@ class KTestRtmpAVPlayGraph : KPlayGraphChainBuilder {
             defer { objc_sync_exit(super.state_mutex)}
             if (super.state == KGraphState_NONE){
                 super.flowchain.removeAllObjects();
-                super.flowchain.add(KRtmpSource(url: url, andBufferSec: 10)); //0
-                super.flowchain.add(KBufferQueue(firstStartBufferSec: 0.3, andSecondStartBufferSec: 3, andMaxBufferSec: 120));        //1
-                super.flowchain.add(KAudioDecoder());       //2
-                super.flowchain.add(KAudioPlay());          //3
-                super.flowchain.add(KVideoDecoder());       //4
+                super.flowchain.add(KRtmpSource(url: url, andBufferSec: 10));                                                   //0
+                super.flowchain.add(KBufferQueue(firstStartBufferSec: 0.3, andSecondStartBufferSec: 3, andMaxBufferSec: 120));  //1
+                super.flowchain.add(KAudioDecoder());                                                                           //2
+                super.flowchain.add(KAudioPlay());                                                                              //3
                 
-                let q = KBufferQueue(firstStartBufferSec: 1.0, andSecondStartBufferSec: 1.0, andMaxBufferSec: 2);
-                q.orderByTimestamp=true;
-                super.flowchain.add(q);//5
+                super.flowchain.add(KBufferQueue(firstStartBufferSec: 0.3, andSecondStartBufferSec: 3, andMaxBufferSec: 120));  //4
+                super.flowchain.add(KVideoDecoder());                                                                           //5
+                super.flowchain.add(KBufferQueue(firstStartBufferSec: 1.0, andSecondStartBufferSec: 1.0, andMaxBufferSec: 2));  //6
+                super.flowchain.add(KVideoPlay(uiView: _view));                                                                 //7
                 
-                super.flowchain.add(KVideoPlay(uiView: _view));//6
-//                super.flowchain.add(KNullSink());
+                if let q = super.flowchain.object(at: 6) as? KBufferQueue{
+                    q.orderByTimestamp=true;
+                }
+                
+               
+                
                 super.connectchain.add([super.flowchain[0], super.flowchain[1], super.flowchain[2], super.flowchain[3]]);
-                super.connectchain.add([super.flowchain[0], super.flowchain[4], super.flowchain[5]
-                
-                
-//                    ]);
-                    
-                    , super.flowchain[6]]);
+                super.connectchain.add([super.flowchain[0], super.flowchain[4], super.flowchain[5], super.flowchain[6], super.flowchain[7]]);
             }
         }
         
@@ -512,19 +511,19 @@ class ViewController: UIViewController, KPlayerEvents {
 //            player = KTestGraph();
 //            player = KTestWavGraph();
 //            player = KTestRtmpVPlayGraph(self.videoView);
-            player = KTestRtmpAPlayGraph();
+//            player = KTestRtmpAPlayGraph();
             
-//            player = KTestRtmpAVPlayGraph(self.videoView);
+            player = KTestRtmpAVPlayGraph(self.videoView);
             
             player?.events = self
         }
 
 //        player?.play("rtmp://138.201.222.150:1935/vod/testa2.flv", autoStart: true);
-        player?.play("rtmp://138.201.222.150:1935/vod/testa.mp4", autoStart: true);
+//        player?.play("rtmp://138.201.222.150:1935/vod/testa.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testa.flv", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb10.mp4", autoStart: true);
-//            player?.play("rtmp://138.201.222.150:1935/vod/starwars_1080p.mp4", autoStart: true);
+            player?.play("rtmp://138.201.222.150:1935/vod/starwars_1080p.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/adv2.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb.flv", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testamonoaac.flv", autoStart: true);
