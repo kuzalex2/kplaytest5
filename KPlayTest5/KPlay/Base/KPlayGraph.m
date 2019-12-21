@@ -172,11 +172,114 @@
 
 
 
+    -(BOOL)tryRewindTo:(float)sec
+    {
+        if (self.connectchain.count!=1)
+            return FALSE;
+        
+        KResult res;
+        
+        for (int I=((int)_flowchain.count)-1;I>=0;I--)
+        {
+            KFilter* filter = _flowchain[I];
+            
+            DLog(@"<%@> check can rewind to %f", [filter name], sec);
+            
+            if ([filter canRewindTo:sec]){
+                
+                DLog(@"<%@> try rewind to %f", [filter name], sec);
+                res = [filter rewindTo:sec];
+                if (res!=KResult_OK){
+                    DLog(@"<%@> rewind failed: %@", [filter name], KResult2Error(res));
+                    return FALSE;
+                }
+                
+                for (int j=I+1;j<(int)_flowchain.count;j++){
+                    KFilter* filter = _flowchain[j];
+                    DLog(@"<%@> flushing", [filter name]);
+                    res = [filter flush];
+                    if (res!=KResult_OK) {
+                        DLog(@"<%@> flush failed: %@", [filter name], KResult2Error(res));
+
+                        return FALSE;
+                    }
+                }
+                return TRUE;
+            }
+        }
+        return FALSE;
+    }
+
+
+
+
+    -(BOOL)tryRewindTo2:(float)sec
+    {
+        if (self.connectchain.count!=1)
+            return FALSE;
+        
+        KResult res;
+        
+        for (int I=((int)_flowchain.count)-1;I>=0;I--)
+        {
+            KFilter* filter = _flowchain[I];
+            
+            DLog(@"<%@> check can rewind to %f", [filter name], sec);
+            
+            if ([filter canRewindTo:sec]){
+                
+                DLog(@"<%@> try rewind to %f", [filter name], sec);
+                res = [filter rewindTo:sec];
+                if (res!=KResult_OK){
+                    DLog(@"<%@> rewind failed: %@", [filter name], KResult2Error(res));
+                    return FALSE;
+                }
+                
+                for (int j=I+1;j<(int)_flowchain.count;j++){
+                    KFilter* filter = _flowchain[j];
+                    DLog(@"<%@> flushing", [filter name]);
+                    res = [filter flush];
+                    if (res!=KResult_OK) {
+                        DLog(@"<%@> flush failed: %@", [filter name], KResult2Error(res));
+
+                        return FALSE;
+                    }
+                }
+                return TRUE;
+            }
+        }
+        return FALSE;
+    }
+
+    -(KResult)trySeekTo:(float)sec
+    {
+        int i=0;
+        KResult res;
+        for (KFilter* filter in _flowchain) {
+            if (i==0){
+                DLog(@"<%@> try seek to %f", [filter name], sec);
+                res = [filter seekTo:sec];
+                if (res!=KResult_OK){
+                    DLog(@"<%@> seek failed: %@", [filter name], KResult2Error(res));
+                    return res;
+                }
+            } else {
+                DLog(@"<%@> flushing", [filter name]);
+                res = [filter flush];
+                if (res!=KResult_OK){
+                    DLog(@"<%@> flush failed: %@", [filter name], KResult2Error(res));
+                    return res;
+                }
+            }
+            i++;
+        }
+        return KResult_OK;
+    }
 
 
     - (void)seekSync:(float)sec prevState:(KGraphState)prevState
     {
-        BOOL try_rewind = (self.connectchain.count==1);
+        
         @synchronized (_async_mutex) {
             
             KResult res;
@@ -208,43 +311,19 @@
                     return;
             }
             
-            int I;
-            for (I=((int)_flowchain.count)-1;I>=0;I--)
-            {
-                if (try_rewind)
-                {
-                    KFilter* filter = _flowchain[I];
-                
-                    DLog(@"<%@> try rewind to %f", [filter name], sec);
-                    res = [filter rewindTo:sec];
-                    if (res==KResult_OK){
-                        break;
-                    }
+            
+            DLog(@"<KTestGraphChainBuilder> try rewind to %f", sec);
+            if (![self tryRewindTo:sec]){
+                DLog(@"<KTestGraphChainBuilder> try seek to %f", sec);
+                if ((res=[self trySeekTo:sec])!=KResult_OK){
+                    DLog(@"<KTestGraphChainBuilder> seek impossible");
+                    [self notifyError: KResult2Error(res)];
+                    [self stop];
+                    return;
                 }
             }
             
-            for (int j=I+1;j<(int)_flowchain.count;j++){
-                KFilter* filter = _flowchain[j];
-                DLog(@"<%@> flushing", [filter name]);
-                res = [filter flush];
-                if (res!=KResult_OK) {
-                    DLog(@"<%@> flush failed", [filter name]);
-                    
-                    [self notifyError: KResult2Error(res)];
-                    [self stop];
-                    return;
-                }
-                
-                DLog(@"<%@> seeking", [filter name]);
-                res = [filter seek:sec];
-                if (res!=KResult_OK) {
-                    DLog(@"<%@> seek failed", [filter name]);
-                    
-                    [self notifyError: KResult2Error(res)];
-                    [self stop];
-                    return;
-                }
-            }
+            
             
             for (KFilter* filter in _flowchain)
             {

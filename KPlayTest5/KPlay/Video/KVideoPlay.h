@@ -18,7 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
     - (instancetype)initWithUIView:(UIView *)view;
 
     -(KResult)onThreadTick:(NSError *__strong*)ppError;
-    -(KResult)seek:(float)sec;
     -(KResult)flush;
 @end
 

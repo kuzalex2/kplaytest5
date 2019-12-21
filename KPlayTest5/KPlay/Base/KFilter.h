@@ -62,11 +62,13 @@ NSString *KFilterState2String(KFilterState state);
     -(KResult)start;
     -(KResult)pause;//:(BOOL)waitUntilPaused;
     -(KResult)stop;//:(BOOL)waitUntilStopped;
-    -(KResult)seek:(float)sec;
+    -(BOOL)canSeekTo:(float)sec;
+    -(KResult)seekTo:(float)sec;
+    -(BOOL)canRewindTo:(float)sec;
+    -(KResult)rewindTo:(float)sec;
     -(KResult)flush;
     -(KResult)flushEOS;
-    //-(BOOL)couldRewindTo:(float)sec;
-    -(KResult)rewindTo:(float)sec;
+    
 
     - (KOutputPin *) getOutputPinAt:(size_t)i;
     - (KInputPin *) getInputPinAt:(size_t)i;

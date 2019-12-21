@@ -61,11 +61,7 @@
     }
 }
 
--(KResult)seek:(float)sec
-{
-   // [self flush];
-    return KResult_OK;
-}
+
 
 -(KResult)flush
 {

@@ -286,7 +286,19 @@
     return found;
 }
 
-
+-(KResult)canRewindTo:(float)sec
+{
+    BOOL result = FALSE;
+    
+    pthread_mutex_lock(&queue_lock);
+    KLinkedListNode *found = [self findNodeToRewind:sec];
+    if (found!=nil){
+        result=TRUE;
+    }
+    pthread_mutex_unlock(&queue_lock);
+    
+    return result;
+}
 -(KResult)rewindTo:(float)sec
 {
     KResult result = KResult_ERROR;
@@ -415,10 +427,21 @@
     [queue onState:state];
 }
 
--(KResult)seek:(float)sec
+-(KResult)canSeekTo:(float)sec
 {
-    //return [self flush];
-    return KResult_OK;
+    return FALSE;
+}
+-(KResult)seekTo:(float)sec
+{
+    return KResult_ERROR;
+}
+-(KResult)canRewindTo:(float)sec
+{
+    return [queue canRewindTo:sec];
+}
+-(KResult)rewindTo:(float)sec
+{
+    return [queue rewindTo:sec];
 }
 
 -(KResult)flush
@@ -426,16 +449,6 @@
     [queue flush];
     
     return KResult_OK;
-}
-
-//-(BOOL)couldRewindTo:(float)sec
-//{
-//    return [queue couldRewindTo:sec];
-//}
-
--(KResult)rewindTo:(float)sec
-{
-     return [queue rewindTo:sec];
 }
 
 

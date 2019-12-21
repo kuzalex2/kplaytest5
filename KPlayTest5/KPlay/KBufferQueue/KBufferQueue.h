@@ -23,10 +23,11 @@ NS_ASSUME_NONNULL_BEGIN
     -(KResult)onThreadTick:(NSError *__strong*)ppError;
     -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(nonnull KOutputPin *)pin;
 
-    -(KResult)seek:(float)sec;
-    -(KResult)flush;
-  //  -(BOOL)couldRewindTo:(float)sec;
+    -(BOOL)canSeekTo:(float)sec;
+    -(KResult)seekTo:(float)sec;
+    -(BOOL)canRewindTo:(float)sec;
     -(KResult)rewindTo:(float)sec;
+    -(KResult)flush;
 
 @end
 

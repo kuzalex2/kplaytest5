@@ -15,7 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface KRtmpSource : KFilter<KPlayMediaInfo>
     -(instancetype)initWithUrl:(NSString *)url andBufferSec:(float)bufferSec;
     -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(nonnull KOutputPin *)pin;
-    -(KResult)seek:(float)sec;
+    -(BOOL)canSeekTo:(float)sec;
+    -(KResult)seekTo:(float)sec;
     -(KResult)flush;
     -(KResult)flushEOS;
 

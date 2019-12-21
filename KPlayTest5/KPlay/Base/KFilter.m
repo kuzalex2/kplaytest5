@@ -245,30 +245,34 @@ NSString *KFilterState2String(KFilterState state)
         
     }
 }
-//-(BOOL)couldRewindTo:(float)sec
-//{
-//    return FALSE;
-//}
 
+
+-(BOOL)canRewindTo:(float)sec
+{
+    return FALSE;
+}
+-(BOOL)canSeekTo:(float)sec
+{
+    return FALSE;
+}
 -(KResult)rewindTo:(float)sec
 {
      return KResult_ERROR;
 }
-
--(KResult)seek:(float)sec
+-(KResult)seekTo:(float)sec
 {
-    return KResult_OK;
+    return KResult_ERROR;
 }
-
+-(KResult)flush
+{
+     return KResult_OK;
+}
 -(KResult)flushEOS
 {
     return KResult_OK;
 }
 
--(KResult)flush
-{
-     return KResult_OK;
-}
+
 
 @end
 
