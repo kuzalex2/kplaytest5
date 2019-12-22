@@ -62,7 +62,6 @@ NSString *KFilterState2String(KFilterState state);
     -(KResult)start;
     -(KResult)pause;//:(BOOL)waitUntilPaused;
     -(KResult)stop;//:(BOOL)waitUntilStopped;
-    -(BOOL)canSeekTo:(float)sec;
     -(KResult)seekTo:(float)sec;
     -(BOOL)canRewindTo:(float)sec;
     -(KResult)rewindTo:(float)sec;

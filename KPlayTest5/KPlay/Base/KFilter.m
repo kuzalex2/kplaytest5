@@ -251,10 +251,7 @@ NSString *KFilterState2String(KFilterState state)
 {
     return FALSE;
 }
--(BOOL)canSeekTo:(float)sec
-{
-    return FALSE;
-}
+
 -(KResult)rewindTo:(float)sec
 {
      return KResult_ERROR;

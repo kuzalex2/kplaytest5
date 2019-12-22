@@ -17,7 +17,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface KAudioWavSource : KFilter<KPlayMediaInfo>
     -(instancetype)initWithUrl:(NSString *)url;
     -(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError *__strong*)error fromPin:(nonnull KOutputPin *)pin;
-    -(BOOL)canSeekTo:(float)sec;
     -(KResult)seekTo:(float)sec;
     -(KResult)flush;
    

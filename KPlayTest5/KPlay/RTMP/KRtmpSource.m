@@ -402,10 +402,7 @@ void RTMP_Interrupt(RTMP *r)
     return KResult_OK;
 }
 
--(BOOL)canSeekTo:(float)sec
-{
-    return TRUE;
-}
+
 -(KResult)seekTo:(float)sec
 {
     self->seekPosition = sec;

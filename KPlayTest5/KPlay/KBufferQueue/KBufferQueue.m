@@ -436,15 +436,12 @@
     [queue onState:state];
 }
 
--(KResult)canSeekTo:(float)sec
-{
-    return FALSE;
-}
+
 -(KResult)seekTo:(float)sec
 {
     return KResult_ERROR;
 }
--(KResult)canRewindTo:(float)sec
+-(BOOL)canRewindTo:(float)sec
 {
     return [queue canRewindTo:sec];
 }

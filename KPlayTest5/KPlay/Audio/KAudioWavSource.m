@@ -265,10 +265,7 @@
     return KResult_OK;
 }
 
--(BOOL)canSeekTo:(float)sec
-{
-    return TRUE;
-}
+
 -(KResult)seekTo:(float)sec;
 {
     assert(self->reader.state == WavReaderStateSample);
