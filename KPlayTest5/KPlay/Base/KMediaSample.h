@@ -28,7 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
     @property (nonatomic, retain) KMediaType *type;
     @property (nonatomic, retain) NSData *data;
     @property (nonatomic)        CMTime ts;
-    @property (nonatomic)  BOOL discontinuity;
+    @property (nonatomic)  BOOL key;
+   // @property (nonatomic)  BOOL discontinuity;
     @property (nonatomic)  BOOL eos;
 
     -(NSString *)description;

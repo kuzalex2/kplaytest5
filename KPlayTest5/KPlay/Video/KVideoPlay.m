@@ -341,7 +341,7 @@
         }
         
     } else {
-        WLog(@"%@ play sample %lld/%d", [self name],_last_sample.ts.value, _last_sample.ts.timescale);
+        DLog(@"%@ play sample %lld/%d", [self name],_last_sample.ts.value, _last_sample.ts.timescale);
 
         [self displaySample:_last_sample];
         _last_sample=nil;

@@ -261,29 +261,38 @@
     CMTime secTo = CMTimeMake(sec*1000, 1000);
   
     
-    KLinkedListNode *found = samples2->_head;
+    KLinkedListNode *frameToShow = samples2->_head;
     
-    while(found) {
-        KMediaSample *s = [found data];
+    while(frameToShow) {
+        KMediaSample *s = [frameToShow data];
         
         int32_t cmp = CMTimeCompare(s.ts, secTo);
         if (cmp==0)
             break;
         
         if (cmp>0){
-            if (found.previous)
-                found = found.previous;
+            if (frameToShow.previous)
+                frameToShow = frameToShow.previous;
             else
-                found = nil;
+                frameToShow = nil;
             break;
         }
         
         
-        found=found.next;
+        frameToShow=frameToShow.next;
+    }
+    
+    KLinkedListNode *frameToDecode = frameToShow;
+    
+    while(frameToDecode){
+        KMediaSample *s = [frameToDecode data];
+        if (s.key)
+            break;
+        frameToDecode=frameToDecode.previous;
     }
     
     pthread_mutex_unlock(&queue_lock);
-    return found;
+    return frameToDecode;
 }
 
 -(KResult)canRewindTo:(float)sec

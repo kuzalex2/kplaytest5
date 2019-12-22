@@ -126,7 +126,7 @@ class KTestRtmpVPlayGraph : KPlayGraphChainBuilder {
             if (super.state == KGraphState_NONE){
                 super.flowchain.removeAllObjects();
                 super.flowchain.add(KRtmpSource(url: url, andBufferSec: 15));
-               // super.flowchain.add(KBufferQueue(firstStartBufferSec: 15, andSecondStartBufferSec: 15, andMaxBufferSec: 30));
+                super.flowchain.add(KBufferQueue(firstStartBufferSec: 1, andSecondStartBufferSec: 1, andMaxBufferSec: 120));
                 super.flowchain.add(KVideoDecoder());
                 super.flowchain.add(KVideoPlay(uiView: _view));
                 
@@ -159,7 +159,7 @@ class KTestRtmpAVPlayGraph : KPlayGraphChainBuilder {
             defer { objc_sync_exit(super.state_mutex)}
             if (super.state == KGraphState_NONE){
                 super.flowchain.removeAllObjects();
-                super.flowchain.add(KRtmpSource(url: url, andBufferSec: 10));                                                   //0
+                super.flowchain.add(KRtmpSource(url: url, andBufferSec: 120));                                                   //0
                 super.flowchain.add(KBufferQueue(firstStartBufferSec: 0.3, andSecondStartBufferSec: 3, andMaxBufferSec: 120));  //1
                 super.flowchain.add(KAudioDecoder());                                                                           //2
                 super.flowchain.add(KAudioPlay());                                                                              //3
@@ -519,17 +519,17 @@ class ViewController: UIViewController, KPlayerEvents {
         }
 
 //        player?.play("rtmp://138.201.222.150:1935/vod/testa2.flv", autoStart: true);
-//        player?.play("rtmp://138.201.222.150:1935/vod/testa.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testa.flv", autoStart: true);
+//        player?.play("rtmp://138.201.222.150:1935/vod/testa.mp4", autoStart: true);
+//        player?.play("rtmp://138.201.222.150:1935/vod/testv.mp4", autoStart: true);
+//        player?.play("rtmp://138.201.222.150:1935/vod/test.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb10.mp4", autoStart: true);
-//            player?.play("rtmp://138.201.222.150:1935/vod/starwars_1080p.mp4", autoStart: true);
+        player?.play("rtmp://138.201.222.150:1935/vod/starwars_1080p.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/adv2.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb.flv", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testamonoaac.flv", autoStart: true);
-        player?.play("rtmp://138.201.222.150:1935/vod/test.mp4", autoStart: false);
 //        player?.play("rtmp://138.201.222.150:1935/myapp/stream", autoStart: true);
-//            player?.play("rtmp://138.201.222.150:1935/vod/testv.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1936/vod/test.mp4", autoStart: true);
 
 //        _ = player?.play("http://p.kuzalex.com/wav/gr.wav", autoStart: true)

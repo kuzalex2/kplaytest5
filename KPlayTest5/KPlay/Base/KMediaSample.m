@@ -16,15 +16,6 @@
     CMFormatDescriptionRef _format;
 }
 
-//    - (instancetype)initEOS
-//    {
-//        self = [super init];
-//        if (self) {
-//            CMTime
-//        }
-//        return self;
-//    }
-
     -(CMFormatDescriptionRef)format
     {
         return _format;
@@ -36,8 +27,6 @@
             CFRelease(_format);
         }
         _format = someFormat;
-//        if (someFormat!=nil)
-//            CFRetain(someFormat);
     }
     -(void)dealloc
     {
@@ -57,20 +46,6 @@
         }
         return self;
     }
-
-//    - (BOOL) isEqual:(KMediaType *) type
-//    {
-//        if (type==nil)
-//            return false;
-//        if (_name==nil || type.name==nil)
-//            return false;
-//        if (! [_name isEqualToString:type.name] )
-//            return false;
-//    
-//        if (_format == NULL && type->_format == NULL)
-//            return TRUE;
-//        return CMFormatDescriptionEqual(_format,type->_format);
-//    }
 @end
 
 
@@ -85,6 +60,7 @@
 {
     self = [super init];
     if (self) {
+        self->_key = TRUE;
         DLog(@"init sample %@", self);
     }
     return self;
@@ -96,8 +72,8 @@
 
 -(NSString *)description
 {
-    return [NSString stringWithFormat:@"<KMediaSample: %p, ts=%lld/%d, data={sz=%d}>",
-            (void*)self, self.ts.value, self.ts.timescale, self.data!=nil?(int)self.data.length:-1];
+    return [NSString stringWithFormat:@"<KMediaSample: %p, key=%d, ts=%lld/%d, data={sz=%d}>",
+            (void*)self, (int)self.key, self.ts.value, self.ts.timescale, self.data!=nil?(int)self.data.length:-1];
 }
 
 @end

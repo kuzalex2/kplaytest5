@@ -38,6 +38,14 @@
 #define FLV_VIDEO_FRAMETYPE_OFFSET   4
 
 enum {
+    FLV_FRAME_KEY            = 1 << FLV_VIDEO_FRAMETYPE_OFFSET, ///< key frame (for AVC, a seekable frame)
+    FLV_FRAME_INTER          = 2 << FLV_VIDEO_FRAMETYPE_OFFSET, ///< inter frame (for AVC, a non-seekable frame)
+    FLV_FRAME_DISP_INTER     = 3 << FLV_VIDEO_FRAMETYPE_OFFSET, ///< disposable inter frame (H.263 only)
+    FLV_FRAME_GENERATED_KEY  = 4 << FLV_VIDEO_FRAMETYPE_OFFSET, ///< generated key frame (reserved for server use only)
+    FLV_FRAME_VIDEO_INFO_CMD = 5 << FLV_VIDEO_FRAMETYPE_OFFSET, ///< video info/command frame
+};
+
+enum {
     FLV_MONO   = 0,
     FLV_STEREO = 1,
 };
@@ -415,6 +423,9 @@ BOOL AudioStreamBasicDescriptionEqual(const AudioStreamBasicDescription *a, cons
         KMediaSample *sample = [[KMediaSample alloc] init];
         sample.ts = CMTimeMake(pts, 1000);
         sample.type = _type;
+        sample.key = ((flags & FLV_VIDEO_FRAMETYPE_MASK) == FLV_FRAME_KEY);
+        
+        
         
         sample.data = [[NSData alloc] initWithBytes:ptr length:restSz];
         [self pushSample:sample];
