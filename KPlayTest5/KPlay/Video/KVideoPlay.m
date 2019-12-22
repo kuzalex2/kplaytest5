@@ -26,7 +26,7 @@
     GLKView *glkView;
     CIContext *ciContext;
     EAGLContext *eaglContext;
-    KMediaSample * __block last_sample ;
+    KMediaSample * __block displayed_sample ;
 }
 
 - (instancetype)initWithView:(UIView *)view
@@ -111,14 +111,14 @@
 //    return;
     @synchronized (self) {
         
-        if (last_sample==nil) {
+        if (displayed_sample==nil) {
             glClear(GL_COLOR_BUFFER_BIT);
             return;
         }
       
         @autoreleasepool {
         
-            CIImage *sourceImage = [CIImage imageWithCVPixelBuffer:(CVPixelBufferRef)((KMediaSampleImageBuffer *)last_sample).image options:nil];
+            CIImage *sourceImage = [CIImage imageWithCVPixelBuffer:(CVPixelBufferRef)((KMediaSampleImageBuffer *)displayed_sample).image options:nil];
             CGRect sourceExtent = sourceImage.extent;
         
         
@@ -164,8 +164,8 @@
     
     @synchronized (self) {
         if (s!=nil){
-            last_sample = nil;
-            last_sample = (KMediaSampleImageBuffer *)s;
+            displayed_sample = nil;
+            displayed_sample = (KMediaSampleImageBuffer *)s;
         }
     }
     [glkView display];
@@ -174,18 +174,18 @@
 -(CMTime)position
 {
     @synchronized (self) {
-        if (last_sample!=nil)
-            return last_sample.ts;
+        if (displayed_sample!=nil)
+            return displayed_sample.ts;
         return CMTimeMake(0, 1);
     }
 }
 
 
 
--(void)flush
+-(void)flushAndDisplayBlack
 {
     @synchronized (self) {
-        last_sample=nil;
+        displayed_sample=nil;
     }
     [glkView display];
 }
@@ -249,7 +249,7 @@
 {
     switch (_state) {
         case KFilterState_STOPPED:
-            [_video flush];
+            [_video flushAndDisplayBlack];
             _last_sample = nil;
             
             break;
@@ -354,7 +354,7 @@
 
 -(KResult)flush
 {
-    [_video flush];
+//    [_video flush];
     _last_sample=nil;
     return KResult_OK;
 }
