@@ -23,33 +23,35 @@
                                     <outletCollection property="gestureRecognizers" destination="zlt-Hw-vhH" appends="YES" id="fJL-Nt-R3C"/>
                                 </connections>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NTd-LC-HLT" userLabel="PlayPauseView">
-                                <rect key="frame" x="87" y="304" width="240" height="128"/>
+                            <view alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NTd-LC-HLT" userLabel="PlayPauseView">
+                                <rect key="frame" x="117" y="348" width="180" height="40"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UGW-qI-E5F" userLabel="PauseButton">
-                                        <rect key="frame" x="153" y="49" width="42" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="Pause"/>
-                                        <connections>
-                                            <action selector="onPauseClick:" destination="BYZ-38-t0r" eventType="touchDown" id="tet-eZ-vXt"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gzW-bF-0nf" userLabel="PlayButton">
-                                        <rect key="frame" x="46" y="49" width="30" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gzW-bF-0nf" userLabel="PlayButton">
+                                        <rect key="frame" x="22" y="5" width="30" height="30"/>
                                         <state key="normal" title="Play"/>
                                         <connections>
                                             <action selector="onPlayClick:" destination="BYZ-38-t0r" eventType="touchDown" id="5MA-L7-bhj"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UGW-qI-E5F" userLabel="PauseButton">
+                                        <rect key="frame" x="116" y="5" width="42" height="30"/>
+                                        <state key="normal" title="Pause"/>
+                                        <connections>
+                                            <action selector="onPauseClick:" destination="BYZ-38-t0r" eventType="touchDown" id="tet-eZ-vXt"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
-                                <color key="backgroundColor" systemColor="systemPinkColor" red="1" green="0.1764705882" blue="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="128" id="ih6-dW-rUv"/>
-                                    <constraint firstAttribute="width" constant="240" id="uRL-Z0-Xy7"/>
+                                    <constraint firstAttribute="trailing" secondItem="UGW-qI-E5F" secondAttribute="trailing" constant="22" id="ES6-1t-Dil"/>
+                                    <constraint firstItem="UGW-qI-E5F" firstAttribute="centerY" secondItem="NTd-LC-HLT" secondAttribute="centerY" id="Efd-Pf-yM0"/>
+                                    <constraint firstAttribute="width" constant="180" id="RhP-C6-ZCb"/>
+                                    <constraint firstAttribute="height" constant="40" id="gEF-6O-cYb"/>
+                                    <constraint firstItem="gzW-bF-0nf" firstAttribute="centerY" secondItem="NTd-LC-HLT" secondAttribute="centerY" id="nst-3u-Qmx"/>
+                                    <constraint firstItem="gzW-bF-0nf" firstAttribute="leading" secondItem="NTd-LC-HLT" secondAttribute="leading" constant="22" id="qef-xP-O5B"/>
                                 </constraints>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xb2-ab-g0l" userLabel="ControlsView">
+                            <view alpha="0.94999999999999996" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xb2-ab-g0l" userLabel="ControlsView">
                                 <rect key="frame" x="8" y="680" width="398" height="48"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00.00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oNR-Jh-RGN" userLabel="timeLabel">
@@ -80,7 +82,7 @@
                                         </connections>
                                     </slider>
                                 </subviews>
-                                <color key="backgroundColor" systemColor="systemGreenColor" red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="48" id="4gt-p6-ENT"/>
                                     <constraint firstItem="00e-py-Ela" firstAttribute="leading" secondItem="oNR-Jh-RGN" secondAttribute="trailing" constant="8" id="Agp-1y-oaY"/>
@@ -92,7 +94,7 @@
                                     <constraint firstItem="oNR-Jh-RGN" firstAttribute="leading" secondItem="xb2-ab-g0l" secondAttribute="leading" id="omr-53-8bb"/>
                                 </constraints>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fu5-6Q-O61" userLabel="DebugView">
+                            <view alpha="0.25" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fu5-6Q-O61" userLabel="DebugView">
                                 <rect key="frame" x="240" y="8" width="166" height="128"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="status..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bhw-Bu-8j5" userLabel="StatusLabel">
@@ -116,7 +118,7 @@
                                         </connections>
                                     </button>
                                 </subviews>
-                                <color key="backgroundColor" systemColor="systemBrownColor" red="0.63529411759999999" green="0.51764705879999995" blue="0.36862745099999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="166" id="0Nq-6l-C5a"/>
                                     <constraint firstAttribute="height" constant="128" id="6FK-Bi-AYw"/>
