@@ -507,44 +507,15 @@ class ViewController: UIViewController, KPlayerEvents {
         playRtmpSample();
 
         return;
-        
-        if player == nil {
-//            player = KTestGraph();
-//            player = KTestWavGraph();
-//            player = KTestRtmpVPlayGraph(self.videoView);
-//            player = KTestRtmpAPlayGraph();
-            
-            player = KTestRtmpAVPlayGraph(self.videoView);
-            
-            player?.events = self
-        }
-
-//        player?.play("rtmp://138.201.222.150:1935/vod/testa2.flv", autoStart: true);
-//        player?.play("rtmp://138.201.222.150:1935/vod/testa.flv", autoStart: true);
-//        player?.play("rtmp://138.201.222.150:1935/vod/testa.mp4", autoStart: true);
-//        player?.play("rtmp://138.201.222.150:1935/vod/testv.mp4", autoStart: true);
-//        player?.play("rtmp://138.201.222.150:1935/vod/test.mp4", autoStart: true);
-//        player?.play("rtmp://138.201.222.150:1935/vod/bb.mp4", autoStart: true);
-//        player?.play("rtmp://138.201.222.150:1935/vod/bb10.mp4", autoStart: true);
-//        player?.play("rtmp://138.201.222.150:1935/vod/starwars_1080p.mp4", autoStart: true);
-//        player?.play("rtmp://138.201.222.150:1935/vod/adv2.mp4", autoStart: true);
-//        player?.play("rtmp://138.201.222.150:1935/vod/bb.flv", autoStart: true);
-            player?.play("rtmp://138.201.222.150:1935/vod/test.flv", autoStart: true);
-//        player?.play("rtmp://138.201.222.150:1935/vod/testamonoaac.flv", autoStart: true);
-//        player?.play("rtmp://138.201.222.150:1935/myapp/stream", autoStart: true);
-//        player?.play("rtmp://138.201.222.150:1936/vod/test.mp4", autoStart: true);
-
-//        _ = player?.play("http://p.kuzalex.com/wav/gr.wav", autoStart: true)
-//        _ = player?.play("http://s-21.app.minutta.com/vk/test2.wav", autoStart: true)
-        
-//        _ = player?.play("http://p.kuzalex.com/wav/testa2.wav", autoStart: true)
-//        _ = player?.play("http://p.kuzalex.com/wav/dom17.wav", autoStart: true)
-//        _ = player?.play("http://p.kuzalex.com/wav/pipe0.wav", autoStart: true)
-//        _ = player?.play("http://p.kuzalex.com/wav/pipe.wav", autoStart: false)
-//        _ = player?.play("http://p.kuzalex.com/wav/2.wav", autoStart: true)
-
     }
     
+    
+    
+    //            player = KTestGraph();
+    //            player = KTestWavGraph();
+    //            player = KTestRtmpVPlayGraph(self.videoView);
+    //            player = KTestRtmpAPlayGraph();
+    //            player = KTestRtmpAVPlayGraph(self.videoView);
     
     func playWavSample() {
         if player == nil {
