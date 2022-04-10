@@ -43,6 +43,11 @@ import BufferSlider
 //    }
 //}
 
+///
+/// [ KAudioWavSource ] -> [ KBufferQueue ] -> [KAudioPlay]
+///
+///
+
 class KTestWavGraph : KPlayGraphChainBuilder {
     
     override func play(_ url: String, autoStart: Bool) -> KResult {
@@ -66,6 +71,11 @@ class KTestWavGraph : KPlayGraphChainBuilder {
     }
 }
 
+///
+/// [ KRtmpSource ] -> [KAudioPlay]
+///
+///
+
 class KTestRtmpAPlayPCMGraph : KPlayGraphChainBuilder {
     
     override func play(_ url: String, autoStart: Bool) -> KResult {
@@ -87,6 +97,11 @@ class KTestRtmpAPlayPCMGraph : KPlayGraphChainBuilder {
         return super.play(url, autoStart: autoStart)
     }
 }
+
+///
+/// [ KRtmpSource ] -> [KBufferQueue] -> [KAudioDecoder] -> [KAudioPlay]
+///
+///
 
 class KTestRtmpAPlayGraph : KPlayGraphChainBuilder {
     
@@ -112,6 +127,10 @@ class KTestRtmpAPlayGraph : KPlayGraphChainBuilder {
     }
 }
 
+///
+/// [ KRtmpSource ] -> [KBufferQueue] -> [KVideoDecoder] -> [KVideoPlay]
+///
+///
 
 class KTestRtmpVPlayGraph : KPlayGraphChainBuilder {
     
@@ -146,6 +165,12 @@ class KTestRtmpVPlayGraph : KPlayGraphChainBuilder {
     
    
 }
+
+///
+/// [ KRtmpSource ] -> [KBufferQueue] -> [KAudioDecoder] -> [KAudioPlay]
+///              -> [KBufferQueue]  -> [KVideoDecoder] -> [KBufferQueue]  -> [KVideoPlay]
+///
+///
 
 class KTestRtmpAVPlayGraph : KPlayGraphChainBuilder {
     
