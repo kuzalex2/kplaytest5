@@ -9,8 +9,8 @@
 
 #import "KRtmpSource.h"
 
-//#define MYDEBUG
-//#define MYWARN
+#define MYDEBUG
+#define MYWARN
 #import "myDebug.h"
 
 #import "librtmp/rtmp_sys.h"
@@ -244,7 +244,7 @@ void RTMP_Interrupt(RTMP *r)
                 if (!packet.m_nBodySize)
                     continue;
                 
-                DLog(@"<%@> Got pkt type=%@ ts=%d len=%d", [self name], [self rtmpPacketStringForType:packet.m_packetType], (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
+                DLog(@"<%@> 1Got pkt type=%@ ts=%d len=%d", [self name], [self rtmpPacketStringForType:packet.m_packetType], (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
                 
                 if (packet.m_packetType == RTMP_PACKET_TYPE_INFO) {
                     
@@ -295,7 +295,7 @@ void RTMP_Interrupt(RTMP *r)
                 if (!packet.m_nBodySize)
                     continue;
                 
-                DLog(@"<%@> Got pkt type=%@ ts=%d len=%d", [self name], [self rtmpPacketStringForType:packet.m_packetType], (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
+                DLog(@"<%@> 2Got pkt type=%@ ts=%d len=%d", [self name], [self rtmpPacketStringForType:packet.m_packetType], (int)packet.m_nTimeStamp, (int)packet.m_nBodySize);
                 if ( packet.m_packetType == RTMP_PACKET_TYPE_AUDIO && has_audio){
 
                     
@@ -324,11 +324,37 @@ void RTMP_Interrupt(RTMP *r)
                     
                     RTMPPacket_Free(&packet);
                     
+//                    bool b = false;
+//                    if ( (int)packet.m_nTimeStamp == 6757) {
+//                        if ((int)packet.m_nBodySize == 8500) {
+//                            packet.m_nTimeStamp = 6758;
+//                            b=true;
+//                        }
+//                    }
+//                    if ( (int)packet.m_nTimeStamp == 12260) {
+//                        if ((int)packet.m_nBodySize == 8351) {
+//                            packet.m_nTimeStamp = 12261;
+//                            b=true;
+//                        }
+//
+//                    }
+//
+                    //type:9, size:8346, last:-1, dts:12260 d:46 k=0 pos:3654411
+                    //type:9, size:10838, last:-1, dts:12260 d:0 k=0 pos:3665269
+//                    type:9, size:11124, last:-1, dts:8592 d:47 k=0 pos:2548652
+//                    type:9, size:8527, last:-1, dts:8592 d:0 k=0 pos:2557531
+                   
+                    
                     
                     if (pin == _video_pin){
                         *sample = [_stream_video popSamplewithProbe:probe];
-                        if (*sample!=nil)
+                        if (*sample!=nil) {
+//                            if (b){
+//                                (*sample).ts = CMTimeMake(packet.m_nTimeStamp, 1000);
+//                            }
+//                            sample.ts = sample.ts + 1;
                             return KResult_OK;
+                        }
                     }
                     
                 } else if (packet.m_packetType == RTMP_PACKET_TYPE_INFO) {

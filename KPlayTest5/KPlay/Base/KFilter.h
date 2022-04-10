@@ -60,7 +60,8 @@ NSString *KFilterState2String(KFilterState state);
     -(KResult)waitSemaphoreOrState:(dispatch_semaphore_t)sem;
 
     -(KResult)start;
-    -(KResult)pause;//:(BOOL)waitUntilPaused;
+    -(KResult)pause:(BOOL)doNothingIfAlreadyPaused;
+
     -(KResult)stop;//:(BOOL)waitUntilStopped;
     -(KResult)seekTo:(float)sec;
     -(BOOL)canRewindTo:(float)sec;
@@ -92,19 +93,12 @@ NSString *KFilterState2String(KFilterState state);
 
 
 @interface KThreadFilter : KFilter
-//{
-//    @protected BOOL processInPause;
-//}
-    //@property void (^error_callback2)(KResult result, NSError *error);
-   // -(KResult)start;
-   // -(KResult)pause;
-   // -(KResult)stop;
+
 
     -(KResult)onThreadTick:(NSError *__strong*)ppError;
 @end
 
 @interface KTransformFilter : KFilter
-    //-(KResult)pullSample:(KMediaSample *_Nonnull*_Nullable)sample probe:(BOOL)probe error:(NSError **)error;
 
 
     -(KResult)onTransformSample:(KMediaSample *_Nonnull*_Nullable)sample error:(NSError *__strong*)error;

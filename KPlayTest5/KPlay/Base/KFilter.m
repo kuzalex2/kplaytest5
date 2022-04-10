@@ -201,11 +201,12 @@ NSString *KFilterState2String(KFilterState state)
 
     return KResult_OK;
 }
--(KResult)pause;//:(BOOL)waitUntilPaused
+-(KResult)pause:(BOOL)doNothingIfAlreadyPaused
 {
     [self setStateAndNotify:KFilterState_PAUSED];
     return KResult_OK;
 }
+
 -(KResult)stop;//:(BOOL)waitUntilStopped
 {
     while (1)
@@ -374,7 +375,7 @@ NSString *KFilterState2String(KFilterState state)
     });
 }
 
--(KResult)pause;//:(BOOL)waitUntilPaused
+-(KResult)pause:(BOOL)doNothingIfAlreadyPaused
 {
     BOOL first=TRUE;
     while (1)
@@ -383,6 +384,8 @@ NSString *KFilterState2String(KFilterState state)
             DLog(@"<%@>State is %@", [self name], KFilterState2String(_state));
             switch (_state) {
                 case KFilterState_PAUSED:
+                    if (doNothingIfAlreadyPaused)
+                        return KResult_OK;
                     if (!first)
                         return _thread_error;
                     
@@ -410,17 +413,13 @@ NSString *KFilterState2String(KFilterState state)
                     break;
             }
         }
-        
-//        if (!waitUntilPaused)
-//            return _thread_error;
-        
+             
         first=FALSE;
-        //dispatch_time(DISPATCH_TIME_NOW, 500 * NSEC_PER_MSEC)
-       // NSLog(@"Here 1");
+
         dispatch_semaphore_wait(_pausing_sem, DISPATCH_TIME_FOREVER);
-      //  NSLog(@"Here 2");
     }
 }
+
 
 
 

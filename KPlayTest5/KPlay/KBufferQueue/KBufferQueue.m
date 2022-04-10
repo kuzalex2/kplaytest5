@@ -128,6 +128,7 @@
     DLog3(@"queue pushSample %@",sample);
     
     if (orderByTimestamp) {
+    //if (true /*orderByTimestamp*/) {
         [samples2 addOrdered:sample withCompare: ^NSComparisonResult(id a, id b){
             KMediaSample *A = a;
             KMediaSample *B = b;

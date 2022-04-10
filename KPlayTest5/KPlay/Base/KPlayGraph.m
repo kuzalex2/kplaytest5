@@ -157,7 +157,7 @@
         f.events = self;
         
         DLog(@"<%@> pausing", [f name]);
-        if ((res = [f pause]) != KResult_OK ) {
+        if ((res = [f pause:FALSE]) != KResult_OK ) {
             return res;
         }
         
@@ -217,6 +217,8 @@
     {
         KResult res;
         
+        NSMutableArray<KFilter*> *filtersToPause = [[NSMutableArray alloc]init];
+        
         for (int dry_run=1; dry_run>=0; dry_run--)
         {
             for (NSMutableArray<KFilter*> * chain in _connectchain) {
@@ -225,6 +227,12 @@
                 for (int I=((int)chain.count)-1;I>=0 && !chainOK;I--)
                 {
                     KFilter* filter = chain[I];
+                    
+                    res = [filter pause:TRUE];
+                    if (res!=KResult_OK) {
+                        DLog(@"%d: <%@> pause failed: %@", dry_run, [filter name], KResult2Error(res));
+                        return FALSE;
+                    }
                     
                     DLog(@"%d: <%@> check can rewind to %f", dry_run, [filter name], sec);
                     
@@ -240,8 +248,19 @@
                                 return FALSE;
                             }
                             
+                           // [filtersToPause addObject:filter];
+                            
                             for (int j=I+1;j<(int)chain.count;j++){
                                 KFilter* filter = chain[j];
+                               
+                                res = [filter pause:TRUE];
+                                if (res!=KResult_OK) {
+                                    DLog(@"%d: <%@> pause failed: %@", dry_run, [filter name], KResult2Error(res));
+                                    return FALSE;
+                                }
+                                
+                                [filtersToPause addObject:filter];
+                                
                                 DLog(@"%d: <%@> flushing", dry_run, [filter name]);
                                 res = [filter flush];
                                 if (res!=KResult_OK) {
@@ -260,6 +279,16 @@
             }
         }
         
+        for (KFilter *filter in filtersToPause)
+        {
+            DLog(@"<%@> pausing ",[filter name]);
+                                          
+            res = [filter pause:FALSE];
+            if (res!=KResult_OK) {
+                DLog(@"<%@> pause failed: %@", [filter name], KResult2Error(res));
+                return FALSE;
+            }
+        }
         return _connectchain.count>0;
     }
 
@@ -303,36 +332,50 @@
             
             KResult res;
 
-            switch (prevState) {
-                case KGraphState_PAUSED:
-                case KGraphState_EOF:
-                    break;
-                case KGraphState_STARTED:
-                    {
-                        for (KFilter* filter in  [_flowchain reverseObjectEnumerator] ) {
-                            DLog(@"<%@> pausing", [filter name]);
-                            res = [filter pause];
-                            if (res!=KResult_OK) {
-                                DLog(@"<%@> pause failed", [filter name]);
-                                
-                                [self notifyError: KResult2Error(res)];
-                                [self stop];
-                                return;
-                                
-                            }
-                        }
-                        
-                        DLog(@"ALL PAUSED. start seeking");
-                    }
-                    break;
-                default:
-                    assert(0);
-                    return;
-            }
+//            switch (prevState) {
+//                case KGraphState_PAUSED:
+//                case KGraphState_EOF:
+//                    break;
+//                case KGraphState_STARTED:
+//                    {
+//                        for (KFilter* filter in  [_flowchain reverseObjectEnumerator] ) {
+//                            DLog(@"<%@> pausing", [filter name]);
+//                            res = [filter pause:TRUE];
+//                            if (res!=KResult_OK) {
+//                                DLog(@"<%@> pause failed", [filter name]);
+//
+//                                [self notifyError: KResult2Error(res)];
+//                                [self stop];
+//                                return;
+//
+//                            }
+//                        }
+//
+//                        DLog(@"ALL PAUSED. start seeking");
+//                    }
+//                    break;
+//                default:
+//                    assert(0);
+//                    return;
+//            }
             
             
             DLog(@"<KTestGraphChainBuilder> try rewind to %f", sec);
             if (![self tryRewindTo2:sec]){
+                
+                for (KFilter* filter in  [_flowchain reverseObjectEnumerator] ) {
+                    DLog(@"<%@> pausing", [filter name]);
+                    res = [filter pause:TRUE];
+                    if (res!=KResult_OK) {
+                        DLog(@"<%@> pause failed", [filter name]);
+                        
+                        [self notifyError: KResult2Error(res)];
+                        [self stop];
+                        return;
+                        
+                    }
+                }
+                
                 DLog(@"<KTestGraphChainBuilder> try seek to %f", sec);
                 if ((res=[self trySeekTo:sec])!=KResult_OK){
                     DLog(@"<KTestGraphChainBuilder> seek impossible");
@@ -340,22 +383,24 @@
                     [self stop];
                     return;
                 }
-            }
-            
-            
-            
-            for (KFilter* filter in _flowchain)
-            {
-                DLog(@"<%@> pausing", [filter name]);
-                res = [filter pause];
-                if (res!=KResult_OK) {
-                    DLog(@"<%@> pause failed", [filter name]);
-                    
-                    [self notifyError: KResult2Error(res)];
-                    [self stop];
-                    return;
+                
+                for (KFilter* filter in _flowchain)
+                {
+                    DLog(@"<%@> pausing", [filter name]);
+                    res = [filter pause:FALSE];
+                    if (res!=KResult_OK) {
+                        DLog(@"<%@> pause failed", [filter name]);
+                        
+                        [self notifyError: KResult2Error(res)];
+                        [self stop];
+                        return;
+                    }
                 }
             }
+            
+            
+            
+
             
             switch (prevState) {
                 case KGraphState_STOPPED:
@@ -487,7 +532,7 @@
             for (size_t i = 0; i< _flowchain.count; i++)
             {
                 DLog(@"KTestGraphChainBuilder pausing %@", [_flowchain[i] name]);
-                if ((res = [_flowchain[i] pause]) != KResult_OK){
+                if ((res = [_flowchain[i] pause:FALSE]) != KResult_OK){
                     [self notifyError: KResult2Error(res)];
                     [self stop];
                     return res;
@@ -543,7 +588,7 @@
                     KResult res;
                     for (KFilter* filter in forward ? self->_flowchain : [self->_flowchain reverseObjectEnumerator]) {
                         DLog(@"<%@> pausing", [filter name]);
-                        res = [filter pause];
+                        res = [filter pause:FALSE];
                         if (res!=KResult_OK) {
                             DLog(@"<%@> pause failed", [filter name]);
                             
@@ -749,7 +794,7 @@
                     KResult res;
                     for (KFilter* filter in  [self->_flowchain reverseObjectEnumerator]) {
                         DLog(@"<%@> pausing", [filter name]);
-                        res = [filter pause];
+                        res = [filter pause:FALSE];
                         if (res!=KResult_OK) {
                             DLog(@"<%@> pause failed", [filter name]);
                             

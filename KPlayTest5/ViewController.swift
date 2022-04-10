@@ -161,6 +161,7 @@ class KTestRtmpAVPlayGraph : KPlayGraphChainBuilder {
                 super.flowchain.removeAllObjects();
                 super.flowchain.add(KRtmpSource(url: url, andBufferSec: 120));                                                   //0
                 super.flowchain.add(KBufferQueue(firstStartBufferSec: 0.3, andSecondStartBufferSec: 3, andMaxBufferSec: 120));  //1
+//                super.flowchain.add(KBufferQueue(firstStartBufferSec: 15.3, andSecondStartBufferSec: 3, andMaxBufferSec: 120));
                 super.flowchain.add(KAudioDecoder());                                                                           //2
                 super.flowchain.add(KAudioPlay());                                                                              //3
                 
@@ -502,18 +503,18 @@ class ViewController: UIViewController, KPlayerEvents {
     }
     @IBAction func onPlayClick(_ sender: Any?) {
         NSLog("onPlay");
-        
-//        UIApplication.shared.delegate?.window
-        
-//        UIView *window = ((AppDelegate *)  ( [UIApplication sharedApplication].delegate)).window;
+//        playWavSample();
+        playRtmpSample();
+
+        return;
         
         if player == nil {
 //            player = KTestGraph();
 //            player = KTestWavGraph();
-            player = KTestRtmpVPlayGraph(self.videoView);
+//            player = KTestRtmpVPlayGraph(self.videoView);
 //            player = KTestRtmpAPlayGraph();
             
-//            player = KTestRtmpAVPlayGraph(self.videoView);
+            player = KTestRtmpAVPlayGraph(self.videoView);
             
             player?.events = self
         }
@@ -521,13 +522,14 @@ class ViewController: UIViewController, KPlayerEvents {
 //        player?.play("rtmp://138.201.222.150:1935/vod/testa2.flv", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testa.flv", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testa.mp4", autoStart: true);
-        player?.play("rtmp://138.201.222.150:1935/vod/testv.mp4", autoStart: true);
+//        player?.play("rtmp://138.201.222.150:1935/vod/testv.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/test.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb10.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/starwars_1080p.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/adv2.mp4", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/bb.flv", autoStart: true);
+            player?.play("rtmp://138.201.222.150:1935/vod/test.flv", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/vod/testamonoaac.flv", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1935/myapp/stream", autoStart: true);
 //        player?.play("rtmp://138.201.222.150:1936/vod/test.mp4", autoStart: true);
@@ -542,6 +544,26 @@ class ViewController: UIViewController, KPlayerEvents {
 //        _ = player?.play("http://p.kuzalex.com/wav/2.wav", autoStart: true)
 
     }
+    
+    
+    func playWavSample() {
+        if player == nil {
+            player = KTestWavGraph();
+            player?.events = self
+        }
+        player?.play("http://flutter-webrtc.kuzalex.com/files/file_example_WAV_1MG.wav", autoStart: true)
+        
+    }
+    
+    func playRtmpSample() {
+        if player == nil {
+            player = KTestRtmpAVPlayGraph(self.videoView);
+            player?.events = self
+        }
+        player?.play("rtmp://flutter-webrtc.kuzalex.com/vod/test1.mp4", autoStart: true)
+        
+    }
+    
     
     
 }
